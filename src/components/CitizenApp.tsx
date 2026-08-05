@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
-import { Incident, IncidentCategory, LogronoSector, LanguageMode, AIAnalysisResult, PQRSItem } from '../types';
+import { Incident, IncidentCategory, LogronoSector, LanguageMode, AIAnalysisResult, UserProfile } from '../types';
 import { SHUAR_DICTIONARY } from '../data/shuarDictionary';
 import { LogronoGoogleMap } from './LogronoGoogleMap';
 import { 
   PlusCircle, 
   MapPin, 
-  Camera, 
   CheckCircle2, 
   AlertTriangle, 
   Clock, 
-  ListFilter, 
   Send, 
   Sparkles, 
   PhoneCall, 
@@ -18,14 +16,38 @@ import {
   Maximize2, 
   Minimize2, 
   Volume2, 
-  Share2, 
   RefreshCw,
-  Search,
   UserCheck,
   ShieldCheck,
   Flame,
   Ambulance,
-  Car
+  ArrowLeft,
+  Bell,
+  Calendar,
+  Newspaper,
+  Siren,
+  FileCheck,
+  Home,
+  User,
+  Plus,
+  X,
+  LogOut,
+  Building2,
+  HelpCircle,
+  Map,
+  Layers,
+  Lightbulb,
+  Droplets,
+  Waves,
+  Milestone,
+  Trash2,
+  Trees,
+  ShieldAlert,
+  Camera,
+  Check,
+  Upload,
+  Navigation,
+  Image as ImageIcon
 } from 'lucide-react';
 
 interface CitizenAppProps {
@@ -33,27 +55,41 @@ interface CitizenAppProps {
   onAddIncident: (newInc: Incident) => void;
   lang: LanguageMode;
   isOnline: boolean;
+  currentUser?: UserProfile | null;
+  onLogout?: () => void;
 }
 
 export const CitizenApp: React.FC<CitizenAppProps> = ({
   incidents,
   onAddIncident,
   lang,
-  isOnline
+  isOnline,
+  currentUser,
+  onLogout
 }) => {
   const [citizenTab, setCitizenTab] = useState<'inicio' | 'reportar' | 'mis_reportes' | 'mapa' | 'pqrs' | 'directorio'>('inicio');
-  const [isPhoneFrame, setIsPhoneFrame] = useState<boolean>(false);
+  const [reportStep, setReportStep] = useState<'category' | 'wizard'>('category');
+  const [reportWizardStep, setReportWizardStep] = useState<1 | 2 | 3 | 4>(1);
+  const [misReportesFilter, setMisReportesFilter] = useState<'todos' | 'en_proceso' | 'solucionados'>('todos');
+  const [isPhoneFrame, setIsPhoneFrame] = useState<boolean>(true);
+
+  // Modals state for 6-grid & nav items
+  const [showNewsModal, setShowNewsModal] = useState(false);
+  const [showAgendaModal, setShowAgendaModal] = useState(false);
+  const [showEmergencyModal, setShowEmergencyModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
 
   // New Incident Form State
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<IncidentCategory>('Vías y Aceras');
-  const [sector, setSector] = useState<LogronoSector>('Logroño Centro (Cabecera)');
+  const [sector, setSector] = useState<LogronoSector>(currentUser?.sector || 'Logroño Centro (Cabecera)');
   const [address, setAddress] = useState('Calle 10 de Agosto y Av. Intercultural, Logroño');
   const [reference, setReference] = useState('');
-  const [citizenName, setCitizenName] = useState('Luis Shakaim');
+  const [citizenName, setCitizenName] = useState(currentUser?.name || 'María Shakaim');
   const [citizenPhone, setCitizenPhone] = useState('0984712039');
-  const [citizenCedula, setCitizenCedula] = useState('1400829104');
+  const [citizenCedula, setCitizenCedula] = useState(currentUser?.cedula || '1400829104');
   const [photoUrl, setPhotoUrl] = useState<string>('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&auto=format&fit=crop&q=80');
   
   // AI Analysis State
@@ -127,7 +163,6 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
       }
     } catch (err) {
       console.warn('Fallback local AI classification:', err);
-      // Fallback
       setAiPreview({
         score: category === 'Agua Potable y Alcantarillado' ? 5 : 3,
         priority: category === 'Agua Potable y Alcantarillado' ? 'critica' : 'media',
@@ -146,17 +181,18 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
   };
 
   // Submit Incident Handler
-  const handleSubmitIncident = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title || !description) return;
+  const handleSubmitIncident = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!description) return;
 
     setIsSubmitting(true);
-    const newCode = `LOG-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+    const randomNum = String(Math.floor(10 + Math.random() * 9899)).padStart(5, '0');
+    const newCode = `RPT-2026-${randomNum}`;
 
     const newIncident: Incident = {
       id: `inc-${Date.now()}`,
       code: newCode,
-      title,
+      title: title || `${category} - ${address}`,
       description,
       category: aiPreview?.suggestedCategory || category,
       status: 'reportado',
@@ -164,7 +200,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
       location: {
         lat: sector === 'Parroquia Yaupi' ? -2.6315 : sector === 'Parroquia Shimpis' ? -2.6102 : -2.6280,
         lng: sector === 'Parroquia Yaupi' ? -78.1824 : sector === 'Parroquia Shimpis' ? -78.1450 : -78.1760,
-        address: address || 'Sector ' + sector + ', Logroño',
+        address: address || 'Calle 24 de Mayo y Sucre',
         sector,
         reference
       },
@@ -201,11 +237,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
       onAddIncident(newIncident);
       setIsSubmitting(false);
       setSubmitSuccess(newCode);
-      // Reset fields
-      setTitle('');
-      setDescription('');
-      setReference('');
-      setAiPreview(null);
+      setReportWizardStep(4);
     }, 600);
   };
 
@@ -217,698 +249,1487 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
     }, 3500);
   };
 
+  // User display name helper (e.g., "María")
+  const userFirstName = currentUser?.name ? currentUser.name.split(' ')[0] : 'María';
+
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4">
-      {/* Device Frame Switcher Bar */}
-      <div className="flex justify-between items-center bg-slate-100 dark:bg-slate-800 p-2 rounded-xl mb-4 border border-slate-200 dark:border-slate-700">
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 py-2 sm:py-4">
+      
+      {/* Frame Switcher Bar */}
+      <div className="flex justify-between items-center bg-slate-200 dark:bg-slate-800 p-2 rounded-xl mb-3 border border-slate-300 dark:border-slate-700">
         <div className="flex items-center space-x-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
-          <span className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded font-bold uppercase">
-            PWA Android / iOS
+          <span className="bg-[#0A4191] text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+            Logroño Conecta Mobile
           </span>
-          <span>Visor de Aplicación Ciudadana</span>
+          <span className="hidden sm:inline">Vista de la Aplicación Móvil</span>
         </div>
         
         <button
           onClick={() => setIsPhoneFrame(!isPhoneFrame)}
           id="btn-toggle-phone-frame"
-          className="flex items-center space-x-1.5 bg-white dark:bg-slate-700 hover:bg-slate-200 text-slate-800 dark:text-slate-100 text-xs px-3 py-1 rounded-lg border border-slate-300 dark:border-slate-600 shadow-sm transition-all cursor-pointer font-medium"
+          className="flex items-center space-x-1.5 bg-white dark:bg-slate-700 hover:bg-slate-100 text-slate-800 dark:text-slate-100 text-xs px-3 py-1 rounded-lg border border-slate-300 dark:border-slate-600 shadow-sm transition-all cursor-pointer font-medium"
         >
           {isPhoneFrame ? (
             <>
               <Maximize2 className="w-3.5 h-3.5" />
-              <span>Vista Pantalla Completa</span>
+              <span>Vista Extendida</span>
             </>
           ) : (
             <>
               <Minimize2 className="w-3.5 h-3.5" />
-              <span>Simulador Smartphone</span>
+              <span>Formato Smartphone</span>
             </>
           )}
         </button>
       </div>
 
-      {/* Main Container (Wrapped in Phone Mockup if active) */}
-      <div className={isPhoneFrame ? "max-w-sm mx-auto bg-slate-900 p-3 rounded-[36px] shadow-2xl border-4 border-slate-800" : ""}>
+      {/* Main Smartphone Layout Box */}
+      <div className={isPhoneFrame ? "max-w-sm mx-auto bg-slate-950 p-2 sm:p-3 rounded-[40px] shadow-2xl border-4 border-slate-800" : "max-w-2xl mx-auto"}>
         
-        {/* Smartphone Screen Border Header if Frame active */}
+        {/* Smartphone Screen Notch Header */}
         {isPhoneFrame && (
-          <div className="flex justify-between items-center px-4 py-1 text-[10px] font-semibold text-slate-400 bg-slate-950 rounded-t-[28px] mb-2">
-            <span>09:41 AM</span>
-            <div className="w-16 h-3 bg-slate-800 rounded-full mx-auto"></div>
-            <span>5G 100%</span>
+          <div className="flex justify-between items-center px-5 py-1 text-[10px] font-semibold text-slate-400 bg-slate-950 rounded-t-[32px]">
+            <span>09:41</span>
+            <div className="w-20 h-4 bg-slate-900 rounded-full flex items-center justify-center">
+              <div className="w-3 h-3 rounded-full bg-slate-800" />
+            </div>
+            <div className="flex items-center space-x-1">
+              <span>5G</span>
+              <div className="w-4 h-2 bg-emerald-500 rounded-xs" />
+            </div>
           </div>
         )}
 
-        <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl shadow-md border border-slate-200 dark:border-slate-800 overflow-hidden">
+        {/* Smartphone Inner Screen Content */}
+        <div className="bg-slate-100 dark:bg-slate-900 rounded-[32px] shadow-inner overflow-hidden flex flex-col min-h-[720px] relative border border-slate-300 dark:border-slate-800">
           
-          {/* App Internal Header */}
-          <div className="bg-gradient-to-r from-emerald-800 via-emerald-900 to-teal-900 text-white p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-bold text-amber-300 tracking-wider uppercase">
-                  {lang === 'shuar' ? SHUAR_DICTIONARY.welcome.shuar : 'GAD Municipal Cantón Logroño'}
-                </span>
-                <h2 className="text-lg font-bold">Logroño Conecta</h2>
-              </div>
-              
-              {/* Shuar Audio Voiceover Simulator Button */}
-              <button
-                onClick={playShuarAudio}
-                className={`flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
-                  isPlayingAudio 
-                    ? 'bg-amber-400 text-slate-950 border-amber-300 animate-pulse' 
-                    : 'bg-emerald-950/80 text-amber-200 border-amber-500/40 hover:bg-emerald-900'
-                }`}
-                title="Escuchar audio-guía en Shuar Chicham"
-              >
-                <Volume2 className="w-3.5 h-3.5" />
-                <span>{isPlayingAudio ? 'Escuchando Shuar...' : 'Voz Shuar'}</span>
-              </button>
+          {/* ==================== 1. ROYAL BLUE HEADER ==================== */}
+          <div className="bg-gradient-to-b from-[#083578] via-[#0A4191] to-[#0D4FB0] text-white px-4 pt-4 pb-10 flex items-center justify-between relative z-10">
+            {/* Left Action: Back / Logout */}
+            <button
+              type="button"
+              onClick={() => {
+                if (citizenTab !== 'inicio') {
+                  setCitizenTab('inicio');
+                } else if (onLogout) {
+                  onLogout();
+                }
+              }}
+              className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition-all cursor-pointer active:scale-95 border border-white/20"
+              title="Volver al menú principal / Salir"
+            >
+              <ArrowLeft className="w-5 h-5 text-white" />
+            </button>
+
+            {/* Title: LOGROÑO CONECTA */}
+            <div className="text-center">
+              <h1 className="text-lg font-black tracking-wider text-white uppercase font-serif">
+                LOGROÑO CONECTA
+              </h1>
             </div>
 
-            {/* Sub-nav Tabs inside Citizen App */}
-            <div className="flex space-x-1 mt-3 pt-2 border-t border-emerald-700/60 overflow-x-auto text-xs font-medium">
-              <button
-                onClick={() => setCitizenTab('inicio')}
-                className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-all cursor-pointer ${
-                  citizenTab === 'inicio' ? 'bg-amber-500 text-slate-950 font-bold' : 'text-emerald-100 hover:bg-emerald-800/60'
-                }`}
-              >
-                Inicio
-              </button>
-              <button
-                onClick={() => setCitizenTab('reportar')}
-                className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-all flex items-center space-x-1 cursor-pointer ${
-                  citizenTab === 'reportar' ? 'bg-amber-500 text-slate-950 font-bold' : 'text-emerald-100 hover:bg-emerald-800/60'
-                }`}
-              >
-                <PlusCircle className="w-3.5 h-3.5" />
-                <span>Reportar</span>
-              </button>
-              <button
-                onClick={() => setCitizenTab('mis_reportes')}
-                className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-all flex items-center space-x-1 cursor-pointer ${
-                  citizenTab === 'mis_reportes' ? 'bg-amber-500 text-slate-950 font-bold' : 'text-emerald-100 hover:bg-emerald-800/60'
-                }`}
-              >
-                <span>Mis Reportes ({incidents.length})</span>
-              </button>
-              <button
-                onClick={() => setCitizenTab('mapa')}
-                className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-all cursor-pointer ${
-                  citizenTab === 'mapa' ? 'bg-amber-500 text-slate-950 font-bold' : 'text-emerald-100 hover:bg-emerald-800/60'
-                }`}
-              >
-                Mapa
-              </button>
-              <button
-                onClick={() => setCitizenTab('pqrs')}
-                className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-all cursor-pointer ${
-                  citizenTab === 'pqrs' ? 'bg-amber-500 text-slate-950 font-bold' : 'text-emerald-100 hover:bg-emerald-800/60'
-                }`}
-              >
-                PQRS
-              </button>
-              <button
-                onClick={() => setCitizenTab('directorio')}
-                className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-all cursor-pointer ${
-                  citizenTab === 'directorio' ? 'bg-amber-500 text-slate-950 font-bold' : 'text-emerald-100 hover:bg-emerald-800/60'
-                }`}
-              >
-                Directorio
-              </button>
-            </div>
+            {/* Right Action: Bell Notification */}
+            <button
+              type="button"
+              onClick={() => setShowNotificationModal(true)}
+              className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition-all cursor-pointer active:scale-95 border border-white/20 relative"
+              title="Notificaciones"
+            >
+              <Bell className="w-5 h-5 text-white" />
+              <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-amber-400 border-2 border-[#0A4191] animate-ping" />
+              <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-amber-400 border-2 border-[#0A4191]" />
+            </button>
           </div>
 
-          {/* TAB 1: INICIO */}
-          {citizenTab === 'inicio' && (
-            <div className="p-4 space-y-4">
-              {/* Emergency Banner */}
-              <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent p-3.5 rounded-xl border border-amber-500/30 flex items-start space-x-3">
-                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                <div className="text-xs">
-                  <h4 className="font-bold text-amber-900 dark:text-amber-300 uppercase tracking-wider">
-                    Alerta Cantonal: Época de Lluvias en Morona Santiago
-                  </h4>
-                  <p className="text-slate-700 dark:text-slate-300 mt-1">
-                    Se recomienda circular con precaución en la vía Logroño - Parroquia Yaupi por presencia de deslizamientos menores. Reporte cualquier obstrucción de inmediato.
+          {/* ==================== 2. MAIN SCREEN CONTENT AREA ==================== */}
+          <div className="flex-1 bg-white dark:bg-slate-900 rounded-t-[32px] -mt-7 relative z-20 px-4 pt-5 pb-20 overflow-y-auto">
+            
+            {/* TAB 1: HOME / INICIO VIEW (MATCHES SCREENSHOT EXACTLY) */}
+            {citizenTab === 'inicio' && (
+              <div className="space-y-5">
+                
+                {/* Greeting Section */}
+                <div className="space-y-0.5">
+                  <h2 className="text-2xl font-black text-slate-900 dark:text-white flex items-center space-x-2 font-serif">
+                    <span>¡Hola, {userFirstName}!</span>
+                    <span className="text-2xl">👋</span>
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                    ¿Cómo podemos ayudarte hoy?
                   </p>
                 </div>
-              </div>
 
-              {/* Quick Action Cards */}
-              <div className="grid grid-cols-2 gap-3">
-                <div 
-                  onClick={() => setCitizenTab('reportar')}
-                  className="bg-emerald-700 text-white p-4 rounded-xl shadow-sm hover:bg-emerald-800 transition-all cursor-pointer flex flex-col justify-between"
+                {/* Primary Action Button: "Reportar incidencia" */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setReportStep('category');
+                    setCitizenTab('reportar');
+                  }}
+                  className="w-full bg-[#159A44] hover:bg-[#128239] active:bg-[#0f6f30] text-white font-black py-4 px-6 rounded-2xl shadow-lg hover:shadow-emerald-600/30 transition-all cursor-pointer flex items-center justify-center space-x-2 text-base tracking-wide border border-emerald-500/30 group"
                 >
-                  <PlusCircle className="w-7 h-7 text-amber-300 mb-2" />
-                  <div>
-                    <h4 className="font-bold text-sm">
-                      {lang === 'shuar' ? SHUAR_DICTIONARY.report_incident.shuar : 'Reportar Incidencia'}
-                    </h4>
-                    <p className="text-[11px] text-emerald-100 mt-0.5">Vías, Agua, Alumbrado con foto y GPS</p>
+                  <PlusCircle className="w-5 h-5 text-amber-300 group-hover:scale-110 transition-transform" />
+                  <span>Reportar incidencia</span>
+                </button>
+
+                {/* Shuar Culture Audio Assist Banner */}
+                <div className="bg-emerald-950/90 text-emerald-100 p-2.5 rounded-xl border border-emerald-700/60 flex items-center justify-between text-xs">
+                  <div className="flex items-center space-x-2">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    <span className="font-semibold">Shuar Chicham Audio-Guía</span>
                   </div>
-                </div>
-
-                <div 
-                  onClick={() => setCitizenTab('mis_reportes')}
-                  className="bg-slate-800 text-white p-4 rounded-xl shadow-sm hover:bg-slate-700 transition-all cursor-pointer flex flex-col justify-between"
-                >
-                  <Clock className="w-7 h-7 text-emerald-400 mb-2" />
-                  <div>
-                    <h4 className="font-bold text-sm">
-                      {lang === 'shuar' ? SHUAR_DICTIONARY.my_reports.shuar : 'Seguimiento en Vivo'}
-                    </h4>
-                    <p className="text-[11px] text-slate-300 mt-0.5">Trazabilidad del GAD Logroño</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Emergency Numbers Quick Grid */}
-              <div>
-                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2 flex items-center space-x-1">
-                  <PhoneCall className="w-3.5 h-3.5 text-red-500" />
-                  <span>Números Directos de Emergencia (Logroño)</span>
-                </h4>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                  <a href="tel:911" className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 p-2.5 rounded-lg flex items-center space-x-2 text-red-700 dark:text-red-300 font-bold hover:bg-red-100">
-                    <Ambulance className="w-4 h-4 text-red-600" />
-                    <div>
-                      <span className="block text-[10px] uppercase">ECU 911</span>
-                      <span className="text-xs">911</span>
-                    </div>
-                  </a>
-
-                  <a href="tel:102" className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 p-2.5 rounded-lg flex items-center space-x-2 text-amber-800 dark:text-amber-300 font-bold hover:bg-amber-100">
-                    <Flame className="w-4 h-4 text-amber-600" />
-                    <div>
-                      <span className="block text-[10px] uppercase">Bomberos</span>
-                      <span className="text-xs">102</span>
-                    </div>
-                  </a>
-
-                  <a href="tel:101" className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 p-2.5 rounded-lg flex items-center space-x-2 text-blue-800 dark:text-blue-300 font-bold hover:bg-blue-100">
-                    <ShieldCheck className="w-4 h-4 text-blue-600" />
-                    <div>
-                      <span className="block text-[10px] uppercase">Policía</span>
-                      <span className="text-xs">101</span>
-                    </div>
-                  </a>
-
-                  <a href="tel:072700100" className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 p-2.5 rounded-lg flex items-center space-x-2 text-emerald-800 dark:text-emerald-300 font-bold hover:bg-emerald-100">
-                    <UserCheck className="w-4 h-4 text-emerald-600" />
-                    <div>
-                      <span className="block text-[10px] uppercase">GAD Municipio</span>
-                      <span className="text-xs">07-2700-100</span>
-                    </div>
-                  </a>
-                </div>
-              </div>
-
-              {/* Recent Active Community Incidents Stream */}
-              <div>
-                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                  Incidencias Recientes Atendidas en el Cantón
-                </h4>
-
-                <div className="space-y-2">
-                  {incidents.slice(0, 3).map((inc) => (
-                    <div 
-                      key={inc.id}
-                      onClick={() => setSelectedIncident(inc)}
-                      className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all cursor-pointer flex items-center justify-between"
-                    >
-                      <div className="flex items-center space-x-3">
-                        {inc.photoUrl ? (
-                          <img src={inc.photoUrl} alt="" className="w-12 h-12 rounded-lg object-cover border border-slate-200 dark:border-slate-700" />
-                        ) : (
-                          <div className="w-12 h-12 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-700 dark:text-emerald-300 font-bold text-xs">
-                            GAD
-                          </div>
-                        )}
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-[10px] font-mono font-bold text-slate-500">{inc.code}</span>
-                            <span className={`text-[10px] px-1.5 py-0.2 rounded font-semibold uppercase ${
-                              inc.status === 'resuelto' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200'
-                            }`}>
-                              {inc.status}
-                            </span>
-                          </div>
-                          <h5 className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1 mt-0.5">{inc.title}</h5>
-                          <p className="text-[10px] text-slate-500 dark:text-slate-400">{inc.location.sector}</p>
-                        </div>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-slate-400" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-          )}
-
-          {/* TAB 2: REPORTAR INCIDENCIA */}
-          {citizenTab === 'reportar' && (
-            <div className="p-4 space-y-4">
-              <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-1.5">
-                  <PlusCircle className="w-4 h-4 text-emerald-600" />
-                  <span>Nuevo Reporte Ciudadano</span>
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Suba la evidencia y el sistema de Inteligencia Artificial Gemini clasificará automáticamente la prioridad.
-                </p>
-              </div>
-
-              {submitSuccess ? (
-                <div className="bg-emerald-50 dark:bg-emerald-950/60 p-5 rounded-2xl border border-emerald-300 dark:border-emerald-800 text-center space-y-3">
-                  <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
-                  <h4 className="text-base font-bold text-emerald-900 dark:text-emerald-200">
-                    ¡Reporte Registrado Exitosamente!
-                  </h4>
-                  <p className="text-xs text-emerald-800 dark:text-emerald-300">
-                    Se asignó el código de seguimiento: <strong className="font-mono text-emerald-900 dark:text-white">{submitSuccess}</strong>.
-                    Las cuadrillas del GAD Municipal de Logroño han sido notificadas.
-                  </p>
                   <button
-                    onClick={() => {
-                      setSubmitSuccess(null);
-                      setCitizenTab('mis_reportes');
-                    }}
-                    className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-4 py-2 rounded-lg cursor-pointer"
+                    type="button"
+                    onClick={playShuarAudio}
+                    className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-2.5 py-1 rounded-lg text-[10px] flex items-center space-x-1 cursor-pointer"
                   >
-                    Ver Mis Reportes
+                    <Volume2 className="w-3.5 h-3.5" />
+                    <span>{isPlayingAudio ? 'Escuchando...' : 'Escuchar'}</span>
                   </button>
                 </div>
-              ) : (
-                <form onSubmit={handleSubmitIncident} className="space-y-3 text-xs">
-                  {/* Title */}
-                  <div>
-                    <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                      Título Breve de la Incidencia *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ej. Fuga de agua en tubería principal o Bache en calle 10 de Agosto"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      className="w-full p-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
-                    />
-                  </div>
 
-                  {/* Description */}
-                  <div>
-                    <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                      Descripción Detallada *
-                    </label>
-                    <textarea
-                      required
-                      rows={3}
-                      placeholder="Describa el problema, dimensiones del daño y puntos de referencia para la cuadrilla..."
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      className="w-full p-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
-                    />
-                  </div>
+                {/* 6-GRID ACTION CARDS (2 rows x 3 columns) */}
+                <div className="grid grid-cols-3 gap-3">
+                  
+                  {/* Card 1: Mis reportes */}
+                  <button
+                    type="button"
+                    onClick={() => setCitizenTab('mis_reportes')}
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-blue-400 transition-all cursor-pointer group aspect-square"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0A4191] dark:text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                      <FileText className="w-6 h-6 stroke-[2.2]" />
+                    </div>
+                    <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 line-clamp-1">
+                      Mis reportes
+                    </span>
+                  </button>
 
-                  {/* Sector Dropdown */}
-                  <div>
-                    <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                      Sector / Parroquia de Logroño *
-                    </label>
-                    <select
-                      value={sector}
-                      onChange={(e) => setSector(e.target.value as LogronoSector)}
-                      className="w-full p-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
-                    >
-                      {sectors.map((sec) => (
-                        <option key={sec} value={sec}>{sec}</option>
-                      ))}
-                    </select>
-                  </div>
+                  {/* Card 2: Noticias */}
+                  <button
+                    type="button"
+                    onClick={() => setShowNewsModal(true)}
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-blue-400 transition-all cursor-pointer group aspect-square"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0A4191] dark:text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                      <Newspaper className="w-6 h-6 stroke-[2.2]" />
+                    </div>
+                    <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 line-clamp-1">
+                      Noticias
+                    </span>
+                  </button>
 
-                  {/* Category Grid */}
-                  <div>
-                    <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                      Categoría Estimada
-                    </label>
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {categories.map((cat) => (
-                        <button
-                          key={cat}
-                          type="button"
-                          onClick={() => setCategory(cat)}
-                          className={`p-2 rounded-lg text-left text-[11px] font-medium border transition-all cursor-pointer ${
-                            category === cat
-                              ? 'bg-emerald-600 text-white border-emerald-600 font-bold'
-                              : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100'
-                          }`}
-                        >
-                          {cat}
-                        </button>
-                      ))}
+                  {/* Card 3: Agenda */}
+                  <button
+                    type="button"
+                    onClick={() => setShowAgendaModal(true)}
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-red-400 transition-all cursor-pointer group aspect-square"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                      <Calendar className="w-6 h-6 stroke-[2.2]" />
+                    </div>
+                    <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 line-clamp-1">
+                      Agenda
+                    </span>
+                  </button>
+
+                  {/* Card 4: Emergencias */}
+                  <button
+                    type="button"
+                    onClick={() => setShowEmergencyModal(true)}
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-red-400 transition-all cursor-pointer group aspect-square"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                      <Siren className="w-6 h-6 stroke-[2.2]" />
+                    </div>
+                    <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 line-clamp-1">
+                      Emergencias
+                    </span>
+                  </button>
+
+                  {/* Card 5: Directorio */}
+                  <button
+                    type="button"
+                    onClick={() => setCitizenTab('directorio')}
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-blue-400 transition-all cursor-pointer group aspect-square"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0A4191] dark:text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                      <PhoneCall className="w-6 h-6 stroke-[2.2]" />
+                    </div>
+                    <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 line-clamp-1">
+                      Directorio
+                    </span>
+                  </button>
+
+                  {/* Card 6: Trámites */}
+                  <button
+                    type="button"
+                    onClick={() => setCitizenTab('pqrs')}
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-emerald-400 transition-all cursor-pointer group aspect-square"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-[#159A44] dark:text-emerald-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                      <FileCheck className="w-6 h-6 stroke-[2.2]" />
+                    </div>
+                    <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 line-clamp-1">
+                      Trámites
+                    </span>
+                  </button>
+
+                </div>
+
+                {/* Map Quick Access Banner */}
+                <div 
+                  onClick={() => setCitizenTab('mapa')}
+                  className="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-3.5 rounded-2xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-emerald-500 transition-all shadow-sm"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center">
+                      <Map className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-xs text-white">Mapa Georreferenciado</h4>
+                      <p className="text-[10px] text-slate-300">Ver marcadores de Logroño, Yaupi y Shimpis</p>
                     </div>
                   </div>
+                  <ChevronRight className="w-4 h-4 text-emerald-400" />
+                </div>
 
-                  {/* Photo Capture / Sample Selector */}
+                {/* Cantonal Alert Box */}
+                <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 p-3 rounded-2xl flex items-start space-x-2 text-xs">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                   <div>
-                    <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
-                      <span>Evidencia Fotográfica</span>
-                      <span className="text-[10px] text-emerald-600 font-normal">Cámara o archivo</span>
-                    </label>
+                    <span className="font-bold text-amber-900 dark:text-amber-300 block text-[11px]">
+                      Aviso de Prevención Cantonal
+                    </span>
+                    <p className="text-slate-600 dark:text-slate-300 text-[10px] mt-0.5">
+                      Vía Logroño - Yaupi habilitada con precaución por cuadrillas del GAD Municipal.
+                    </p>
+                  </div>
+                </div>
 
-                    <div className="flex items-center space-x-3 bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700">
-                      <img src={photoUrl} alt="Preview" className="w-16 h-16 rounded-lg object-cover border" />
+              </div>
+            )}
+
+            {/* TAB 2: REPORTAR INCIDENCIA */}
+            {citizenTab === 'reportar' && (
+              <div className="space-y-4 text-xs">
+
+                {/* STEP 1: CATEGORY SELECTION (MATCHES MOCKUP 08 EXACTLY) */}
+                {reportStep === 'category' && (
+                  <div className="space-y-4">
+                    {/* Header Title & Subtitle */}
+                    <div className="text-center space-y-1 pt-1 pb-2">
+                      <h2 className="text-xl font-black text-slate-900 dark:text-white font-serif tracking-tight">
+                        Reportar incidencia
+                      </h2>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        Selecciona la categoría
+                      </p>
+                    </div>
+
+                    {/* 2-Column Grid of Categories matching Mockup 08 */}
+                    <div className="grid grid-cols-2 gap-3.5 pt-1">
                       
-                      <div className="flex-1 space-y-1">
-                        <span className="block text-[11px] font-medium text-slate-600 dark:text-slate-400">
-                          Foto simulada adjunta para análisis de visión IA
-                        </span>
-                        
-                        <div className="flex space-x-2">
-                          <button
-                            type="button"
-                            onClick={() => setPhotoUrl('https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=600&auto=format&fit=crop&q=80')}
-                            className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded text-[10px] font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-200"
-                          >
-                            Tubería Agua
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setPhotoUrl('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&auto=format&fit=crop&q=80')}
-                            className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded text-[10px] font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-200"
-                          >
-                            Vía / Bache
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setPhotoUrl('https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?w=600&auto=format&fit=crop&q=80')}
-                            className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded text-[10px] font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-200"
-                          >
-                            Poste Luz
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* AI Gemini Pre-Analysis Trigger */}
-                  <div className="bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-900 p-3 rounded-xl text-white border border-emerald-700/60">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
-                        <span className="font-bold text-xs text-amber-300">Asistente IA Gemini GAD</span>
-                      </div>
+                      {/* 1. Alumbrado Público */}
                       <button
                         type="button"
-                        onClick={handleAnalyzeWithAI}
-                        disabled={isAnalyzingAI}
-                        className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] px-3 py-1 rounded-lg transition-all cursor-pointer disabled:opacity-50"
+                        onClick={() => {
+                          setCategory('Alumbrado Público');
+                          setTitle('Poste de luz quemado');
+                          if (!description) setDescription('El poste de luz frente a mi casa no funciona desde hace 3 días.');
+                          setPhotoUrl('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&auto=format&fit=crop&q=80');
+                          setReportStep('wizard');
+                          setReportWizardStep(1);
+                        }}
+                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-amber-400 transition-all cursor-pointer group aspect-[4/3.2]"
                       >
-                        {isAnalyzingAI ? 'Analizando...' : 'Analizar Prioridad IA'}
-                      </button>
-                    </div>
-
-                    {aiPreview && (
-                      <div className="mt-2.5 pt-2 border-t border-emerald-800/80 text-[11px] space-y-1">
-                        <div className="flex justify-between items-center">
-                          <span className="text-emerald-200">Prioridad Predicha:</span>
-                          <span className="font-bold text-amber-300 uppercase">{aiPreview.priority} (Score {aiPreview.score}/5)</span>
+                        <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                          <Lightbulb className="w-7 h-7 stroke-[2.2]" />
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-emerald-200">Departamento Sugerido:</span>
-                          <span className="font-bold text-white">{aiPreview.department}</span>
-                        </div>
-                        <p className="text-emerald-100/90 italic mt-1 bg-emerald-900/40 p-1.5 rounded">
-                          "{aiPreview.recommendation}"
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Citizen Contact Info */}
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Nombre Ciudadano</label>
-                      <input
-                        type="text"
-                        value={citizenName}
-                        onChange={(e) => setCitizenName(e.target.value)}
-                        className="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Cédula Ecuatoriana</label>
-                      <input
-                        type="text"
-                        value={citizenCedula}
-                        onChange={(e) => setCitizenCedula(e.target.value)}
-                        className="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono text-[11px]"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl shadow-md transition-all cursor-pointer text-xs flex items-center justify-center space-x-2"
-                  >
-                    {isSubmitting ? (
-                      <RefreshCw className="w-4 h-4 animate-spin text-white" />
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4 text-amber-300" />
-                        <span>{lang === 'shuar' ? SHUAR_DICTIONARY.send.shuar : 'ENVIAR REPORTE AL GAD MUNICIPAL'}</span>
-                      </>
-                    )}
-                  </button>
-                </form>
-              )}
-            </div>
-          )}
-
-          {/* TAB 3: MIS REPORTES */}
-          {citizenTab === 'mis_reportes' && (
-            <div className="p-4 space-y-3">
-              <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-2">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                  Historial de Incidencias ({incidents.length})
-                </h3>
-                <span className="text-[11px] text-slate-500 font-mono">Trazabilidad GAD</span>
-              </div>
-
-              <div className="space-y-3">
-                {incidents.map((inc) => (
-                  <div
-                    key={inc.id}
-                    className="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-2"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <span className="text-[10px] font-mono font-bold text-emerald-700 dark:text-emerald-400">
-                          {inc.code}
+                        <span className="text-xs font-black text-slate-800 dark:text-slate-200">
+                          Alumbrado Público
                         </span>
-                        <h4 className="text-xs font-bold text-slate-900 dark:text-white mt-0.5">
-                          {inc.title}
-                        </h4>
-                      </div>
-                      
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
-                        inc.status === 'resuelto' 
-                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300' 
-                          : inc.status === 'en_proceso'
-                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-300'
-                          : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300'
-                      }`}>
-                        {inc.status.replace('_', ' ')}
-                      </span>
-                    </div>
+                      </button>
 
-                    <p className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-2">
-                      {inc.description}
-                    </p>
+                      {/* 2. Agua Potable */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCategory('Agua Potable y Alcantarillado');
+                          setTitle('Fuga de agua en acera principal');
+                          if (!description) setDescription('Fuga de agua constante en la acometida de la vivienda.');
+                          setPhotoUrl('https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=600&auto=format&fit=crop&q=80');
+                          setReportStep('wizard');
+                          setReportWizardStep(1);
+                        }}
+                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-blue-400 transition-all cursor-pointer group aspect-[4/3.2]"
+                      >
+                        <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-500 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                          <Droplets className="w-7 h-7 stroke-[2.2]" />
+                        </div>
+                        <span className="text-xs font-black text-slate-800 dark:text-slate-200">
+                          Agua Potable
+                        </span>
+                      </button>
 
-                    <div className="flex flex-wrap items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-100 dark:border-slate-700/60">
-                      <span className="flex items-center space-x-1">
-                        <MapPin className="w-3 h-3 text-red-500" />
-                        <span>{inc.location.sector}</span>
-                      </span>
+                      {/* 3. Alcantarillado */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCategory('Agua Potable y Alcantarillado');
+                          setTitle('Alcantarilla obstruida');
+                          if (!description) setDescription('Tapa de alcantarilla corrida y rebose de agua lluvia.');
+                          setPhotoUrl('https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=600&auto=format&fit=crop&q=80');
+                          setReportStep('wizard');
+                          setReportWizardStep(1);
+                        }}
+                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-blue-500 transition-all cursor-pointer group aspect-[4/3.2]"
+                      >
+                        <div className="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                          <Waves className="w-7 h-7 stroke-[2.2]" />
+                        </div>
+                        <span className="text-xs font-black text-slate-800 dark:text-slate-200">
+                          Alcantarillado
+                        </span>
+                      </button>
 
-                      <span>{new Date(inc.createdAt).toLocaleDateString()}</span>
-                    </div>
+                      {/* 4. Calles */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCategory('Vías y Aceras');
+                          setTitle('Bache profundo en la calzada');
+                          if (!description) setDescription('Bache de gran tamaño afectando el tránsito vehicular.');
+                          setPhotoUrl('https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80');
+                          setReportStep('wizard');
+                          setReportWizardStep(1);
+                        }}
+                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-slate-500 transition-all cursor-pointer group aspect-[4/3.2]"
+                      >
+                        <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                          <Milestone className="w-7 h-7 stroke-[2.2]" />
+                        </div>
+                        <span className="text-xs font-black text-slate-800 dark:text-slate-200">
+                          Calles
+                        </span>
+                      </button>
 
-                    {/* Timeline Tracker */}
-                    <div className="bg-slate-50 dark:bg-slate-900 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
-                      <span className="block text-[10px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                        Estado Actual:
-                      </span>
-                      <div className="flex items-center justify-between text-[10px]">
-                        <span className={inc.status === 'reportado' ? 'font-bold text-amber-600' : 'text-slate-400'}>1. Reportado</span>
-                        <span className="text-slate-300">→</span>
-                        <span className={inc.status === 'asignado' ? 'font-bold text-blue-600' : 'text-slate-400'}>2. Asignado</span>
-                        <span className="text-slate-300">→</span>
-                        <span className={inc.status === 'en_proceso' ? 'font-bold text-purple-600' : 'text-slate-400'}>3. En Proceso</span>
-                        <span className="text-slate-300">→</span>
-                        <span className={inc.status === 'resuelto' ? 'font-bold text-emerald-600' : 'text-slate-400'}>4. Resuelto</span>
-                      </div>
+                      {/* 5. Basura */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCategory('Gestión de Residuos');
+                          setTitle('Contenedor desbordado');
+                          if (!description) setDescription('Acumulación de basura fuera del contenedor requiere recolección.');
+                          setPhotoUrl('https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=600&auto=format&fit=crop&q=80');
+                          setReportStep('wizard');
+                          setReportWizardStep(1);
+                        }}
+                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-emerald-400 transition-all cursor-pointer group aspect-[4/3.2]"
+                      >
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-[#159A44] flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                          <Trash2 className="w-7 h-7 stroke-[2.2]" />
+                        </div>
+                        <span className="text-xs font-black text-slate-800 dark:text-slate-200">
+                          Basura
+                        </span>
+                      </button>
+
+                      {/* 6. Parques y Áreas Verdes */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCategory('Parques y Áreas Verdes');
+                          setTitle('Mantenimiento de césped en parque');
+                          if (!description) setDescription('Maleza alta en el parque central requiere corte y limpieza.');
+                          setPhotoUrl('https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?w=600&auto=format&fit=crop&q=80');
+                          setReportStep('wizard');
+                          setReportWizardStep(1);
+                        }}
+                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-emerald-500 transition-all cursor-pointer group aspect-[4/3.2]"
+                      >
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                          <Trees className="w-7 h-7 stroke-[2.2]" />
+                        </div>
+                        <span className="text-xs font-black text-slate-800 dark:text-slate-200 line-clamp-1">
+                          Parques y Áreas Verdes
+                        </span>
+                      </button>
+
+                      {/* 7. Fauna y Limpieza */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCategory('Fauna Urbana y Limpieza');
+                          setTitle('Limpieza de espacio público');
+                          if (!description) setDescription('Solicitud de desbroce y desinfección en espacio comunal.');
+                          setPhotoUrl('https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=600&auto=format&fit=crop&q=80');
+                          setReportStep('wizard');
+                          setReportWizardStep(1);
+                        }}
+                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-purple-400 transition-all cursor-pointer group aspect-[4/3.2]"
+                      >
+                        <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                          <ShieldAlert className="w-7 h-7 stroke-[2.2]" />
+                        </div>
+                        <span className="text-xs font-black text-slate-800 dark:text-slate-200 line-clamp-1">
+                          Fauna y Limpieza
+                        </span>
+                      </button>
+
+                      {/* 8. Comunitaria Shuar */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCategory('Infraestructura Shuar / Comunitaria');
+                          setTitle('Inspección de obra comunitaria Shuar');
+                          if (!description) setDescription('Solicitud de mantenimiento técnico en infraestructura comunal.');
+                          setPhotoUrl('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&auto=format&fit=crop&q=80');
+                          setReportStep('wizard');
+                          setReportWizardStep(1);
+                        }}
+                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-teal-400 transition-all cursor-pointer group aspect-[4/3.2]"
+                      >
+                        <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
+                          <Building2 className="w-7 h-7 stroke-[2.2]" />
+                        </div>
+                        <span className="text-xs font-black text-slate-800 dark:text-slate-200 line-clamp-1">
+                          Comunitaria Shuar
+                        </span>
+                      </button>
+
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                )}
 
-          {/* TAB 4: MAPA CANTONAL */}
-          {citizenTab === 'mapa' && (
-            <div className="p-4 space-y-3">
-              <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-1.5">
-                  <MapPin className="w-4 h-4 text-emerald-600" />
-                  <span>Mapa Georreferenciado del Cantón Logroño</span>
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Ubicaciones registradas en Logroño Centro, Yaupi y Shimpis (WGS84 GPS con Google Maps API).
-                </p>
-              </div>
+                {/* 4-STEP WIZARD (MATCHES MOCKUPS 09, 10, 11, 12 EXACTLY) */}
+                {reportStep === 'wizard' && (
+                  <div className="space-y-4">
 
-              {/* Real Google Maps Component */}
-              <LogronoGoogleMap
-                incidents={incidents}
-                onSelectIncident={(inc) => setSelectedIncident(inc)}
-              />
-            </div>
-          )}
+                    {/* Stepper Header for Steps 1, 2, 3 */}
+                    {reportWizardStep < 4 && (
+                      <div className="space-y-2">
+                        {/* Top navigation row with back arrow */}
+                        <div className="relative text-center pt-1 pb-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (reportWizardStep === 1) {
+                                setReportStep('category');
+                              } else {
+                                setReportWizardStep((prev) => (prev - 1) as any);
+                              }
+                            }}
+                            className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer"
+                          >
+                            <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+                          </button>
+                          
+                          <h2 className="text-base font-black text-slate-900 dark:text-white font-serif tracking-tight">
+                            {reportWizardStep === 1 && (category || 'Alumbrado Público')}
+                            {reportWizardStep === 2 && 'Ubicación del problema'}
+                            {reportWizardStep === 3 && 'Confirmar información'}
+                          </h2>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                            {reportWizardStep === 1 && 'Cuéntanos más sobre el problema'}
+                            {reportWizardStep === 2 && 'Confirma o ajusta la ubicación'}
+                            {reportWizardStep === 3 && 'Revisa los datos antes de enviar'}
+                          </p>
+                        </div>
 
-          {/* TAB 5: PQRS */}
-          {citizenTab === 'pqrs' && (
-            <div className="p-4 space-y-3">
-              <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-1.5">
-                  <FileText className="w-4 h-4 text-emerald-600" />
-                  <span>Ventanilla PQRS - Transparencia Municipal</span>
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Peticiones, Quejas, Reclamos y Sugerencias amparadas por la Ley de Transparencia de Ecuador.
-                </p>
-              </div>
+                        {/* Numbered Stepper: 1 - 2 - 3 - 4 */}
+                        <div className="flex items-center justify-center space-x-3.5 py-1">
+                          {[1, 2, 3, 4].map((stepNum) => {
+                            const isActive = reportWizardStep === stepNum;
+                            const isCompleted = reportWizardStep > stepNum;
+                            return (
+                              <div
+                                key={stepNum}
+                                className={`w-7 h-7 rounded-full flex items-center justify-center font-black text-xs transition-all ${
+                                  isActive
+                                    ? 'bg-[#0A4191] text-white shadow-md scale-105'
+                                    : isCompleted
+                                    ? 'bg-blue-100 text-[#0A4191] border border-blue-300 dark:bg-slate-700 dark:text-blue-300'
+                                    : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'
+                                }`}
+                              >
+                                {stepNum}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
 
-              {pqrsSuccess ? (
-                <div className="bg-emerald-50 text-emerald-900 p-4 rounded-xl border border-emerald-300 text-center space-y-2 text-xs">
-                  <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto" />
-                  <h4 className="font-bold">Trámite Ingresado</h4>
-                  <p>Su {pqrsType} ha sido remitida a la Secretaría General del GAD Logroño.</p>
-                  <button 
-                    onClick={() => setPqrsSuccess(false)}
-                    className="bg-emerald-700 text-white px-3 py-1 rounded font-bold cursor-pointer"
-                  >
-                    Ingresar Otro Trámite
-                  </button>
-                </div>
-              ) : (
-                <form 
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setPqrsSuccess(true);
-                  }}
-                  className="space-y-3 text-xs"
-                >
-                  <div>
-                    <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Tipo de Trámite</label>
-                    <div className="grid grid-cols-4 gap-1">
-                      {(['Petición', 'Queja', 'Reclamo', 'Sugerencia'] as const).map((t) => (
+                    {/* STEP 1: 09. DETALLE CATEGORÍA */}
+                    {reportWizardStep === 1 && (
+                      <div className="space-y-4 pt-1">
+                        {/* Textarea Section */}
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                            Descripción del problema
+                          </label>
+                          <div className="relative">
+                            <textarea
+                              rows={3}
+                              maxLength={300}
+                              placeholder="Describa los detalles de la incidencia..."
+                              value={description}
+                              onChange={(e) => setDescription(e.target.value)}
+                              className="w-full p-3 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#159A44] shadow-sm resize-none"
+                            />
+                            <div className="text-[10px] text-slate-400 text-right mt-1 font-mono">
+                              Caracteres: {description.length}/300
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Attach Photo Section */}
+                        <div className="space-y-2">
+                          <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                            Adjuntar fotografía
+                          </label>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            {/* Left Photo Preview Box */}
+                            <div className="relative h-28 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-sm group">
+                              <img
+                                src={photoUrl}
+                                alt="Vista previa de incidencia"
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span className="text-[10px] bg-black/70 text-white px-2 py-0.5 rounded-full font-bold">
+                                  Vista Previa
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Right Camera Upload Box */}
+                            <label className="h-28 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 flex flex-col items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer transition-all shadow-sm">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                      if (typeof reader.result === 'string') {
+                                        setPhotoUrl(reader.result);
+                                      }
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                }}
+                              />
+                              <div className="w-10 h-10 rounded-full bg-slate-200/80 dark:bg-slate-700 flex items-center justify-center mb-1 text-slate-600 dark:text-slate-300">
+                                <Camera className="w-5 h-5 stroke-[2]" />
+                              </div>
+                              <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">
+                                Tomar / Subir Foto
+                              </span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* Gemini AI Auto-Classify Trigger */}
+                        <div className="bg-slate-900 text-white p-3 rounded-2xl border border-slate-800 flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
+                            <span className="text-[11px] font-bold text-amber-300">Visión IA Gemini</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleAnalyzeWithAI}
+                            disabled={isAnalyzingAI}
+                            className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-[10px] px-2.5 py-1 rounded-lg cursor-pointer"
+                          >
+                            {isAnalyzingAI ? 'Analizando...' : 'Clasificar con IA'}
+                          </button>
+                        </div>
+
+                        {/* Bottom Button: Siguiente */}
                         <button
-                          key={t}
                           type="button"
-                          onClick={() => setPqrsType(t)}
-                          className={`py-1.5 rounded text-[10px] font-bold border ${
-                            pqrsType === t ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                          onClick={() => setReportWizardStep(2)}
+                          disabled={!description.trim()}
+                          className={`w-full py-3.5 rounded-2xl font-bold text-sm shadow-md transition-all cursor-pointer ${
+                            description.trim()
+                              ? 'bg-[#159A44] hover:bg-emerald-700 text-white'
+                              : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
                           }`}
                         >
-                          {t}
+                          Siguiente
                         </button>
-                      ))}
-                    </div>
-                  </div>
+                      </div>
+                    )}
 
-                  <div>
-                    <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Asunto</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ej. Solicitud de información sobre la obra de alcantarillado"
-                      value={pqrsSubject}
-                      onChange={(e) => setPqrsSubject(e.target.value)}
-                      className="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
-                    />
-                  </div>
+                    {/* STEP 2: 10. UBICACIÓN */}
+                    {reportWizardStep === 2 && (
+                      <div className="space-y-4 pt-1">
+                        {/* Interactive Map Component */}
+                        <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm h-52">
+                          <LogronoGoogleMap
+                            centerLat={-2.6280}
+                            centerLng={-78.1760}
+                            zoomLevel={15}
+                            incidents={[]}
+                          />
+                          {/* Floating Button: 📍 Usar mi ubicación actual */}
+                          <div className="absolute bottom-3 left-3 right-3 z-10">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setAddress('Calle 24 de Mayo y Sucre');
+                                setSector('Logroño Centro (Cabecera)');
+                              }}
+                              className="w-full py-2.5 px-3 bg-[#0A4191] hover:bg-blue-900 text-white text-xs font-bold rounded-xl shadow-lg flex items-center justify-center space-x-1.5 cursor-pointer active:scale-95 transition-all"
+                            >
+                              <Navigation className="w-4 h-4 text-sky-300 fill-current" />
+                              <span>Usar mi ubicación actual</span>
+                            </button>
+                          </div>
+                        </div>
 
-                  <div>
-                    <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Detalle</label>
-                    <textarea
-                      required
-                      rows={3}
-                      placeholder="Fundamente su solicitud dirigida a la máxima autoridad cantonal..."
-                      value={pqrsDetail}
-                      onChange={(e) => setPqrsDetail(e.target.value)}
-                      className="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
-                    />
-                  </div>
+                        {/* Address Field */}
+                        <div className="space-y-1">
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                            Dirección aproximada
+                          </label>
+                          <input
+                            type="text"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            placeholder="Calle 24 de Mayo y Sucre"
+                            className="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#159A44]"
+                          />
+                        </div>
 
-                  <button type="submit" className="w-full py-2.5 bg-emerald-700 text-white font-bold rounded-xl shadow cursor-pointer">
-                    REGISTRAR PQRS EN EL GAD
+                        {/* Bottom Buttons: Atrás & Siguiente */}
+                        <div className="grid grid-cols-2 gap-3 pt-2">
+                          <button
+                            type="button"
+                            onClick={() => setReportWizardStep(1)}
+                            className="py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"
+                          >
+                            Atrás
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setReportWizardStep(3)}
+                            className="py-3 rounded-2xl bg-[#159A44] hover:bg-emerald-700 text-white font-bold text-xs shadow-md cursor-pointer"
+                          >
+                            Siguiente
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* STEP 3: 11. CONFIRMACIÓN */}
+                    {reportWizardStep === 3 && (
+                      <div className="space-y-4 pt-1">
+                        {/* Summary Card */}
+                        <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-3">
+                          <div>
+                            <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">
+                              Categoría
+                            </span>
+                            <p className="text-sm font-black text-slate-900 dark:text-white mt-0.5">
+                              {category}
+                            </p>
+                          </div>
+
+                          <div className="border-t border-slate-100 dark:border-slate-700/60 pt-2.5">
+                            <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">
+                              Descripción
+                            </span>
+                            <p className="text-xs text-slate-700 dark:text-slate-300 mt-0.5 leading-relaxed">
+                              {description}
+                            </p>
+                          </div>
+
+                          <div className="border-t border-slate-100 dark:border-slate-700/60 pt-2.5">
+                            <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">
+                              Ubicación
+                            </span>
+                            <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-0.5">
+                              {address}
+                            </p>
+                          </div>
+
+                          <div className="border-t border-slate-100 dark:border-slate-700/60 pt-2.5">
+                            <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider mb-1.5">
+                              Foto
+                            </span>
+                            <div className="w-20 h-20 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+                              <img src={photoUrl} alt="Foto reporte" className="w-full h-full object-cover" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Bottom Buttons: Atrás & Enviar reporte */}
+                        <div className="grid grid-cols-2 gap-3 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => setReportWizardStep(2)}
+                            disabled={isSubmitting}
+                            className="py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"
+                          >
+                            Atrás
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleSubmitIncident()}
+                            disabled={isSubmitting}
+                            className="py-3 rounded-2xl bg-[#159A44] hover:bg-emerald-700 text-white font-bold text-xs shadow-md cursor-pointer flex items-center justify-center space-x-1.5"
+                          >
+                            {isSubmitting ? (
+                              <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                            ) : (
+                              <span>Enviar reporte</span>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* STEP 4: 12. REPORTE ENVIADO */}
+                    {reportWizardStep === 4 && (
+                      <div className="text-center space-y-4 py-4">
+                        {/* Celebration Badges Graphic */}
+                        <div className="relative w-24 h-24 mx-auto flex items-center justify-center">
+                          {/* Confetti Decorative Dots */}
+                          <div className="absolute top-0 left-2 w-2.5 h-2.5 bg-amber-400 rounded-full animate-ping opacity-75" />
+                          <div className="absolute top-2 right-1 w-2 h-2 bg-sky-400 rounded-full" />
+                          <div className="absolute bottom-1 left-1 w-2 h-2 bg-purple-400 rounded-full" />
+                          <div className="absolute bottom-2 right-3 w-2.5 h-2.5 bg-pink-400 rounded-full" />
+                          
+                          <div className="w-20 h-20 bg-[#159A44] rounded-full flex items-center justify-center text-white shadow-xl shadow-emerald-600/30 scale-100 transition-transform">
+                            <Check className="w-10 h-10 stroke-[3.5]" />
+                          </div>
+                        </div>
+
+                        {/* Title & Subtitle */}
+                        <div className="space-y-1">
+                          <h2 className="text-xl font-black text-slate-900 dark:text-white font-serif">
+                            ¡Reporte enviado!
+                          </h2>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                            Hemos recibido tu incidencia correctamente.
+                          </p>
+                        </div>
+
+                        {/* Tracking Code Box (Screen 12 style) */}
+                        <div className="bg-slate-100 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 max-w-xs mx-auto space-y-1 shadow-inner">
+                          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 tracking-wider">
+                            Código de seguimiento
+                          </span>
+                          <div className="text-lg font-black font-mono text-[#0A4191] dark:text-blue-400 tracking-wider">
+                            {submitSuccess || 'RPT-2026-00045'}
+                          </div>
+                        </div>
+
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 px-4">
+                          Te notificaremos sobre el estado de tu reporte.
+                        </p>
+
+                        {/* Action Buttons */}
+                        <div className="space-y-2 pt-2 max-w-xs mx-auto">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSubmitSuccess(null);
+                              setCitizenTab('mis_reportes');
+                            }}
+                            className="w-full py-3.5 bg-[#0A4191] hover:bg-blue-900 text-white font-black text-xs rounded-2xl shadow-md cursor-pointer transition-all"
+                          >
+                            Ir a mis reportes
+                          </button>
+                          
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSubmitSuccess(null);
+                              setReportStep('category');
+                              setReportWizardStep(1);
+                              setDescription('');
+                              setTitle('');
+                            }}
+                            className="w-full py-2 text-[#0A4191] dark:text-blue-400 font-bold text-xs hover:underline cursor-pointer"
+                          >
+                            Nuevo reporte
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                  </div>
+                )}
+
+              </div>
+            )}
+
+            {/* TAB 3: MIS REPORTES (MATCHES MOCKUP 13 EXACTLY) */}
+            {citizenTab === 'mis_reportes' && (
+              <div className="space-y-4 text-xs">
+                {/* Header Row: Back Arrow + Centered Title */}
+                <div className="relative text-center pt-1 pb-1">
+                  <button
+                    type="button"
+                    onClick={() => setCitizenTab('inicio')}
+                    className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer"
+                  >
+                    <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
                   </button>
-                </form>
-              )}
-            </div>
-          )}
+                  <h2 className="text-base font-black text-slate-900 dark:text-white font-serif tracking-tight">
+                    Mis reportes
+                  </h2>
+                </div>
 
-          {/* TAB 6: DIRECTORIO */}
-          {citizenTab === 'directorio' && (
-            <div className="p-4 space-y-3">
-              <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                  Directorio Autoridades & Parroquias de Logroño
-                </h3>
+                {/* Filter Pills Bar: Todos | En proceso | Solucionados */}
+                <div className="grid grid-cols-3 gap-2 py-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setMisReportesFilter('todos')}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer text-center ${
+                      misReportesFilter === 'todos'
+                        ? 'bg-[#0A4191] text-white shadow-sm'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    Todos
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMisReportesFilter('en_proceso')}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer text-center ${
+                      misReportesFilter === 'en_proceso'
+                        ? 'bg-[#0A4191] text-white shadow-sm'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    En proceso
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMisReportesFilter('solucionados')}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer text-center ${
+                      misReportesFilter === 'solucionados'
+                        ? 'bg-[#0A4191] text-white shadow-sm'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    Solucionados
+                  </button>
+                </div>
+
+                {/* List of Incident Cards */}
+                <div className="space-y-3 pt-1">
+                  {incidents
+                    .filter((inc) => {
+                      if (misReportesFilter === 'en_proceso') {
+                        return inc.status === 'en_proceso' || inc.status === 'reportado' || inc.status === 'asignado' || inc.status === 'en_revision';
+                      }
+                      if (misReportesFilter === 'solucionados') {
+                        return inc.status === 'resuelto';
+                      }
+                      return true;
+                    })
+                    .map((inc) => {
+                      // Icon & Category styling map according to Mockup 13
+                      const getCategoryDetails = (cat: string) => {
+                        const lower = cat.toLowerCase();
+                        if (lower.includes('alumbrado') || lower.includes('luz')) {
+                          return {
+                            bg: 'bg-amber-100/80 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40',
+                            icon: <Lightbulb className="w-6 h-6 text-amber-500 fill-amber-300/40 stroke-[2]" />,
+                            label: 'Alumbrado Público'
+                          };
+                        }
+                        if (lower.includes('vías') || lower.includes('calles') || lower.includes('acera')) {
+                          return {
+                            bg: 'bg-sky-100/80 dark:bg-sky-950/40 border border-sky-200/60 dark:border-sky-800/40',
+                            icon: <Milestone className="w-6 h-6 text-sky-600 stroke-[2]" />,
+                            label: 'Calles'
+                          };
+                        }
+                        if (lower.includes('residuos') || lower.includes('basura')) {
+                          return {
+                            bg: 'bg-emerald-100/80 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40',
+                            icon: <Trash2 className="w-6 h-6 text-emerald-600 stroke-[2]" />,
+                            label: 'Basura'
+                          };
+                        }
+                        if (lower.includes('parques') || lower.includes('verdes')) {
+                          return {
+                            bg: 'bg-emerald-100/80 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40',
+                            icon: <Trees className="w-6 h-6 text-emerald-600 fill-emerald-100 stroke-[2]" />,
+                            label: 'Parques'
+                          };
+                        }
+                        if (lower.includes('agua') || lower.includes('alcantarillado')) {
+                          return {
+                            bg: 'bg-blue-100/80 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/40',
+                            icon: <Droplets className="w-6 h-6 text-blue-600 fill-blue-200/40 stroke-[2]" />,
+                            label: 'Agua Potable'
+                          };
+                        }
+                        return {
+                          bg: 'bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700',
+                          icon: <AlertTriangle className="w-6 h-6 text-slate-600 dark:text-slate-300 stroke-[2]" />,
+                          label: cat
+                        };
+                      };
+
+                      const catDetails = getCategoryDetails(inc.category);
+
+                      // Date formatting: DD/MM/YYYY
+                      const dateFormatted = (() => {
+                        try {
+                          const d = new Date(inc.createdAt);
+                          if (isNaN(d.getTime())) return '24/05/2024';
+                          const day = String(d.getDate()).padStart(2, '0');
+                          const month = String(d.getMonth() + 1).padStart(2, '0');
+                          const year = d.getFullYear();
+                          return `${day}/${month}/${year}`;
+                        } catch {
+                          return '24/05/2024';
+                        }
+                      })();
+
+                      return (
+                        <div
+                          key={inc.id}
+                          onClick={() => setSelectedIncident(inc)}
+                          className="bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl p-3 flex items-center justify-between shadow-sm hover:shadow-md hover:border-blue-400 cursor-pointer transition-all space-x-3.5 group"
+                        >
+                          {/* Custom Category Icon Container */}
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105 ${catDetails.bg}`}>
+                            {catDetails.icon}
+                          </div>
+
+                          {/* Code + Subtitle Category Name */}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-extrabold text-slate-900 dark:text-white text-xs tracking-tight font-mono">
+                              {inc.code}
+                            </h4>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5 truncate">
+                              {catDetails.label}
+                            </p>
+                          </div>
+
+                          {/* Date Column (matching screenshot 13 format) */}
+                          <div className="text-right flex-shrink-0 space-y-0.5">
+                            <span className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 block">
+                              {dateFormatted}
+                            </span>
+                            <span className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 block">
+                              {dateFormatted}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                  {incidents.filter((inc) => {
+                    if (misReportesFilter === 'en_proceso') {
+                      return inc.status === 'en_proceso' || inc.status === 'reportado' || inc.status === 'asignado' || inc.status === 'en_revision';
+                    }
+                    if (misReportesFilter === 'solucionados') {
+                      return inc.status === 'resuelto';
+                    }
+                    return true;
+                  }).length === 0 && (
+                    <div className="text-center py-8 space-y-2 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                        No hay reportes en esta categoría.
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
+            )}
 
-              <div className="space-y-2 text-xs">
-                <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <h4 className="font-bold text-emerald-700 dark:text-emerald-400">Alcaldía Municipal de Logroño</h4>
-                  <p className="text-slate-600 dark:text-slate-300 mt-0.5">Palacio Municipal, Calle 10 de Agosto</p>
-                  <span className="text-[10px] text-slate-500 block mt-1">Contacto: (07) 2700-100</span>
+            {/* TAB 4: MAPA */}
+            {citizenTab === 'mapa' && (
+              <div className="space-y-3 text-xs">
+                <div className="border-b border-slate-200 dark:border-slate-800 pb-2 flex justify-between items-center">
+                  <div>
+                    <h3 className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center space-x-1.5">
+                      <MapPin className="w-4 h-4 text-[#159A44]" />
+                      <span>Mapa Cantonal Logroño</span>
+                    </h3>
+                    <p className="text-[11px] text-slate-500">Google Maps WGS84 GPS</p>
+                  </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <h4 className="font-bold text-emerald-700 dark:text-emerald-400">GAD Parroquial de Yaupi</h4>
-                  <p className="text-slate-600 dark:text-slate-300 mt-0.5">Centro Poblado Yaupi, Morona Santiago</p>
-                  <span className="text-[10px] text-slate-500 block mt-1">Coordinación Intercultural Shuar</span>
+                <LogronoGoogleMap
+                  incidents={incidents}
+                  onSelectIncident={(inc) => setSelectedIncident(inc)}
+                />
+              </div>
+            )}
+
+            {/* TAB 5: PQRS */}
+            {citizenTab === 'pqrs' && (
+              <div className="space-y-3 text-xs">
+                <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
+                  <h3 className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center space-x-1.5">
+                    <FileCheck className="w-4 h-4 text-[#159A44]" />
+                    <span>Trámites & PQRS Municipal</span>
+                  </h3>
+                  <p className="text-[11px] text-slate-500">Transparencia GAD Logroño</p>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <h4 className="font-bold text-emerald-700 dark:text-emerald-400">GAD Parroquial de Shimpis</h4>
-                  <p className="text-slate-600 dark:text-slate-300 mt-0.5">Plaza Central Shimpis</p>
-                  <span className="text-[10px] text-slate-500 block mt-1">Agua Potable y Obras Rurales</span>
+                {pqrsSuccess ? (
+                  <div className="bg-emerald-50 text-emerald-900 p-4 rounded-2xl border border-emerald-300 text-center space-y-2">
+                    <CheckCircle2 className="w-8 h-8 text-[#159A44] mx-auto" />
+                    <h4 className="font-bold">Trámite Ingresado</h4>
+                    <p>Su {pqrsType} ha sido enviada a la Secretaría del GAD Logroño.</p>
+                    <button 
+                      type="button"
+                      onClick={() => setPqrsSuccess(false)}
+                      className="bg-[#159A44] text-white px-3 py-1.5 rounded-xl font-bold cursor-pointer"
+                    >
+                      Nuevo Trámite
+                    </button>
+                  </div>
+                ) : (
+                  <form 
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      setPqrsSuccess(true);
+                    }}
+                    className="space-y-3"
+                  >
+                    <div>
+                      <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Tipo de Trámite</label>
+                      <div className="grid grid-cols-4 gap-1">
+                        {(['Petición', 'Queja', 'Reclamo', 'Sugerencia'] as const).map((t) => (
+                          <button
+                            key={t}
+                            type="button"
+                            onClick={() => setPqrsType(t)}
+                            className={`py-1.5 rounded-xl text-[10px] font-bold border transition-all ${
+                              pqrsType === t ? 'bg-[#159A44] text-white border-emerald-600' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                            }`}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Asunto</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Ej. Solicitud de certificado o consulta de obra"
+                        value={pqrsSubject}
+                        onChange={(e) => setPqrsSubject(e.target.value)}
+                        className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Detalle del Requerimiento</label>
+                      <textarea
+                        required
+                        rows={3}
+                        placeholder="Fundamente su solicitud dirigida al GAD Logroño..."
+                        value={pqrsDetail}
+                        onChange={(e) => setPqrsDetail(e.target.value)}
+                        className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                      />
+                    </div>
+
+                    <button type="submit" className="w-full py-3 bg-[#159A44] hover:bg-emerald-700 text-white font-bold rounded-2xl shadow cursor-pointer">
+                      REGISTRAR TRÁMITE
+                    </button>
+                  </form>
+                )}
+              </div>
+            )}
+
+            {/* TAB 6: DIRECTORIO */}
+            {citizenTab === 'directorio' && (
+              <div className="space-y-3 text-xs">
+                <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
+                  <h3 className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center space-x-1.5">
+                    <PhoneCall className="w-4 h-4 text-[#0A4191]" />
+                    <span>Directorio Municipal & Parroquia</span>
+                  </h3>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <h4 className="font-bold text-[#0A4191] dark:text-blue-400">Alcaldía Cantón Logroño</h4>
+                    <p className="text-slate-600 dark:text-slate-300 mt-0.5">Palacio Municipal, Calle 10 de Agosto</p>
+                    <span className="text-[10px] text-slate-500 block mt-1 font-semibold">Tel: (07) 2700-100</span>
+                  </div>
+
+                  <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <h4 className="font-bold text-[#0A4191] dark:text-blue-400">GAD Parroquial de Yaupi</h4>
+                    <p className="text-slate-600 dark:text-slate-300 mt-0.5">Centro Poblado Yaupi, Morona Santiago</p>
+                    <span className="text-[10px] text-slate-500 block mt-1 font-semibold">Coordinación Shuar</span>
+                  </div>
+
+                  <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <h4 className="font-bold text-[#0A4191] dark:text-blue-400">GAD Parroquial de Shimpis</h4>
+                    <p className="text-slate-600 dark:text-slate-300 mt-0.5">Plaza Central Shimpis</p>
+                    <span className="text-[10px] text-slate-500 block mt-1 font-semibold">Agua Potable & Obras</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+
+          </div>
+
+          {/* ==================== 3. BOTTOM NAVIGATION BAR (MATCHES SCREENSHOT EXACTLY) ==================== */}
+          <div className="absolute bottom-0 inset-x-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-3 py-2 z-30 flex items-center justify-around shadow-2xl">
+            
+            {/* Nav 1: Inicio */}
+            <button
+              type="button"
+              onClick={() => setCitizenTab('inicio')}
+              className={`flex flex-col items-center justify-center space-y-0.5 transition-colors cursor-pointer ${
+                citizenTab === 'inicio' ? 'text-[#0A4191] dark:text-blue-400 font-bold' : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              <Home className="w-5 h-5 stroke-[2.2]" />
+              <span className="text-[10px]">Inicio</span>
+            </button>
+
+            {/* Nav 2: Reportes */}
+            <button
+              type="button"
+              onClick={() => setCitizenTab('mis_reportes')}
+              className={`flex flex-col items-center justify-center space-y-0.5 transition-colors cursor-pointer ${
+                citizenTab === 'mis_reportes' ? 'text-[#0A4191] dark:text-blue-400 font-bold' : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              <FileText className="w-5 h-5 stroke-[2.2]" />
+              <span className="text-[10px]">Reportes</span>
+            </button>
+
+            {/* Nav 3: FLOATING PLUS (+) BUTTON IN CENTER */}
+            <button
+              type="button"
+              onClick={() => {
+                setReportStep('category');
+                setCitizenTab('reportar');
+              }}
+              className="w-12 h-12 rounded-full bg-[#159A44] hover:bg-[#128239] active:scale-95 text-white flex items-center justify-center shadow-lg -translate-y-3 transition-transform border-4 border-white dark:border-slate-900 cursor-pointer"
+              title="Crear Nuevo Reporte"
+            >
+              <Plus className="w-6 h-6 stroke-[3]" />
+            </button>
+
+            {/* Nav 4: Noticias */}
+            <button
+              type="button"
+              onClick={() => setShowNewsModal(true)}
+              className="flex flex-col items-center justify-center space-y-0.5 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+            >
+              <Newspaper className="w-5 h-5 stroke-[2.2]" />
+              <span className="text-[10px]">Noticias</span>
+            </button>
+
+            {/* Nav 5: Perfil */}
+            <button
+              type="button"
+              onClick={() => setShowProfileModal(true)}
+              className="flex flex-col items-center justify-center space-y-0.5 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+            >
+              <User className="w-5 h-5 stroke-[2.2]" />
+              <span className="text-[10px]">Perfil</span>
+            </button>
+
+          </div>
 
         </div>
-
       </div>
 
-      {/* Incident Detail Modal */}
+      {/* ==================== MODALS ==================== */}
+
+      {/* 1. NOTICIAS MODAL */}
+      {showNewsModal && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs">
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div className="flex items-center space-x-2">
+                <Newspaper className="w-5 h-5 text-[#0A4191]" />
+                <h3 className="font-extrabold text-sm text-slate-900 dark:text-white">
+                  Noticias del Cantón Logroño
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowNewsModal(false)}
+                className="text-slate-400 hover:text-slate-600 font-bold"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+              <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <span className="text-[10px] font-bold text-emerald-600">04 de Agosto, 2026</span>
+                <h4 className="font-bold text-slate-900 dark:text-white text-xs mt-0.5">
+                  Avanza Obra de Saneamiento e Alcantarillado en Parroquia Shimpis
+                </h4>
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1">
+                  La Dirección de Obras Públicas del GAD Logroño constata un 85% de avance en la instalación de tuberías beneficiando a familias de la zona.
+                </p>
+              </div>
+
+              <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <span className="text-[10px] font-bold text-amber-600">02 de Agosto, 2026</span>
+                <h4 className="font-bold text-slate-900 dark:text-white text-xs mt-0.5">
+                  Feria de Emprendimiento Intercultural Shuar Kakaim
+                </h4>
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1">
+                  Este fin de semana la plaza principal de Logroño acoge a productores de la cuenca del Río Upano con artesanías y productos locales.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowNewsModal(false)}
+              className="w-full py-2.5 bg-[#0A4191] text-white font-bold rounded-xl cursor-pointer"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 2. AGENDA MODAL */}
+      {showAgendaModal && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs">
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div className="flex items-center space-x-2">
+                <Calendar className="w-5 h-5 text-red-600" />
+                <h3 className="font-extrabold text-sm text-slate-900 dark:text-white">
+                  Agenda Municipal Logroño
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAgendaModal(false)}
+                className="text-slate-400 hover:text-slate-600 font-bold"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+              <div className="bg-red-50 dark:bg-red-950/40 p-3 rounded-2xl border border-red-200 dark:border-red-900">
+                <div className="flex justify-between items-center text-[10px] font-bold text-red-700 dark:text-red-300">
+                  <span>Viernes, 10:00 AM</span>
+                  <span className="bg-red-200 dark:bg-red-900 px-2 py-0.5 rounded-full">Audiencia Pública</span>
+                </div>
+                <h4 className="font-bold text-slate-900 dark:text-white text-xs mt-1">
+                  Sesión de Concejo Cantonal Abierta
+                </h4>
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
+                  Discusión del plan vial rural Transkutukú en el Salón Municipal.
+                </p>
+              </div>
+
+              <div className="bg-blue-50 dark:bg-blue-950/40 p-3 rounded-2xl border border-blue-200 dark:border-blue-900">
+                <div className="flex justify-between items-center text-[10px] font-bold text-blue-700 dark:text-blue-300">
+                  <span>Sábado, 09:00 AM</span>
+                  <span className="bg-blue-200 dark:bg-blue-900 px-2 py-0.5 rounded-full">Minga Comunitaria</span>
+                </div>
+                <h4 className="font-bold text-slate-900 dark:text-white text-xs mt-1">
+                  Minga de Limpieza y Reforestación Parque Upano
+                </h4>
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
+                  Convocatoria abierta para ciudadanos y brigadas comunitarias.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowAgendaModal(false)}
+              className="w-full py-2.5 bg-slate-800 text-white font-bold rounded-xl cursor-pointer"
+            >
+              Cerrar Agenda
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 3. EMERGENCIAS MODAL */}
+      {showEmergencyModal && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs">
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div className="flex items-center space-x-2">
+                <Siren className="w-5 h-5 text-red-600 animate-pulse" />
+                <h3 className="font-extrabold text-sm text-slate-900 dark:text-white">
+                  Líneas de Emergencia Directa
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowEmergencyModal(false)}
+                className="text-slate-400 hover:text-slate-600 font-bold"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2.5">
+              <a href="tel:911" className="bg-red-50 border border-red-200 p-3 rounded-2xl text-center block hover:bg-red-100">
+                <Ambulance className="w-6 h-6 text-red-600 mx-auto mb-1" />
+                <span className="font-black text-red-700 block text-xs">ECU 911</span>
+                <span className="text-[10px] text-slate-500">Nacional</span>
+              </a>
+
+              <a href="tel:102" className="bg-amber-50 border border-amber-200 p-3 rounded-2xl text-center block hover:bg-amber-100">
+                <Flame className="w-6 h-6 text-amber-600 mx-auto mb-1" />
+                <span className="font-black text-amber-800 block text-xs">Bomberos Logroño</span>
+                <span className="text-[10px] text-slate-500">Línea 102</span>
+              </a>
+
+              <a href="tel:101" className="bg-blue-50 border border-blue-200 p-3 rounded-2xl text-center block hover:bg-blue-100">
+                <ShieldCheck className="w-6 h-6 text-blue-600 mx-auto mb-1" />
+                <span className="font-black text-blue-800 block text-xs">Policía Cantonal</span>
+                <span className="text-[10px] text-slate-500">Línea 101</span>
+              </a>
+
+              <a href="tel:072700100" className="bg-emerald-50 border border-emerald-200 p-3 rounded-2xl text-center block hover:bg-emerald-100">
+                <UserCheck className="w-6 h-6 text-[#159A44] mx-auto mb-1" />
+                <span className="font-black text-emerald-800 block text-xs">Despacho GAD</span>
+                <span className="text-[10px] text-slate-500">(07) 2700-100</span>
+              </a>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowEmergencyModal(false)}
+              className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl cursor-pointer"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 4. NOTIFICATION MODAL */}
+      {showNotificationModal && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs">
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div className="flex items-center space-x-2">
+                <Bell className="w-5 h-5 text-amber-500" />
+                <h3 className="font-extrabold text-sm text-slate-900 dark:text-white">
+                  Notificaciones del Cantón
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowNotificationModal(false)}
+                className="text-slate-400 hover:text-slate-600 font-bold"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2.5">
+              <div className="bg-emerald-50 dark:bg-emerald-950/40 p-3 rounded-2xl border border-emerald-200">
+                <span className="text-[10px] font-bold text-emerald-700 block">Actualización de Incidencia</span>
+                <p className="text-slate-800 dark:text-slate-200 font-semibold text-xs">
+                  Tu reporte LOG-2026-8812 sobre bacheo en Calle 10 de Agosto ha sido asignado a cuadrilla técnica.
+                </p>
+                <span className="text-[9px] text-slate-400 block mt-1">Hace 25 minutos</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowNotificationModal(false)}
+              className="w-full py-2.5 bg-slate-800 text-white font-bold rounded-xl cursor-pointer"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 5. PERFIL USER MODAL */}
+      {showProfileModal && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs">
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div className="flex items-center space-x-2">
+                <User className="w-5 h-5 text-[#0A4191]" />
+                <h3 className="font-extrabold text-sm text-slate-900 dark:text-white">
+                  Perfil de Usuario Ciudadano
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowProfileModal(false)}
+                className="text-slate-400 hover:text-slate-600 font-bold"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 text-center space-y-2">
+              <div className="w-16 h-16 rounded-full bg-[#0A4191] text-white text-2xl font-black mx-auto flex items-center justify-center shadow">
+                {userFirstName[0]}
+              </div>
+              <h4 className="font-black text-base text-slate-900 dark:text-white">
+                {currentUser?.name || 'María Shakaim'}
+              </h4>
+              <p className="text-slate-500 font-medium text-xs">{currentUser?.email || 'maria.shakaim@logrono.gob.ec'}</p>
+              
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-700 grid grid-cols-2 gap-2 text-left text-[11px]">
+                <div>
+                  <span className="text-slate-400 block">Sector:</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">{currentUser?.sector || 'Logroño Centro'}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block">Rol:</span>
+                  <span className="font-bold text-emerald-600 uppercase">{currentUser?.role || 'Ciudadano'}</span>
+                </div>
+              </div>
+            </div>
+
+            {onLogout && (
+              <button
+                type="button"
+                onClick={() => {
+                  setShowProfileModal(false);
+                  onLogout();
+                }}
+                className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl flex items-center justify-center space-x-2 cursor-pointer shadow"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Cerrar Sesión</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 6. INCIDENT DETAIL MODAL */}
       {selectedIncident && (
         <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-4 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-3 max-h-[90vh] overflow-y-auto text-xs">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-3 max-h-[90vh] overflow-y-auto text-xs">
             <div className="flex justify-between items-start border-b border-slate-200 dark:border-slate-800 pb-2">
               <div>
-                <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                <span className="text-xs font-mono font-bold text-[#0A4191]">
                   {selectedIncident.code}
                 </span>
                 <h3 className="text-base font-bold text-slate-900 dark:text-white">
@@ -916,52 +1737,44 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                 </h3>
               </div>
               <button
+                type="button"
                 onClick={() => setSelectedIncident(null)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold text-lg"
+                className="text-slate-400 hover:text-slate-600 font-bold"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {selectedIncident.photoUrl && (
-              <img src={selectedIncident.photoUrl} alt="" className="w-full h-44 rounded-xl object-cover border" />
+              <img src={selectedIncident.photoUrl} alt="" className="w-full h-44 rounded-2xl object-cover border" />
             )}
 
             <div className="space-y-2">
               <p className="text-slate-700 dark:text-slate-300">{selectedIncident.description}</p>
               
-              <div className="bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg space-y-1 text-[11px]">
+              <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl space-y-1 text-[11px]">
                 <div className="flex justify-between">
                   <span className="font-semibold text-slate-500">Sector:</span>
                   <span className="font-bold text-slate-900 dark:text-white">{selectedIncident.location.sector}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-semibold text-slate-500">Departamento Asignado:</span>
-                  <span className="font-bold text-emerald-600 dark:text-emerald-400">{selectedIncident.assignedDepartment}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-semibold text-slate-500">Operador Técnico:</span>
-                  <span className="font-bold text-slate-900 dark:text-white">{selectedIncident.assignedOperator || 'En asignación'}</span>
+                  <span className="font-bold text-[#159A44]">{selectedIncident.assignedDepartment}</span>
                 </div>
               </div>
-
-              {selectedIncident.aiAnalysis && (
-                <div className="bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-lg border border-amber-200 dark:border-amber-900 space-y-1 text-[11px]">
-                  <span className="font-bold text-amber-900 dark:text-amber-300 block">Diagnóstico de Visión IA Gemini:</span>
-                  <p className="text-slate-700 dark:text-slate-300 italic">"{selectedIncident.aiAnalysis.recommendation}"</p>
-                </div>
-              )}
             </div>
 
             <button
+              type="button"
               onClick={() => setSelectedIncident(null)}
-              className="w-full py-2 bg-slate-800 text-white font-bold rounded-lg cursor-pointer"
+              className="w-full py-2.5 bg-slate-800 text-white font-bold rounded-xl cursor-pointer"
             >
               Cerrar Detalle
             </button>
           </div>
         </div>
       )}
+
     </div>
   );
 };

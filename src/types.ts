@@ -97,7 +97,7 @@ export interface PQRSItem {
   date: string;
 }
 
-export type ActiveTab = 'login' | 'citizen_app' | 'admin_dashboard' | 'tech_docs' | 'ai_assistant';
+export type ActiveTab = 'splash' | 'login' | 'citizen_app' | 'admin_dashboard' | 'tech_docs' | 'ai_assistant';
 
 export interface UserProfile {
   id: string;

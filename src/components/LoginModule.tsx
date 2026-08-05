@@ -11,6 +11,7 @@ import {
   Eye, 
   EyeOff, 
   ArrowRight, 
+  ArrowLeft,
   CheckCircle2, 
   KeyRound, 
   ShieldCheck, 
@@ -24,6 +25,7 @@ import {
 interface LoginModuleProps {
   onLoginSuccess: (user: UserProfile) => void;
   lang?: 'es' | 'shuar';
+  onBackToSplash?: () => void;
 }
 
 type AuthMode = 'login' | 'register' | 'recover';
@@ -38,7 +40,7 @@ const LOGRONO_SECTORS: LogronoSector[] = [
   'Sector Transkutukú'
 ];
 
-export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess }) => {
+export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBackToSplash }) => {
   const [mode, setMode] = useState<AuthMode>('login');
   
   // Login Form State
@@ -203,9 +205,22 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess }) => {
               </p>
             </div>
           </div>
-          <div className="hidden sm:flex items-center space-x-2 bg-emerald-900/40 border border-emerald-700/40 px-3 py-1 rounded-full text-[11px] text-emerald-300">
-            <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-            <span>Acceso Seguro Encriptado SSL 256-bit</span>
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            {onBackToSplash && (
+              <button
+                type="button"
+                onClick={onBackToSplash}
+                className="p-1.5 rounded-lg bg-emerald-900/60 hover:bg-emerald-800 text-emerald-300 transition-colors flex items-center space-x-1 text-xs cursor-pointer"
+                title="Volver a la pantalla de bienvenida"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Bienvenida</span>
+              </button>
+            )}
+            <div className="hidden sm:flex items-center space-x-2 bg-emerald-900/40 border border-emerald-700/40 px-3 py-1 rounded-full text-[11px] text-emerald-300">
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+              <span>Acceso Seguro Encriptado SSL 256-bit</span>
+            </div>
           </div>
         </div>
       </header>

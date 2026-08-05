@@ -12,10 +12,11 @@ import { AdminPanel } from './components/AdminPanel';
 import { TechnicalDocViewer } from './components/TechnicalDocViewer';
 import { LogroBotModal } from './components/LogroBotModal';
 import { LoginModule } from './components/LoginModule';
+import { WelcomeSplash } from './components/WelcomeSplash';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
-  const [activeTab, setActiveTab] = useState<ActiveTab>('login');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('splash');
   const [lang, setLang] = useState<LanguageMode>('es');
   const [incidents, setIncidents] = useState<Incident[]>(INITIAL_INCIDENTS);
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
@@ -104,9 +105,20 @@ export default function App() {
 
   const offlineCount = incidents.filter((i) => i.isOfflineQueued).length;
 
+  // If active tab is splash, show welcome splash screen first
+  if (activeTab === 'splash') {
+    return <WelcomeSplash onStart={() => setActiveTab('login')} />;
+  }
+
   // If active tab is login or user is not logged in, display full login screen module
   if (activeTab === 'login' || !currentUser) {
-    return <LoginModule onLoginSuccess={handleLoginSuccess} lang={lang} />;
+    return (
+      <LoginModule 
+        onLoginSuccess={handleLoginSuccess} 
+        lang={lang} 
+        onBackToSplash={() => setActiveTab('splash')}
+      />
+    );
   }
 
   return (
@@ -133,6 +145,8 @@ export default function App() {
             onAddIncident={handleAddIncident}
             lang={lang}
             isOnline={isOnline}
+            currentUser={currentUser}
+            onLogout={handleLogout}
           />
         )}
 
