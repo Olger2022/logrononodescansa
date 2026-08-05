@@ -1,0 +1,6 @@
+{
+  "name": "Logroño Conecta",
+  "description": "Plataforma Digital de Participación Ciudadana y Gestión Inteligente de Incidencias Municipales para el GAD Municipal del Cantón Logroño, Morona Santiago, Ecuador.",
+  "requestFramePermissions": ["camera", "geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
