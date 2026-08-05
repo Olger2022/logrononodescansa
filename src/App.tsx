@@ -4,16 +4,18 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { ActiveTab, Incident, IncidentStatus, LanguageMode } from './types';
+import { ActiveTab, Incident, IncidentStatus, LanguageMode, UserProfile } from './types';
 import { INITIAL_INCIDENTS } from './data/mockIncidents';
 import { Header } from './components/Header';
 import { CitizenApp } from './components/CitizenApp';
 import { AdminPanel } from './components/AdminPanel';
 import { TechnicalDocViewer } from './components/TechnicalDocViewer';
 import { LogroBotModal } from './components/LogroBotModal';
+import { LoginModule } from './components/LoginModule';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('citizen_app');
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [activeTab, setActiveTab] = useState<ActiveTab>('login');
   const [lang, setLang] = useState<LanguageMode>('es');
   const [incidents, setIncidents] = useState<Incident[]>(INITIAL_INCIDENTS);
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
@@ -32,6 +34,22 @@ export default function App() {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  // Login Success Callback
+  const handleLoginSuccess = (user: UserProfile) => {
+    setCurrentUser(user);
+    if (user.role === 'admin') {
+      setActiveTab('admin_dashboard');
+    } else {
+      setActiveTab('citizen_app');
+    }
+  };
+
+  // Logout Callback
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setActiveTab('login');
+  };
 
   // Add Incident Callback
   const handleAddIncident = (newInc: Incident) => {
@@ -86,6 +104,11 @@ export default function App() {
 
   const offlineCount = incidents.filter((i) => i.isOfflineQueued).length;
 
+  // If active tab is login or user is not logged in, display full login screen module
+  if (activeTab === 'login' || !currentUser) {
+    return <LoginModule onLoginSuccess={handleLoginSuccess} lang={lang} />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-amber-400 selection:text-slate-950">
       
@@ -98,6 +121,8 @@ export default function App() {
         isOnline={isOnline}
         offlineCount={offlineCount}
         openLogroBot={() => setIsLogroBotOpen(true)}
+        currentUser={currentUser}
+        onLogout={handleLogout}
       />
 
       {/* Main View Router */}

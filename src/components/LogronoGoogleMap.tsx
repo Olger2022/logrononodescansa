@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
-import { Incident } from '../types';
-import { MapPin, Navigation, Layers, ExternalLink, Key } from 'lucide-react';
+import { Incident, IncidentStatus } from '../types';
+import { MapPin, Navigation, Layers, ExternalLink, Key, Filter } from 'lucide-react';
 
 const getApiKey = (): string => {
   if (typeof process !== 'undefined' && process.env?.GOOGLE_MAPS_PLATFORM_KEY) {
@@ -25,6 +25,13 @@ interface LogronoGoogleMapProps {
 // Center of Logroño, Morona Santiago, Ecuador
 const LOGRONO_CENTER = { lat: -2.6280, lng: -78.1760 };
 
+const STATUS_FILTER_OPTIONS: { id: string; label: string; statusValue?: IncidentStatus }[] = [
+  { id: 'todos', label: 'Todos' },
+  { id: 'reportado', label: 'Reportado', statusValue: 'reportado' },
+  { id: 'en_proceso', label: 'En Proceso', statusValue: 'en_proceso' },
+  { id: 'resuelto', label: 'Resuelto', statusValue: 'resuelto' },
+];
+
 export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
   incidents,
   onSelectIncident
@@ -40,6 +47,32 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
 
   const [mapTypeId, setMapTypeId] = useState<'roadmap' | 'hybrid' | 'satellite'>('roadmap');
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  
+  // Multi-select state variable for status filters ('reportado', 'en_proceso', 'resuelto')
+  const [selectedStatuses, setSelectedStatuses] = useState<IncidentStatus[]>([
+    'reportado',
+    'en_proceso',
+    'resuelto'
+  ]);
+
+  const toggleStatusFilter = (status: IncidentStatus) => {
+    setSelectedStatuses((prev) =>
+      prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]
+    );
+  };
+
+  const toggleAllStatuses = () => {
+    if (selectedStatuses.length === 3) {
+      setSelectedStatuses([]);
+    } else {
+      setSelectedStatuses(['reportado', 'en_proceso', 'resuelto']);
+    }
+  };
+
+  // Filtered incidents based on active multi-select status filter
+  const filteredIncidents = useMemo(() => {
+    return incidents.filter((inc) => selectedStatuses.includes(inc.status));
+  }, [incidents, selectedStatuses]);
 
   // Sector Fly-to Handler
   const handleFlyToSector = (lat: number, lng: number, zoom: number = 14) => {
@@ -100,7 +133,7 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
     };
   }, [apiKey, hasValidKey]);
 
-  // Update Markers and MarkerClusterer whenever incidents change or map loads
+  // Update Markers and MarkerClusterer whenever filteredIncidents change or map loads
   useEffect(() => {
     if (!isMapLoaded || !mapInstanceRef.current || !clustererRef.current) return;
 
@@ -111,7 +144,7 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
     const map = mapInstanceRef.current;
     const infoWindow = infoWindowRef.current || new google.maps.InfoWindow();
 
-    incidents.forEach((inc) => {
+    filteredIncidents.forEach((inc, index) => {
       // Pin styling
       let pinBg = '#10B981'; // Emerald
       if (inc.priority === 'critica') pinBg = '#EF4444'; // Red
@@ -123,12 +156,41 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
         borderColor: '#0F172A'
       });
 
+      // Apply entrance bounce/drop animation with staggered delay
+      const pinDom = pinElement.element;
+      pinDom.style.animation = 'markerDrop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both';
+      pinDom.style.animationDelay = `${index * 90}ms`;
+      pinDom.style.transition = 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease, filter 0.2s ease';
+      pinDom.style.cursor = 'pointer';
+
       const marker = new google.maps.marker.AdvancedMarkerElement({
         map,
         position: { lat: inc.location.lat, lng: inc.location.lng },
         title: `${inc.code} - ${inc.title}`,
-        content: pinElement.element
+        content: pinDom
       });
+
+      // Mouseover and Mouseout handlers for visual hover feedback
+      const handleMouseOver = () => {
+        pinDom.style.transform = 'scale(1.25)';
+        pinDom.style.opacity = '0.95';
+        pinDom.style.filter = 'drop-shadow(0 4px 8px rgba(0,0,0,0.35))';
+        marker.zIndex = 999;
+      };
+
+      const handleMouseOut = () => {
+        pinDom.style.transform = 'scale(1)';
+        pinDom.style.opacity = '1';
+        pinDom.style.filter = 'none';
+        marker.zIndex = null;
+      };
+
+      marker.addListener('mouseover', handleMouseOver);
+      marker.addListener('mouseout', handleMouseOut);
+
+      // DOM fallback hover listeners
+      pinDom.addEventListener('mouseenter', handleMouseOver);
+      pinDom.addEventListener('mouseleave', handleMouseOut);
 
       // Marker Click Handler to open InfoWindow with incident details
       const handleMarkerClick = () => {
@@ -195,7 +257,7 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
     });
 
     clustererRef.current.addMarkers(markersRef.current);
-  }, [incidents, isMapLoaded, onSelectIncident]);
+  }, [filteredIncidents, isMapLoaded, onSelectIncident]);
 
   if (!hasValidKey) {
     return (
@@ -245,12 +307,47 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
           </div>
         </div>
 
+        {/* Status Filter Control Panel for Fallback */}
+        <div className="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center space-x-2 text-xs font-medium text-slate-300">
+            <Filter className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Filtrar por Estado:</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {[
+              { status: 'reportado' as IncidentStatus, label: 'Reportado', badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/50' },
+              { status: 'en_proceso' as IncidentStatus, label: 'En Proceso', badgeClass: 'bg-blue-500/20 text-blue-300 border-blue-500/50' },
+              { status: 'resuelto' as IncidentStatus, label: 'Resuelto', badgeClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' }
+            ].map(({ status, label, badgeClass }) => {
+              const isSelected = selectedStatuses.includes(status);
+              const count = incidents.filter((i) => i.status === status).length;
+              return (
+                <button
+                  key={status}
+                  type="button"
+                  onClick={() => toggleStatusFilter(status)}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border cursor-pointer flex items-center space-x-1 ${
+                    isSelected
+                      ? `${badgeClass} ring-1 ring-white/20 shadow-sm opacity-100`
+                      : 'bg-slate-800 text-slate-400 border-slate-700/60 opacity-50 hover:opacity-80'
+                  }`}
+                >
+                  <span>{label}</span>
+                  <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-black/40 font-mono">
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Fallback Interactive Map View with Incident Markers */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
             <span>Vista Georreferenciada de Incidencias en Logroño (WGS84)</span>
             <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">
-              4 Puntos Activos
+              {filteredIncidents.length} {filteredIncidents.length === 1 ? 'Punto Activo' : 'Puntos Activos'}
             </span>
           </div>
 
@@ -268,36 +365,42 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
             </div>
 
             <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-2 my-auto">
-              {incidents.map((inc) => (
-                <button
-                  key={inc.id}
-                  onClick={() => onSelectIncident(inc)}
-                  className={`p-3 rounded-xl text-left border transition-all cursor-pointer backdrop-blur-md ${
-                    inc.priority === 'critica'
-                      ? 'bg-red-950/90 border-red-500/80 text-red-100 hover:bg-red-900'
-                      : inc.priority === 'alta'
-                      ? 'bg-amber-950/90 border-amber-500/80 text-amber-100 hover:bg-amber-900'
-                      : 'bg-emerald-950/90 border-emerald-500/80 text-emerald-100 hover:bg-emerald-900'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[10px] font-bold text-amber-300">{inc.code}</span>
-                    <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-black/40">
-                      {inc.priority}
-                    </span>
-                  </div>
-                  <h4 className="font-bold text-xs line-clamp-1 mt-1 text-white">{inc.title}</h4>
-                  <div className="text-[10px] text-slate-300 flex items-center justify-between mt-1">
-                    <span className="flex items-center space-x-1">
-                      <MapPin className="w-3 h-3 text-amber-400" />
-                      <span>{inc.location.sector}</span>
-                    </span>
-                    <span className="font-mono text-[9px] text-slate-400">
-                      {inc.location.lat}, {inc.location.lng}
-                    </span>
-                  </div>
-                </button>
-              ))}
+              {filteredIncidents.length === 0 ? (
+                <div className="col-span-2 text-center py-8 text-slate-400 text-xs">
+                  No hay incidencias registradas con el estado seleccionado.
+                </div>
+              ) : (
+                filteredIncidents.map((inc) => (
+                  <button
+                    key={inc.id}
+                    onClick={() => onSelectIncident(inc)}
+                    className={`p-3 rounded-xl text-left border transition-all cursor-pointer backdrop-blur-md ${
+                      inc.priority === 'critica'
+                        ? 'bg-red-950/90 border-red-500/80 text-red-100 hover:bg-red-900'
+                        : inc.priority === 'alta'
+                        ? 'bg-amber-950/90 border-amber-500/80 text-amber-100 hover:bg-amber-900'
+                        : 'bg-emerald-950/90 border-emerald-500/80 text-emerald-100 hover:bg-emerald-900'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-[10px] font-bold text-amber-300">{inc.code}</span>
+                      <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-black/40">
+                        {inc.priority}
+                      </span>
+                    </div>
+                    <h4 className="font-bold text-xs line-clamp-1 mt-1 text-white">{inc.title}</h4>
+                    <div className="text-[10px] text-slate-300 flex items-center justify-between mt-1">
+                      <span className="flex items-center space-x-1">
+                        <MapPin className="w-3 h-3 text-amber-400" />
+                        <span>{inc.location.sector}</span>
+                      </span>
+                      <span className="font-mono text-[9px] text-slate-400">
+                        {inc.location.lat}, {inc.location.lng}
+                      </span>
+                    </div>
+                  </button>
+                ))
+              )}
             </div>
 
             <div className="relative z-10 flex justify-between items-center text-[10px] text-slate-400 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
@@ -383,11 +486,80 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
         </div>
       </div>
 
-      {/* Main Google Maps Container via Loader */}
+      {/* Inline styles for marker entrance keyframe animations */}
+      <style>{`
+        @keyframes markerDrop {
+          0% {
+            transform: translateY(-45px) scale(0.3);
+            opacity: 0;
+          }
+          65% {
+            transform: translateY(8px) scale(1.15);
+            opacity: 1;
+          }
+          85% {
+            transform: translateY(-4px) scale(0.95);
+          }
+          100% {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+          }
+        }
+      `}</style>
+
+      {/* Main Google Maps Container via Loader with floating control panel */}
       <div
+        id="map-container"
         ref={mapContainerRef}
         className="relative w-full h-[450px] rounded-2xl overflow-hidden border border-slate-300 dark:border-slate-800 shadow-md bg-slate-900"
-      />
+      >
+        {/* Floating Control Panel for Multi-Select Status Marker Visibility */}
+        <div className="absolute top-3 left-3 z-10 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 p-2.5 rounded-xl shadow-xl space-y-2 max-w-[calc(100%-24px)] sm:max-w-md">
+          <div className="flex items-center justify-between gap-3 text-xs font-semibold text-slate-100">
+            <div className="flex items-center space-x-1.5">
+              <Filter className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Visibilidad de Marcadores:</span>
+            </div>
+            <button
+              type="button"
+              onClick={toggleAllStatuses}
+              className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold underline cursor-pointer"
+            >
+              {selectedStatuses.length === 3 ? 'Desmarcar todos' : 'Marcar todos'}
+            </button>
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {[
+              { status: 'reportado' as IncidentStatus, label: 'Reportado', badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/50' },
+              { status: 'en_proceso' as IncidentStatus, label: 'En Proceso', badgeClass: 'bg-blue-500/20 text-blue-300 border-blue-500/50' },
+              { status: 'resuelto' as IncidentStatus, label: 'Resuelto', badgeClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' }
+            ].map(({ status, label, badgeClass }) => {
+              const isSelected = selectedStatuses.includes(status);
+              const count = incidents.filter((i) => i.status === status).length;
+              return (
+                <button
+                  key={status}
+                  type="button"
+                  onClick={() => toggleStatusFilter(status)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border cursor-pointer flex items-center space-x-1.5 ${
+                    isSelected
+                      ? `${badgeClass} ring-1 ring-white/20 shadow-sm opacity-100`
+                      : 'bg-slate-800/80 text-slate-400 border-slate-700/60 opacity-50 hover:opacity-80'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${
+                    status === 'reportado' ? 'bg-amber-400' : status === 'en_proceso' ? 'bg-blue-400' : 'bg-emerald-400'
+                  }`} />
+                  <span>{label}</span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-black/40 font-mono">
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

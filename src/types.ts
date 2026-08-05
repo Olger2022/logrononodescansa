@@ -97,7 +97,18 @@ export interface PQRSItem {
   date: string;
 }
 
-export type ActiveTab = 'citizen_app' | 'admin_dashboard' | 'tech_docs' | 'ai_assistant';
+export type ActiveTab = 'login' | 'citizen_app' | 'admin_dashboard' | 'tech_docs' | 'ai_assistant';
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  cedula?: string;
+  sector?: LogronoSector;
+  role: 'ciudadano' | 'admin' | 'tecnico';
+  avatarUrl?: string;
+  provider: 'password' | 'google';
+}
 
 export type LanguageMode = 'es' | 'shuar';
 
