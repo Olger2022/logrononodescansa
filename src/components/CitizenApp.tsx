@@ -12,6 +12,7 @@ import {
   Sparkles, 
   PhoneCall, 
   ChevronRight, 
+  ChevronLeft,
   FileText, 
   Maximize2, 
   Minimize2, 
@@ -47,8 +48,72 @@ import {
   Check,
   Upload,
   Navigation,
-  Image as ImageIcon
+  Image as ImageIcon,
+  ChevronDown,
+  Key,
+  Wrench,
+  Shield,
+  Lock,
+  Globe,
+  Moon,
+  Sun,
+  Info,
+  Settings
 } from 'lucide-react';
+
+export interface NewsItem {
+  id: string;
+  title: string;
+  date: string;
+  category: 'comunicados' | 'obras' | 'eventos';
+  categoryLabel: string;
+  image: string;
+  summary: string;
+  content: string;
+}
+
+export const MOCK_NEWS: NewsItem[] = [
+  {
+    id: 'news-1',
+    title: 'Mejoras en el sistema de Alumbrado Público',
+    date: '24/05/2024',
+    category: 'comunicados',
+    categoryLabel: 'Comunicados',
+    image: 'https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?w=400&auto=format&fit=crop&q=80',
+    summary: 'Sustitución de más de 120 luminarias a tecnología LED de alta eficiencia en el cantón Logroño.',
+    content: 'La Dirección de Servicios Municipales del GAD Cantonal de Logroño continúa ejecutando el plan integral de modernización del alumbrado público. Se han intervenido calles principales y accesos a barrios periurbanos para garantizar mayor seguridad nocturnal a los vecinos.'
+  },
+  {
+    id: 'news-2',
+    title: 'Campaña de limpieza en el cantón',
+    date: '20/05/2024',
+    category: 'eventos',
+    categoryLabel: 'Eventos',
+    image: 'https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=400&auto=format&fit=crop&q=80',
+    summary: 'Minga cantonal de recolección de desechos sólidos y ornato comunitario en parques y avenidas.',
+    content: 'Se invita a todas las familias y comités de barrio del cantón Logroño a participar en la gran minga de limpieza y recuperación de espacios públicos. Se habilitarán contenedores especiales de acopio.'
+  },
+  {
+    id: 'news-3',
+    title: 'Nuevas obras para nuestra comunidad',
+    date: '18/05/2024',
+    category: 'obras',
+    categoryLabel: 'Obras',
+    image: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?w=400&auto=format&fit=crop&q=80',
+    summary: 'Asfaltado de vías principales y mejoramiento de la red de alcantarillado en sectores prioritarios.',
+    content: 'El Alcalde y el equipo de Obras Públicas constatan el inicio de los trabajos de pavimentación y encunetado en los tramos de conexión vial hacia las parroquias Shimpis y Yaupi.'
+  },
+  {
+    id: 'news-4',
+    title: 'Atención en días feriados',
+    date: '15/05/2024',
+    category: 'comunicados',
+    categoryLabel: 'Comunicados',
+    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&auto=format&fit=crop&q=80',
+    summary: 'Horarios especiales de atención ciudadana y brigadas de turno de agua potable y recolección.',
+    content: 'Se informa a la ciudadanía del cantón Logroño que los servicios de recolección de basura y emergencia de agua potable operarán con normalidad durante los feriados.'
+  }
+];
 
 interface CitizenAppProps {
   incidents: Incident[];
@@ -67,11 +132,57 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
   currentUser,
   onLogout
 }) => {
-  const [citizenTab, setCitizenTab] = useState<'inicio' | 'reportar' | 'mis_reportes' | 'mapa' | 'pqrs' | 'directorio'>('inicio');
+  const [citizenTab, setCitizenTab] = useState<'inicio' | 'reportar' | 'mis_reportes' | 'noticias' | 'agenda' | 'perfil' | 'configuracion' | 'mapa' | 'pqrs' | 'directorio'>('inicio');
   const [reportStep, setReportStep] = useState<'category' | 'wizard'>('category');
   const [reportWizardStep, setReportWizardStep] = useState<1 | 2 | 3 | 4>(1);
   const [misReportesFilter, setMisReportesFilter] = useState<'todos' | 'en_proceso' | 'solucionados'>('todos');
+  const [noticiasFilter, setNoticiasFilter] = useState<'todos' | 'comunicados' | 'obras' | 'eventos'>('todos');
+  const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
+  const [selectedAgendaDay, setSelectedAgendaDay] = useState<number>(24);
+  const [showReportInfo, setShowReportInfo] = useState<boolean>(false);
   const [isPhoneFrame, setIsPhoneFrame] = useState<boolean>(true);
+
+  // Configuration Settings State (Mockup 18: CONFIGURACIÓN)
+  const [configNotificaciones, setConfigNotificaciones] = useState(true);
+  const [configTema, setConfigTema] = useState<'Claro' | 'Oscuro' | 'Sistema'>('Claro');
+  const [configIdioma, setConfigIdioma] = useState<'Español' | 'Kichwa' | 'English'>('Español');
+  const [showTemaModal, setShowTemaModal] = useState(false);
+  const [showIdiomaModal, setShowIdiomaModal] = useState(false);
+  const [showPrivacidadModal, setShowPrivacidadModal] = useState(false);
+  const [showAcercaModal, setShowAcercaModal] = useState(false);
+
+  // User Profile State (Mockup 17: PERFIL)
+  const [profileData, setProfileData] = useState({
+    name: currentUser?.name || 'María Fernanda',
+    email: currentUser?.email || 'maria@gmail.com',
+    phone: '098 471 2039',
+    cedula: currentUser?.cedula || '1400829104',
+    sector: currentUser?.sector || 'Logroño Centro (Cabecera)',
+    avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80'
+  });
+
+  // Profile Sub-modals & Edit States
+  const [showMisDatosModal, setShowMisDatosModal] = useState(false);
+  const [showNotifSettingsModal, setShowNotifSettingsModal] = useState(false);
+  const [showSecurityModal, setShowSecurityModal] = useState(false);
+  const [showHelpSupportModal, setShowHelpSupportModal] = useState(false);
+  const [profileToast, setProfileToast] = useState<string | null>(null);
+
+  // Edit fields for "Mis datos"
+  const [editName, setEditName] = useState(profileData.name);
+  const [editEmail, setEditEmail] = useState(profileData.email);
+  const [editPhone, setEditPhone] = useState(profileData.phone);
+  const [editSector, setEditSector] = useState(profileData.sector);
+  const [editCedula, setEditCedula] = useState(profileData.cedula);
+  const [editAvatarUrl, setEditAvatarUrl] = useState(profileData.avatarUrl);
+
+  // Notification settings state
+  const [notifPush, setNotifPush] = useState(true);
+  const [notifEmail, setNotifEmail] = useState(true);
+  const [notifSMS, setNotifSMS] = useState(false);
+
+  // Security settings state
+  const [security2FA, setSecurity2FA] = useState(false);
 
   // Modals state for 6-grid & nav items
   const [showNewsModal, setShowNewsModal] = useState(false);
@@ -344,8 +455,225 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
           {/* ==================== 2. MAIN SCREEN CONTENT AREA ==================== */}
           <div className="flex-1 bg-white dark:bg-slate-900 rounded-t-[32px] -mt-7 relative z-20 px-4 pt-5 pb-20 overflow-y-auto">
             
-            {/* TAB 1: HOME / INICIO VIEW (MATCHES SCREENSHOT EXACTLY) */}
-            {citizenTab === 'inicio' && (
+            {/* SCREEN 14: DETALLE DE REPORTE (MATCHES MOCKUP 14 EXACTLY WHEN AN INCIDENT IS SELECTED) */}
+            {selectedIncident ? (
+              <div className="space-y-4 text-xs pb-4 animate-in fade-in duration-200">
+                {/* Header Row: Back Arrow + Centered Title (Code) */}
+                <div className="relative text-center pt-1 pb-1">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedIncident(null)}
+                    className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
+                  >
+                    <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+                  </button>
+                  <h2 className="text-base font-black text-slate-900 dark:text-white font-mono tracking-tight">
+                    {selectedIncident.code}
+                  </h2>
+                </div>
+
+                {/* Status Banner Card (Matches Mockup 14) */}
+                {(() => {
+                  let bannerBg = 'bg-amber-100/90 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/50';
+                  let iconBg = 'bg-amber-500 text-white';
+                  let statusText = 'En proceso';
+                  let subtitleText = 'Tu reporte está siendo atendido.';
+                  let IconComp = Key;
+
+                  if (selectedIncident.status === 'resuelto') {
+                    bannerBg = 'bg-emerald-100/90 dark:bg-emerald-950/40 border-emerald-200/80 dark:border-emerald-800/50';
+                    iconBg = 'bg-emerald-500 text-white';
+                    statusText = 'Solucionado';
+                    subtitleText = 'Tu reporte ha sido resuelto y finalizado.';
+                    IconComp = CheckCircle2;
+                  } else if (selectedIncident.status === 'reportado') {
+                    bannerBg = 'bg-blue-100/90 dark:bg-blue-950/40 border-blue-200/80 dark:border-blue-800/50';
+                    iconBg = 'bg-[#0A4191] text-white';
+                    statusText = 'Recibido';
+                    subtitleText = 'Tu reporte fue recibido en el sistema municipal.';
+                    IconComp = Clock;
+                  } else if (selectedIncident.status === 'asignado' || selectedIncident.status === 'en_revision') {
+                    bannerBg = 'bg-amber-100/90 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/50';
+                    iconBg = 'bg-amber-500 text-white';
+                    statusText = 'En revisión';
+                    subtitleText = 'Tu reporte ha sido remitido al departamento técnico.';
+                    IconComp = Wrench;
+                  }
+
+                  return (
+                    <div className={`p-4 rounded-2xl border flex items-center space-x-3.5 shadow-sm ${bannerBg}`}>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${iconBg}`}>
+                        <IconComp className="w-5 h-5 stroke-[2.2]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-extrabold text-slate-900 dark:text-white text-sm">
+                          {statusText}
+                        </h3>
+                        <p className="text-xs text-slate-600 dark:text-slate-300 font-medium mt-0.5">
+                          {subtitleText}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Section Header: Progreso del reporte */}
+                <div className="pt-2">
+                  <h3 className="font-extrabold text-slate-900 dark:text-white text-xs">
+                    Progreso del reporte
+                  </h3>
+                </div>
+
+                {/* Vertical Timeline Stepper matching Mockup 14 */}
+                <div className="relative pl-3 space-y-4 pt-1 pb-2">
+                  {/* Vertical line connecting steps */}
+                  <div className="absolute left-[21px] top-4 bottom-5 w-0.5 bg-slate-200 dark:bg-slate-700 -z-0" />
+
+                  {/* Step 1: Recibido */}
+                  <div className="flex items-center justify-between text-xs relative z-10">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-sm flex-shrink-0">
+                        <Check className="w-3 h-3 stroke-[3]" />
+                      </div>
+                      <span className="text-slate-500 dark:text-slate-400 font-bold">-</span>
+                      <span className="font-extrabold text-slate-900 dark:text-white">Recibido</span>
+                    </div>
+                    <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                      24/05/2024 10:15
+                    </span>
+                  </div>
+
+                  {/* Step 2: En revisión */}
+                  <div className="flex items-center justify-between text-xs relative z-10">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-sm flex-shrink-0">
+                        <Check className="w-3 h-3 stroke-[3]" />
+                      </div>
+                      <span className="text-slate-500 dark:text-slate-400 font-bold">-</span>
+                      <span className="font-extrabold text-slate-900 dark:text-white">En revisión</span>
+                    </div>
+                    <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                      24/05/2024 11:20
+                    </span>
+                  </div>
+
+                  {/* Step 3: Asignado */}
+                  <div className="flex items-center justify-between text-xs relative z-10">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-sm flex-shrink-0">
+                        <Check className="w-3 h-3 stroke-[3]" />
+                      </div>
+                      <span className="text-slate-500 dark:text-slate-400 font-bold">-</span>
+                      <span className="font-extrabold text-slate-900 dark:text-white">Asignado</span>
+                    </div>
+                    <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                      24/05/2024 14:30
+                    </span>
+                  </div>
+
+                  {/* Step 4: En proceso */}
+                  <div className="flex items-center justify-between text-xs relative z-10">
+                    <div className="flex items-center space-x-2">
+                      {selectedIncident.status === 'resuelto' ? (
+                        <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-sm flex-shrink-0">
+                          <Check className="w-3 h-3 stroke-[3]" />
+                        </div>
+                      ) : (
+                        <div className="w-5 h-5 rounded-full bg-[#0A4191] text-white flex items-center justify-center shadow-sm flex-shrink-0">
+                          <Check className="w-3 h-3 stroke-[3]" />
+                        </div>
+                      )}
+                      <span className="text-slate-500 dark:text-slate-400 font-bold">-</span>
+                      <span className={`font-extrabold ${selectedIncident.status === 'en_proceso' ? 'text-[#0A4191] dark:text-blue-400 font-black' : 'text-slate-900 dark:text-white'}`}>
+                        En proceso
+                      </span>
+                    </div>
+                    <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                      25/05/2024 09:00
+                    </span>
+                  </div>
+
+                  {/* Step 5: Solucionado */}
+                  <div className="flex items-center justify-between text-xs relative z-10">
+                    <div className="flex items-center space-x-2">
+                      {selectedIncident.status === 'resuelto' ? (
+                        <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-sm flex-shrink-0">
+                          <Check className="w-3 h-3 stroke-[3]" />
+                        </div>
+                      ) : (
+                        <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 flex-shrink-0" />
+                      )}
+                      <span className="text-slate-400 dark:text-slate-500 font-bold">-</span>
+                      <span className={`font-semibold ${selectedIncident.status === 'resuelto' ? 'text-emerald-700 dark:text-emerald-400 font-extrabold' : 'text-slate-400 dark:text-slate-500'}`}>
+                        Solucionado
+                      </span>
+                    </div>
+                    <span className="font-mono text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+                      {selectedIncident.status === 'resuelto' ? '26/05/2024 16:00' : ''}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Bottom Collapsible Button: Información del reporte */}
+                <div className="pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowReportInfo(!showReportInfo)}
+                    className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl py-3 px-4 text-[#0A4191] dark:text-blue-400 font-bold text-center text-xs shadow-sm hover:shadow hover:border-blue-400 transition-all cursor-pointer flex items-center justify-center space-x-2"
+                  >
+                    <span>Información del reporte</span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${showReportInfo ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Collapsible Info Card */}
+                  {showReportInfo && (
+                    <div className="mt-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 space-y-3 shadow-sm animate-in fade-in duration-200">
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#0A4191] dark:text-blue-400 block">
+                          {selectedIncident.category}
+                        </span>
+                        <h4 className="font-extrabold text-slate-900 dark:text-white text-sm mt-0.5">
+                          {selectedIncident.title}
+                        </h4>
+                        <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                          {selectedIncident.description}
+                        </p>
+                      </div>
+
+                      {selectedIncident.photoUrl && (
+                        <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 max-h-48">
+                          <img src={selectedIncident.photoUrl} alt="Foto evidencia" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+
+                      <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60 space-y-1.5 text-[11px]">
+                        <div className="flex justify-between">
+                          <span className="text-slate-500 font-medium">Ubicación / Sector:</span>
+                          <span className="font-bold text-slate-900 dark:text-white">{selectedIncident.location.sector}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500 font-medium">Dirección:</span>
+                          <span className="font-bold text-slate-800 dark:text-slate-200 text-right truncate max-w-[180px]">{selectedIncident.location.address}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500 font-medium">Departamento:</span>
+                          <span className="font-bold text-[#159A44] truncate max-w-[180px]">{selectedIncident.assignedDepartment}</span>
+                        </div>
+                        {selectedIncident.assignedOperator && (
+                          <div className="flex justify-between">
+                            <span className="text-slate-500 font-medium">Técnico a cargo:</span>
+                            <span className="font-bold text-slate-900 dark:text-white">{selectedIncident.assignedOperator}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* TAB 1: HOME / INICIO VIEW (MATCHES SCREENSHOT EXACTLY) */}
+                {citizenTab === 'inicio' && (
               <div className="space-y-5">
                 
                 {/* Greeting Section */}
@@ -408,7 +736,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   {/* Card 2: Noticias */}
                   <button
                     type="button"
-                    onClick={() => setShowNewsModal(true)}
+                    onClick={() => {
+                      setSelectedIncident(null);
+                      setCitizenTab('noticias');
+                    }}
                     className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-blue-400 transition-all cursor-pointer group aspect-square"
                   >
                     <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0A4191] dark:text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
@@ -422,7 +753,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   {/* Card 3: Agenda */}
                   <button
                     type="button"
-                    onClick={() => setShowAgendaModal(true)}
+                    onClick={() => {
+                      setSelectedIncident(null);
+                      setCitizenTab('agenda');
+                    }}
                     className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-red-400 transition-all cursor-pointer group aspect-square"
                   >
                     <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
@@ -1386,6 +1720,463 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
               </div>
             )}
 
+            {/* TAB 7: NOTICIAS (MATCHES MOCKUP 15. NOTICIAS EXACTLY) */}
+            {citizenTab === 'noticias' && (
+              <div className="space-y-4 text-xs animate-in fade-in duration-200 pb-2">
+                {/* Header Row: Back Arrow + Centered Title "Noticias" */}
+                <div className="relative text-center pt-1 pb-1">
+                  <button
+                    type="button"
+                    onClick={() => setCitizenTab('inicio')}
+                    className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
+                  >
+                    <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+                  </button>
+                  <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                    Noticias
+                  </h2>
+                </div>
+
+                {/* Filter Pills Row: Todos | Comunicados | Obras | Eventos */}
+                <div className="grid grid-cols-4 gap-1.5 py-0.5">
+                  {(['todos', 'comunicados', 'obras', 'eventos'] as const).map((filter) => {
+                    const labels: Record<string, string> = {
+                      todos: 'Todos',
+                      comunicados: 'Comunicados',
+                      obras: 'Obras',
+                      eventos: 'Eventos'
+                    };
+                    const isActive = noticiasFilter === filter;
+                    return (
+                      <button
+                        key={filter}
+                        type="button"
+                        onClick={() => setNoticiasFilter(filter)}
+                        className={`py-2 px-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer text-center truncate ${
+                          isActive
+                            ? 'bg-[#0A4191] text-white shadow-sm'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
+                        }`}
+                      >
+                        {labels[filter]}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* List of News Cards matching Mockup 15 */}
+                <div className="space-y-3 pt-1">
+                  {MOCK_NEWS.filter((item) => {
+                    if (noticiasFilter === 'todos') return true;
+                    return item.category === noticiasFilter;
+                  }).map((news) => (
+                    <div
+                      key={news.id}
+                      onClick={() => setSelectedNews(news)}
+                      className="bg-[#F8FAFC] dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-2.5 flex items-center space-x-3 shadow-xs hover:shadow-md hover:border-blue-400 cursor-pointer transition-all group"
+                    >
+                      {/* Left Thumbnail Image */}
+                      <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-700">
+                        <img
+                          src={news.image}
+                          alt={news.title}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        />
+                      </div>
+
+                      {/* Middle Title & Date */}
+                      <div className="flex-1 min-w-0 pr-1">
+                        <h4 className="font-extrabold text-slate-900 dark:text-white text-xs leading-tight line-clamp-2">
+                          {news.title}
+                        </h4>
+                        <p className="text-[11px] font-mono text-slate-400 dark:text-slate-500 font-medium mt-1">
+                          {news.date}
+                        </p>
+                      </div>
+
+                      {/* Right Chevron */}
+                      <div className="flex-shrink-0 pr-1">
+                        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#0A4191] dark:group-hover:text-blue-400 transition-colors" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 8: AGENDA MUNICIPAL (MATCHES MOCKUP 16. AGENDA EXACTLY) */}
+            {citizenTab === 'agenda' && (
+              <div className="space-y-4 text-xs animate-in fade-in duration-200 pb-2">
+                {/* Header Row: Back Arrow + Centered Title "Agenda Municipal" */}
+                <div className="relative text-center pt-1 pb-1">
+                  <button
+                    type="button"
+                    onClick={() => setCitizenTab('inicio')}
+                    className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
+                  >
+                    <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+                  </button>
+                  <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                    Agenda Municipal
+                  </h2>
+                </div>
+
+                {/* Calendar View Container */}
+                <div className="bg-white dark:bg-slate-900 rounded-3xl p-3.5 border border-slate-100 dark:border-slate-800 shadow-2xs space-y-3">
+                  {/* Month Header: < Mayo 2024 > */}
+                  <div className="flex items-center justify-between px-3 pt-1">
+                    <button
+                      type="button"
+                      className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors cursor-pointer"
+                    >
+                      <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
+                    </button>
+                    <span className="font-black text-sm text-slate-900 dark:text-white tracking-tight">
+                      Mayo 2024
+                    </span>
+                    <button
+                      type="button"
+                      className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors cursor-pointer"
+                    >
+                      <ChevronRight className="w-5 h-5 stroke-[2.5]" />
+                    </button>
+                  </div>
+
+                  {/* Days of week header: L  M  M  J  V  S  D */}
+                  <div className="grid grid-cols-7 text-center font-extrabold text-slate-400 dark:text-slate-500 text-[11px] py-1">
+                    <span>L</span>
+                    <span>M</span>
+                    <span>M</span>
+                    <span>J</span>
+                    <span>V</span>
+                    <span>S</span>
+                    <span>D</span>
+                  </div>
+
+                  {/* Days of month grid (May 2024 starts on Wednesday=1, Monday/Tuesday are 29/30 Apr) */}
+                  <div className="grid grid-cols-7 gap-y-2 gap-x-1 text-center items-center">
+                    {/* Row 1: 29 Apr, 30 Apr, 1, 2, 3, 4, 5 */}
+                    <span className="text-[11px] font-medium text-slate-300 dark:text-slate-600 py-1">29</span>
+                    <span className="text-[11px] font-medium text-slate-300 dark:text-slate-600 py-1">30</span>
+                    {[1, 2, 3, 4, 5].map((d) => (
+                      <button
+                        key={`day-${d}`}
+                        type="button"
+                        onClick={() => setSelectedAgendaDay(d)}
+                        className={`py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          selectedAgendaDay === d
+                            ? 'w-8 h-8 rounded-xl bg-[#0A4191] text-white flex items-center justify-center font-black shadow-md mx-auto'
+                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        {d}
+                      </button>
+                    ))}
+
+                    {/* Row 2: 6, 7, 8, 9, 10, 11, 12 */}
+                    {[6, 7, 8, 9, 10, 11, 12].map((d) => (
+                      <button
+                        key={`day-${d}`}
+                        type="button"
+                        onClick={() => setSelectedAgendaDay(d)}
+                        className={`py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          selectedAgendaDay === d
+                            ? 'w-8 h-8 rounded-xl bg-[#0A4191] text-white flex items-center justify-center font-black shadow-md mx-auto'
+                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        {d}
+                      </button>
+                    ))}
+
+                    {/* Row 3: 13, 14, 15, 16, 17, 18, 19 */}
+                    {[13, 14, 15, 16, 17, 18, 19].map((d) => (
+                      <button
+                        key={`day-${d}`}
+                        type="button"
+                        onClick={() => setSelectedAgendaDay(d)}
+                        className={`py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          selectedAgendaDay === d
+                            ? 'w-8 h-8 rounded-xl bg-[#0A4191] text-white flex items-center justify-center font-black shadow-md mx-auto'
+                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        {d}
+                      </button>
+                    ))}
+
+                    {/* Row 4: 20, 21, 22, 23, 24, 25, 26 */}
+                    {[20, 21, 22, 23, 24, 25, 26].map((d) => (
+                      <button
+                        key={`day-${d}`}
+                        type="button"
+                        onClick={() => setSelectedAgendaDay(d)}
+                        className={`py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          selectedAgendaDay === d
+                            ? 'w-8 h-8 rounded-xl bg-[#0A4191] text-white flex items-center justify-center font-black shadow-md mx-auto'
+                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        {d}
+                      </button>
+                    ))}
+
+                    {/* Row 5: 27, 28, 29, 30, 31, 1 Jun, 2 Jun */}
+                    {[27, 28, 29, 30, 31].map((d) => (
+                      <button
+                        key={`day-${d}`}
+                        type="button"
+                        onClick={() => setSelectedAgendaDay(d)}
+                        className={`py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          selectedAgendaDay === d
+                            ? 'w-8 h-8 rounded-xl bg-[#0A4191] text-white flex items-center justify-center font-black shadow-md mx-auto'
+                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        {d}
+                      </button>
+                    ))}
+                    <span className="text-[11px] font-medium text-slate-300 dark:text-slate-600 py-1">1</span>
+                    <span className="text-[11px] font-medium text-slate-300 dark:text-slate-600 py-1">2</span>
+                  </div>
+                </div>
+
+                {/* Section Subtitle: Eventos del 24 de mayo */}
+                <div className="pt-1 space-y-2.5">
+                  <h3 className="font-black text-slate-900 dark:text-white text-xs tracking-tight">
+                    Eventos del {selectedAgendaDay} de mayo
+                  </h3>
+
+                  {/* List of Event Cards */}
+                  <div className="space-y-3">
+                    {selectedAgendaDay === 24 ? (
+                      <>
+                        {/* Event 1: Minga comunitaria */}
+                        <div className="bg-[#F8FAFC] dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-3 flex items-center space-x-3.5 relative overflow-hidden shadow-xs hover:shadow-md transition-all">
+                          {/* Left Cyan Accent Strip */}
+                          <div className="absolute left-0 top-2 bottom-2 w-1 bg-cyan-400 rounded-r-full" />
+                          
+                          {/* Left Red Icon Badge */}
+                          <div className="w-11 h-11 rounded-2xl bg-red-100 dark:bg-red-950/70 text-red-500 dark:text-red-400 flex items-center justify-center flex-shrink-0 ml-1.5 shadow-2xs">
+                            <div className="w-7 h-7 bg-red-400/90 text-white rounded-xl flex items-center justify-center font-black text-xs">
+                              ?
+                            </div>
+                          </div>
+
+                          {/* Middle Content */}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-extrabold text-slate-900 dark:text-white text-xs leading-snug">
+                              Minga comunitaria
+                            </h4>
+                            <p className="text-[11px] font-mono text-slate-400 dark:text-slate-400 font-medium mt-0.5">
+                              08:00 AM - Parque Central
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Event 2: Sesión de Cabildo */}
+                        <div className="bg-[#F8FAFC] dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-3 flex items-center space-x-3.5 relative overflow-hidden shadow-xs hover:shadow-md transition-all">
+                          {/* Left Amber Accent Strip */}
+                          <div className="absolute left-0 top-2 bottom-2 w-1 bg-amber-400 rounded-r-full" />
+                          
+                          {/* Left Green Icon Badge */}
+                          <div className="w-11 h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0 ml-1.5 shadow-2xs">
+                            <div className="w-7 h-7 bg-emerald-500/90 text-white rounded-xl flex items-center justify-center">
+                              <Building2 className="w-4 h-4 stroke-[2.5]" />
+                            </div>
+                          </div>
+
+                          {/* Middle Content */}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-extrabold text-slate-900 dark:text-white text-xs leading-snug">
+                              Sesión de Cabildo
+                            </h4>
+                            <p className="text-[11px] font-mono text-slate-400 dark:text-slate-400 font-medium mt-0.5">
+                              15:00 PM - Sala de Sesiones
+                            </p>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="bg-[#F8FAFC] dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-4 text-center space-y-1">
+                        <p className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
+                          No hay eventos programados para esta fecha
+                        </p>
+                        <p className="text-[11px] text-slate-400">
+                          Selecciona el día 24 de mayo para consultar los eventos del cantón.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 9: PERFIL (MATCHES MOCKUP 17. PERFIL EXACTLY) */}
+            {citizenTab === 'perfil' && (
+              <div className="space-y-4 text-xs animate-in fade-in duration-200 pb-2">
+                {/* Header Row: Back Arrow + Centered Title "Mi perfil" + Settings button */}
+                <div className="relative text-center pt-1 pb-1">
+                  <button
+                    type="button"
+                    onClick={() => setCitizenTab('inicio')}
+                    className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
+                  >
+                    <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+                  </button>
+                  <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                    Mi perfil
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => setCitizenTab('configuracion')}
+                    className="absolute right-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
+                    title="Configuración"
+                  >
+                    <Settings className="w-5 h-5 stroke-[2.2]" />
+                  </button>
+                </div>
+
+                {/* Toast message if profile updated */}
+                {profileToast && (
+                  <div className="bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 p-2.5 rounded-2xl flex items-center space-x-2 text-xs font-bold animate-in slide-in-from-top-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                    <span className="flex-1">{profileToast}</span>
+                  </div>
+                )}
+
+                {/* Avatar & User Details Container */}
+                <div className="flex flex-col items-center justify-center text-center pt-1 pb-2 space-y-2">
+                  <div className="relative group">
+                    <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden border-4 border-white dark:border-slate-800 shadow-md flex items-center justify-center">
+                      {profileData.avatarUrl ? (
+                        <img
+                          src={profileData.avatarUrl}
+                          alt={profileData.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-12 h-12 text-slate-400" />
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditName(profileData.name);
+                        setEditEmail(profileData.email);
+                        setEditPhone(profileData.phone);
+                        setEditSector(profileData.sector);
+                        setEditCedula(profileData.cedula);
+                        setEditAvatarUrl(profileData.avatarUrl);
+                        setShowMisDatosModal(true);
+                      }}
+                      className="absolute bottom-0 right-0 w-7 h-7 bg-[#0A4191] text-white rounded-full flex items-center justify-center shadow-md hover:bg-blue-800 cursor-pointer transition-transform hover:scale-110"
+                      title="Editar perfil"
+                    >
+                      <Camera className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <div>
+                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white leading-snug">
+                      {profileData.name}
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                      {profileData.email}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Menu List matching Mockup 17: PERFIL */}
+                <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-2xs divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden">
+                  {/* 1. Mis datos */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditName(profileData.name);
+                      setEditEmail(profileData.email);
+                      setEditPhone(profileData.phone);
+                      setEditSector(profileData.sector);
+                      setEditCedula(profileData.cedula);
+                      setEditAvatarUrl(profileData.avatarUrl);
+                      setShowMisDatosModal(true);
+                    }}
+                    className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                  >
+                    <div className="flex items-center space-x-3.5">
+                      <User className="w-5 h-5 text-slate-600 dark:text-slate-300 stroke-[2.2] group-hover:text-[#0A4191] dark:group-hover:text-blue-400 transition-colors" />
+                      <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
+                        Mis datos
+                      </span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors" />
+                  </button>
+
+                  {/* 2. Notificaciones */}
+                  <button
+                    type="button"
+                    onClick={() => setShowNotifSettingsModal(true)}
+                    className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                  >
+                    <div className="flex items-center space-x-3.5">
+                      <Bell className="w-5 h-5 text-slate-600 dark:text-slate-300 stroke-[2.2] group-hover:text-[#0A4191] dark:group-hover:text-blue-400 transition-colors" />
+                      <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
+                        Notificaciones
+                      </span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors" />
+                  </button>
+
+                  {/* 3. Seguridad */}
+                  <button
+                    type="button"
+                    onClick={() => setShowSecurityModal(true)}
+                    className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                  >
+                    <div className="flex items-center space-x-3.5">
+                      <Shield className="w-5 h-5 text-slate-600 dark:text-slate-300 stroke-[2.2] group-hover:text-[#0A4191] dark:group-hover:text-blue-400 transition-colors" />
+                      <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
+                        Seguridad
+                      </span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors" />
+                  </button>
+
+                  {/* 4. Ayuda y soporte */}
+                  <button
+                    type="button"
+                    onClick={() => setShowHelpSupportModal(true)}
+                    className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                  >
+                    <div className="flex items-center space-x-3.5">
+                      <HelpCircle className="w-5 h-5 text-slate-600 dark:text-slate-300 stroke-[2.2] group-hover:text-[#0A4191] dark:group-hover:text-blue-400 transition-colors" />
+                      <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
+                        Ayuda y soporte
+                      </span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors" />
+                  </button>
+
+                  {/* 5. Cerrar sesión */}
+                  <button
+                    type="button"
+                    onClick={onLogout}
+                    className="w-full p-4 flex items-center justify-between hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer group"
+                  >
+                    <div className="flex items-center space-x-3.5">
+                      <LogOut className="w-5 h-5 text-slate-600 dark:text-slate-300 stroke-[2.2] group-hover:text-red-600 transition-colors" />
+                      <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs group-hover:text-red-600 transition-colors">
+                        Cerrar sesión
+                      </span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-red-500 transition-colors" />
+                  </button>
+                </div>
+              </div>
+            )}
+            </>
+            )}
+
           </div>
 
           {/* ==================== 3. BOTTOM NAVIGATION BAR (MATCHES SCREENSHOT EXACTLY) ==================== */}
@@ -1394,7 +2185,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
             {/* Nav 1: Inicio */}
             <button
               type="button"
-              onClick={() => setCitizenTab('inicio')}
+              onClick={() => {
+                setSelectedIncident(null);
+                setCitizenTab('inicio');
+              }}
               className={`flex flex-col items-center justify-center space-y-0.5 transition-colors cursor-pointer ${
                 citizenTab === 'inicio' ? 'text-[#0A4191] dark:text-blue-400 font-bold' : 'text-slate-400 hover:text-slate-600'
               }`}
@@ -1406,7 +2200,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
             {/* Nav 2: Reportes */}
             <button
               type="button"
-              onClick={() => setCitizenTab('mis_reportes')}
+              onClick={() => {
+                setSelectedIncident(null);
+                setCitizenTab('mis_reportes');
+              }}
               className={`flex flex-col items-center justify-center space-y-0.5 transition-colors cursor-pointer ${
                 citizenTab === 'mis_reportes' ? 'text-[#0A4191] dark:text-blue-400 font-bold' : 'text-slate-400 hover:text-slate-600'
               }`}
@@ -1419,6 +2216,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
             <button
               type="button"
               onClick={() => {
+                setSelectedIncident(null);
                 setReportStep('category');
                 setCitizenTab('reportar');
               }}
@@ -1431,8 +2229,13 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
             {/* Nav 4: Noticias */}
             <button
               type="button"
-              onClick={() => setShowNewsModal(true)}
-              className="flex flex-col items-center justify-center space-y-0.5 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              onClick={() => {
+                setSelectedIncident(null);
+                setCitizenTab('noticias');
+              }}
+              className={`flex flex-col items-center justify-center space-y-0.5 transition-colors cursor-pointer ${
+                citizenTab === 'noticias' ? 'text-[#0A4191] dark:text-blue-400 font-bold' : 'text-slate-400 hover:text-slate-600'
+              }`}
             >
               <Newspaper className="w-5 h-5 stroke-[2.2]" />
               <span className="text-[10px]">Noticias</span>
@@ -1441,8 +2244,13 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
             {/* Nav 5: Perfil */}
             <button
               type="button"
-              onClick={() => setShowProfileModal(true)}
-              className="flex flex-col items-center justify-center space-y-0.5 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              onClick={() => {
+                setSelectedIncident(null);
+                setCitizenTab('perfil');
+              }}
+              className={`flex flex-col items-center justify-center space-y-0.5 transition-colors cursor-pointer ${
+                citizenTab === 'perfil' ? 'text-[#0A4191] dark:text-blue-400 font-bold' : 'text-slate-400 hover:text-slate-600'
+              }`}
             >
               <User className="w-5 h-5 stroke-[2.2]" />
               <span className="text-[10px]">Perfil</span>
@@ -1455,52 +2263,96 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
       {/* ==================== MODALS ==================== */}
 
-      {/* 1. NOTICIAS MODAL */}
+      {/* 1. NOTICIAS MODAL (MOCKUP 15 DESIGN) */}
       {showNewsModal && (
         <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs">
-            <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
-              <div className="flex items-center space-x-2">
-                <Newspaper className="w-5 h-5 text-[#0A4191]" />
-                <h3 className="font-extrabold text-sm text-slate-900 dark:text-white">
-                  Noticias del Cantón Logroño
-                </h3>
-              </div>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs">
+            {/* Header Row: Back Arrow + Centered Title "Noticias" */}
+            <div className="relative text-center pt-1 pb-1">
               <button
                 type="button"
                 onClick={() => setShowNewsModal(false)}
-                className="text-slate-400 hover:text-slate-600 font-bold"
+                className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
               >
-                <X className="w-5 h-5" />
+                <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
               </button>
+              <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                Noticias
+              </h2>
             </div>
 
-            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
-              <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700">
-                <span className="text-[10px] font-bold text-emerald-600">04 de Agosto, 2026</span>
-                <h4 className="font-bold text-slate-900 dark:text-white text-xs mt-0.5">
-                  Avanza Obra de Saneamiento e Alcantarillado en Parroquia Shimpis
-                </h4>
-                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1">
-                  La Dirección de Obras Públicas del GAD Logroño constata un 85% de avance en la instalación de tuberías beneficiando a familias de la zona.
-                </p>
-              </div>
+            {/* Filter Pills Row: Todos | Comunicados | Obras | Eventos */}
+            <div className="grid grid-cols-4 gap-1.5 py-0.5">
+              {(['todos', 'comunicados', 'obras', 'eventos'] as const).map((filter) => {
+                const labels: Record<string, string> = {
+                  todos: 'Todos',
+                  comunicados: 'Comunicados',
+                  obras: 'Obras',
+                  eventos: 'Eventos'
+                };
+                const isActive = noticiasFilter === filter;
+                return (
+                  <button
+                    key={filter}
+                    type="button"
+                    onClick={() => setNoticiasFilter(filter)}
+                    className={`py-2 px-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer text-center truncate ${
+                      isActive
+                        ? 'bg-[#0A4191] text-white shadow-sm'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {labels[filter]}
+                  </button>
+                );
+              })}
+            </div>
 
-              <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700">
-                <span className="text-[10px] font-bold text-amber-600">02 de Agosto, 2026</span>
-                <h4 className="font-bold text-slate-900 dark:text-white text-xs mt-0.5">
-                  Feria de Emprendimiento Intercultural Shuar Kakaim
-                </h4>
-                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1">
-                  Este fin de semana la plaza principal de Logroño acoge a productores de la cuenca del Río Upano con artesanías y productos locales.
-                </p>
-              </div>
+            {/* List of News Cards matching Mockup 15 */}
+            <div className="space-y-3 max-h-[55vh] overflow-y-auto pr-1">
+              {MOCK_NEWS.filter((item) => {
+                if (noticiasFilter === 'todos') return true;
+                return item.category === noticiasFilter;
+              }).map((news) => (
+                <div
+                  key={news.id}
+                  onClick={() => {
+                    setSelectedNews(news);
+                    setShowNewsModal(false);
+                  }}
+                  className="bg-[#F8FAFC] dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-2.5 flex items-center space-x-3 shadow-xs hover:shadow-md hover:border-blue-400 cursor-pointer transition-all group"
+                >
+                  {/* Left Thumbnail Image */}
+                  <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-700">
+                    <img
+                      src={news.image}
+                      alt={news.title}
+                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                    />
+                  </div>
+
+                  {/* Middle Title & Date */}
+                  <div className="flex-1 min-w-0 pr-1">
+                    <h4 className="font-extrabold text-slate-900 dark:text-white text-xs leading-tight line-clamp-2">
+                      {news.title}
+                    </h4>
+                    <p className="text-[11px] font-mono text-slate-400 dark:text-slate-500 font-medium mt-1">
+                      {news.date}
+                    </p>
+                  </div>
+
+                  {/* Right Chevron */}
+                  <div className="flex-shrink-0 pr-1">
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#0A4191] dark:group-hover:text-blue-400 transition-colors" />
+                  </div>
+                </div>
+              ))}
             </div>
 
             <button
               type="button"
               onClick={() => setShowNewsModal(false)}
-              className="w-full py-2.5 bg-[#0A4191] text-white font-bold rounded-xl cursor-pointer"
+              className="w-full py-2.5 bg-slate-900 text-white font-bold rounded-xl cursor-pointer"
             >
               Cerrar
             </button>
@@ -1508,60 +2360,184 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
         </div>
       )}
 
-      {/* 2. AGENDA MODAL */}
-      {showAgendaModal && (
+      {/* SELECTED NEWS READER MODAL */}
+      {selectedNews && (
         <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs">
-            <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
-              <div className="flex items-center space-x-2">
-                <Calendar className="w-5 h-5 text-red-600" />
-                <h3 className="font-extrabold text-sm text-slate-900 dark:text-white">
-                  Agenda Municipal Logroño
-                </h3>
-              </div>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-3.5 text-xs animate-in fade-in duration-200">
+            <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2">
+              <span className="bg-blue-100 dark:bg-blue-950/60 text-[#0A4191] dark:text-blue-400 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                {selectedNews.categoryLabel}
+              </span>
               <button
                 type="button"
-                onClick={() => setShowAgendaModal(false)}
-                className="text-slate-400 hover:text-slate-600 font-bold"
+                onClick={() => setSelectedNews(null)}
+                className="text-slate-400 hover:text-slate-600 font-bold p-1"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-              <div className="bg-red-50 dark:bg-red-950/40 p-3 rounded-2xl border border-red-200 dark:border-red-900">
-                <div className="flex justify-between items-center text-[10px] font-bold text-red-700 dark:text-red-300">
-                  <span>Viernes, 10:00 AM</span>
-                  <span className="bg-red-200 dark:bg-red-900 px-2 py-0.5 rounded-full">Audiencia Pública</span>
-                </div>
-                <h4 className="font-bold text-slate-900 dark:text-white text-xs mt-1">
-                  Sesión de Concejo Cantonal Abierta
-                </h4>
-                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
-                  Discusión del plan vial rural Transkutukú en el Salón Municipal.
-                </p>
+            <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 h-40">
+              <img src={selectedNews.image} alt={selectedNews.title} className="w-full h-full object-cover" />
+            </div>
+
+            <div>
+              <span className="font-mono text-[11px] text-slate-400 font-medium block mb-1">
+                {selectedNews.date}
+              </span>
+              <h3 className="font-extrabold text-slate-900 dark:text-white text-sm leading-snug">
+                {selectedNews.title}
+              </h3>
+            </div>
+
+            <p className="text-slate-600 dark:text-slate-300 leading-relaxed font-normal bg-slate-50 dark:bg-slate-800/80 p-3 rounded-2xl border border-slate-100 dark:border-slate-700/60 text-xs">
+              {selectedNews.content}
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setSelectedNews(null)}
+              className="w-full py-2.5 bg-[#0A4191] text-white font-bold rounded-xl cursor-pointer shadow-sm hover:bg-blue-900"
+            >
+              Volver a Noticias
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 2. AGENDA MODAL (MATCHES MOCKUP 16. AGENDA EXACTLY) */}
+      {showAgendaModal && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs">
+            {/* Header Row: Back Arrow + Centered Title "Agenda Municipal" */}
+            <div className="relative text-center pt-1 pb-1">
+              <button
+                type="button"
+                onClick={() => setShowAgendaModal(false)}
+                className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+              </button>
+              <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                Agenda Municipal
+              </h2>
+            </div>
+
+            {/* Calendar View Container */}
+            <div className="bg-[#F8FAFC] dark:bg-slate-800/80 rounded-3xl p-3 border border-slate-100 dark:border-slate-700/60 space-y-2.5">
+              {/* Month Header: < Mayo 2024 > */}
+              <div className="flex items-center justify-between px-2 pt-1">
+                <button
+                  type="button"
+                  className="p-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors cursor-pointer"
+                >
+                  <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
+                </button>
+                <span className="font-black text-sm text-slate-900 dark:text-white tracking-tight">
+                  Mayo 2024
+                </span>
+                <button
+                  type="button"
+                  className="p-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors cursor-pointer"
+                >
+                  <ChevronRight className="w-5 h-5 stroke-[2.5]" />
+                </button>
               </div>
 
-              <div className="bg-blue-50 dark:bg-blue-950/40 p-3 rounded-2xl border border-blue-200 dark:border-blue-900">
-                <div className="flex justify-between items-center text-[10px] font-bold text-blue-700 dark:text-blue-300">
-                  <span>Sábado, 09:00 AM</span>
-                  <span className="bg-blue-200 dark:bg-blue-900 px-2 py-0.5 rounded-full">Minga Comunitaria</span>
-                </div>
-                <h4 className="font-bold text-slate-900 dark:text-white text-xs mt-1">
-                  Minga de Limpieza y Reforestación Parque Upano
-                </h4>
-                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
-                  Convocatoria abierta para ciudadanos y brigadas comunitarias.
-                </p>
+              {/* Days of week header: L  M  M  J  V  S  D */}
+              <div className="grid grid-cols-7 text-center font-extrabold text-slate-400 dark:text-slate-500 text-[11px] py-1">
+                <span>L</span>
+                <span>M</span>
+                <span>M</span>
+                <span>J</span>
+                <span>V</span>
+                <span>S</span>
+                <span>D</span>
+              </div>
+
+              {/* Days of month grid */}
+              <div className="grid grid-cols-7 gap-y-1.5 gap-x-1 text-center items-center">
+                <span className="text-[11px] font-medium text-slate-300 dark:text-slate-600 py-1">29</span>
+                <span className="text-[11px] font-medium text-slate-300 dark:text-slate-600 py-1">30</span>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31].map((d) => (
+                  <button
+                    key={`modal-day-${d}`}
+                    type="button"
+                    onClick={() => setSelectedAgendaDay(d)}
+                    className={`py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      selectedAgendaDay === d
+                        ? 'w-7 h-7 rounded-xl bg-[#0A4191] text-white flex items-center justify-center font-black shadow-md mx-auto'
+                        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {d}
+                  </button>
+                ))}
+                <span className="text-[11px] font-medium text-slate-300 dark:text-slate-600 py-1">1</span>
+                <span className="text-[11px] font-medium text-slate-300 dark:text-slate-600 py-1">2</span>
+              </div>
+            </div>
+
+            {/* Section Subtitle */}
+            <div className="pt-0.5 space-y-2">
+              <h3 className="font-black text-slate-900 dark:text-white text-xs tracking-tight">
+                Eventos del {selectedAgendaDay} de mayo
+              </h3>
+
+              {/* List of Event Cards */}
+              <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-0.5">
+                {selectedAgendaDay === 24 ? (
+                  <>
+                    <div className="bg-[#F8FAFC] dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-2.5 flex items-center space-x-3 relative overflow-hidden shadow-xs">
+                      <div className="absolute left-0 top-2 bottom-2 w-1 bg-cyan-400 rounded-r-full" />
+                      <div className="w-10 h-10 rounded-2xl bg-red-100 dark:bg-red-950/70 text-red-500 dark:text-red-400 flex items-center justify-center flex-shrink-0 ml-1 shadow-2xs">
+                        <div className="w-6 h-6 bg-red-400/90 text-white rounded-xl flex items-center justify-center font-black text-xs">
+                          ?
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-extrabold text-slate-900 dark:text-white text-xs leading-snug">
+                          Minga comunitaria
+                        </h4>
+                        <p className="text-[11px] font-mono text-slate-400 dark:text-slate-400 font-medium mt-0.5">
+                          08:00 AM - Parque Central
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="bg-[#F8FAFC] dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-2.5 flex items-center space-x-3 relative overflow-hidden shadow-xs">
+                      <div className="absolute left-0 top-2 bottom-2 w-1 bg-amber-400 rounded-r-full" />
+                      <div className="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0 ml-1 shadow-2xs">
+                        <div className="w-6 h-6 bg-emerald-500/90 text-white rounded-xl flex items-center justify-center">
+                          <Building2 className="w-3.5 h-3.5 stroke-[2.5]" />
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-extrabold text-slate-900 dark:text-white text-xs leading-snug">
+                          Sesión de Cabildo
+                        </h4>
+                        <p className="text-[11px] font-mono text-slate-400 dark:text-slate-400 font-medium mt-0.5">
+                          15:00 PM - Sala de Sesiones
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="bg-[#F8FAFC] dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-3 text-center">
+                    <p className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
+                      No hay eventos en esta fecha
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
             <button
               type="button"
               onClick={() => setShowAgendaModal(false)}
-              className="w-full py-2.5 bg-slate-800 text-white font-bold rounded-xl cursor-pointer"
+              className="w-full py-2.5 bg-slate-900 text-white font-bold rounded-xl cursor-pointer"
             >
-              Cerrar Agenda
+              Cerrar
             </button>
           </div>
         </div>
@@ -1665,111 +2641,757 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
         </div>
       )}
 
-      {/* 5. PERFIL USER MODAL */}
+      {/* 5. PERFIL USER MODAL (MATCHES MOCKUP 17. PERFIL DESIGN) */}
       {showProfileModal && (
         <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs">
-            <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
-              <div className="flex items-center space-x-2">
-                <User className="w-5 h-5 text-[#0A4191]" />
-                <h3 className="font-extrabold text-sm text-slate-900 dark:text-white">
-                  Perfil de Usuario Ciudadano
-                </h3>
-              </div>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs animate-in fade-in duration-200">
+            {/* Header Row: Back Arrow + Centered Title "Mi perfil" */}
+            <div className="relative text-center pt-1 pb-1">
               <button
                 type="button"
                 onClick={() => setShowProfileModal(false)}
-                className="text-slate-400 hover:text-slate-600 font-bold"
+                className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
               >
-                <X className="w-5 h-5" />
+                <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
               </button>
+              <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                Mi perfil
+              </h2>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 text-center space-y-2">
-              <div className="w-16 h-16 rounded-full bg-[#0A4191] text-white text-2xl font-black mx-auto flex items-center justify-center shadow">
-                {userFirstName[0]}
+            {/* Toast feedback message */}
+            {profileToast && (
+              <div className="bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 p-2.5 rounded-2xl flex items-center space-x-2 text-xs font-bold">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span className="flex-1">{profileToast}</span>
               </div>
-              <h4 className="font-black text-base text-slate-900 dark:text-white">
-                {currentUser?.name || 'María Shakaim'}
-              </h4>
-              <p className="text-slate-500 font-medium text-xs">{currentUser?.email || 'maria.shakaim@logrono.gob.ec'}</p>
-              
-              <div className="pt-2 border-t border-slate-200 dark:border-slate-700 grid grid-cols-2 gap-2 text-left text-[11px]">
-                <div>
-                  <span className="text-slate-400 block">Sector:</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">{currentUser?.sector || 'Logroño Centro'}</span>
+            )}
+
+            {/* Avatar & User Info Header */}
+            <div className="flex flex-col items-center justify-center text-center pt-1 pb-2 space-y-2">
+              <div className="relative group">
+                <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden border-4 border-white dark:border-slate-800 shadow-md flex items-center justify-center">
+                  {profileData.avatarUrl ? (
+                    <img
+                      src={profileData.avatarUrl}
+                      alt={profileData.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-12 h-12 text-slate-400" />
+                  )}
                 </div>
-                <div>
-                  <span className="text-slate-400 block">Rol:</span>
-                  <span className="font-bold text-emerald-600 uppercase">{currentUser?.role || 'Ciudadano'}</span>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditName(profileData.name);
+                    setEditEmail(profileData.email);
+                    setEditPhone(profileData.phone);
+                    setEditSector(profileData.sector);
+                    setEditCedula(profileData.cedula);
+                    setEditAvatarUrl(profileData.avatarUrl);
+                    setShowProfileModal(false);
+                    setShowMisDatosModal(true);
+                  }}
+                  className="absolute bottom-0 right-0 w-7 h-7 bg-[#0A4191] text-white rounded-full flex items-center justify-center shadow-md hover:bg-blue-800 cursor-pointer transition-transform hover:scale-110"
+                  title="Editar datos"
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div>
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white leading-snug">
+                  {profileData.name}
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  {profileData.email}
+                </p>
               </div>
             </div>
 
-            {onLogout && (
+            {/* Menu Options List */}
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800/80 shadow-2xs divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden">
+              {/* 1. Mis datos */}
+              <button
+                type="button"
+                onClick={() => {
+                  setEditName(profileData.name);
+                  setEditEmail(profileData.email);
+                  setEditPhone(profileData.phone);
+                  setEditSector(profileData.sector);
+                  setEditCedula(profileData.cedula);
+                  setEditAvatarUrl(profileData.avatarUrl);
+                  setShowProfileModal(false);
+                  setShowMisDatosModal(true);
+                }}
+                className="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+              >
+                <div className="flex items-center space-x-3">
+                  <User className="w-5 h-5 text-slate-600 dark:text-slate-300 stroke-[2.2] group-hover:text-[#0A4191] dark:group-hover:text-blue-400 transition-colors" />
+                  <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
+                    Mis datos
+                  </span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors" />
+              </button>
+
+              {/* 2. Notificaciones */}
               <button
                 type="button"
                 onClick={() => {
                   setShowProfileModal(false);
-                  onLogout();
+                  setShowNotifSettingsModal(true);
                 }}
-                className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl flex items-center justify-center space-x-2 cursor-pointer shadow"
+                className="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
               >
-                <LogOut className="w-4 h-4" />
-                <span>Cerrar Sesión</span>
+                <div className="flex items-center space-x-3">
+                  <Bell className="w-5 h-5 text-slate-600 dark:text-slate-300 stroke-[2.2] group-hover:text-[#0A4191] dark:group-hover:text-blue-400 transition-colors" />
+                  <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
+                    Notificaciones
+                  </span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors" />
               </button>
-            )}
+
+              {/* 3. Seguridad */}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowProfileModal(false);
+                  setShowSecurityModal(true);
+                }}
+                className="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+              >
+                <div className="flex items-center space-x-3">
+                  <Shield className="w-5 h-5 text-slate-600 dark:text-slate-300 stroke-[2.2] group-hover:text-[#0A4191] dark:group-hover:text-blue-400 transition-colors" />
+                  <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
+                    Seguridad
+                  </span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors" />
+              </button>
+
+              {/* 4. Ayuda y soporte */}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowProfileModal(false);
+                  setShowHelpSupportModal(true);
+                }}
+                className="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+              >
+                <div className="flex items-center space-x-3">
+                  <HelpCircle className="w-5 h-5 text-slate-600 dark:text-slate-300 stroke-[2.2] group-hover:text-[#0A4191] dark:group-hover:text-blue-400 transition-colors" />
+                  <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
+                    Ayuda y soporte
+                  </span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors" />
+              </button>
+
+              {/* 5. Cerrar sesión */}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowProfileModal(false);
+                  if (onLogout) onLogout();
+                }}
+                className="w-full p-3.5 flex items-center justify-between hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer group"
+              >
+                <div className="flex items-center space-x-3">
+                  <LogOut className="w-5 h-5 text-slate-600 dark:text-slate-300 stroke-[2.2] group-hover:text-red-600 transition-colors" />
+                  <span className="font-extrabold text-slate-800 dark:text-slate-200 text-xs group-hover:text-red-600 transition-colors">
+                    Cerrar sesión
+                  </span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-red-500 transition-colors" />
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowProfileModal(false)}
+              className="w-full py-2.5 bg-slate-900 text-white font-bold rounded-xl cursor-pointer hover:bg-slate-800"
+            >
+              Cerrar
+            </button>
           </div>
         </div>
       )}
 
-      {/* 6. INCIDENT DETAIL MODAL */}
-      {selectedIncident && (
+      {/* SUB-MODAL 1: MIS DATOS (EDIT USER PROFILE INFORMATION) */}
+      {showMisDatosModal && (
         <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-3 max-h-[90vh] overflow-y-auto text-xs">
-            <div className="flex justify-between items-start border-b border-slate-200 dark:border-slate-800 pb-2">
-              <div>
-                <span className="text-xs font-mono font-bold text-[#0A4191]">
-                  {selectedIncident.code}
-                </span>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                  {selectedIncident.title}
-                </h3>
-              </div>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-3.5 text-xs max-h-[90vh] overflow-y-auto animate-in fade-in duration-200">
+            {/* Header */}
+            <div className="relative text-center pt-1 pb-1 border-b border-slate-100 dark:border-slate-800 pb-2">
               <button
                 type="button"
-                onClick={() => setSelectedIncident(null)}
-                className="text-slate-400 hover:text-slate-600 font-bold"
+                onClick={() => setShowMisDatosModal(false)}
+                className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
               >
-                <X className="w-5 h-5" />
+                <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
               </button>
+              <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                Editar Mis Datos
+              </h2>
             </div>
 
-            {selectedIncident.photoUrl && (
-              <img src={selectedIncident.photoUrl} alt="" className="w-full h-44 rounded-2xl object-cover border" />
-            )}
+            {/* Avatar Choice Row */}
+            <div className="flex flex-col items-center space-y-2">
+              <div className="w-20 h-20 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden border-4 border-[#0A4191] shadow-md">
+                <img src={editAvatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              </div>
+              <span className="text-[11px] font-extrabold text-slate-500">Seleccionar estilo de avatar:</span>
+              <div className="flex space-x-2">
+                {[
+                  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80',
+                  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
+                  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80',
+                  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop&q=80'
+                ].map((url, idx) => (
+                  <button
+                    key={`avatar-${idx}`}
+                    type="button"
+                    onClick={() => setEditAvatarUrl(url)}
+                    className={`w-9 h-9 rounded-full overflow-hidden border-2 cursor-pointer transition-transform hover:scale-110 ${
+                      editAvatarUrl === url ? 'border-[#0A4191] scale-105 shadow-md' : 'border-slate-200 dark:border-slate-700 opacity-70'
+                    }`}
+                  >
+                    <img src={url} alt="Option" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </div>
 
-            <div className="space-y-2">
-              <p className="text-slate-700 dark:text-slate-300">{selectedIncident.description}</p>
-              
-              <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl space-y-1 text-[11px]">
-                <div className="flex justify-between">
-                  <span className="font-semibold text-slate-500">Sector:</span>
-                  <span className="font-bold text-slate-900 dark:text-white">{selectedIncident.location.sector}</span>
+            {/* Form Fields */}
+            <div className="space-y-3 pt-1">
+              {/* Field 1: Name */}
+              <div>
+                <label className="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                  Nombres y Apellidos *
+                </label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-semibold text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  placeholder="Ej: María Fernanda"
+                />
+              </div>
+
+              {/* Field 2: Email */}
+              <div>
+                <label className="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                  Correo Electrónico *
+                </label>
+                <input
+                  type="email"
+                  value={editEmail}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-semibold text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  placeholder="ejemplo@gmail.com"
+                />
+              </div>
+
+              {/* Field 3: Phone */}
+              <div>
+                <label className="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                  Teléfono Móvil
+                </label>
+                <input
+                  type="text"
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-semibold text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  placeholder="099 123 4567"
+                />
+              </div>
+
+              {/* Field 4: Cedula */}
+              <div>
+                <label className="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                  Cédula / DNI
+                </label>
+                <input
+                  type="text"
+                  value={editCedula}
+                  onChange={(e) => setEditCedula(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-semibold text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  placeholder="1400829104"
+                />
+              </div>
+
+              {/* Field 5: Sector */}
+              <div>
+                <label className="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                  Parroquia / Sector
+                </label>
+                <select
+                  value={editSector}
+                  onChange={(e) => setEditSector(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-semibold text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  <option value="Logroño Centro (Cabecera)">Logroño Centro (Cabecera)</option>
+                  <option value="Yaupi (Parroquia Rural)">Yaupi (Parroquia Rural)</option>
+                  <option value="Shimpis (Parroquia Rural)">Shimpis (Parroquia Rural)</option>
+                  <option value="Comunidad Shuar Upano">Comunidad Shuar Upano</option>
+                  <option value="Sector Transkutukú">Sector Transkutukú</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="pt-2 flex space-x-2">
+              <button
+                type="button"
+                onClick={() => setShowMisDatosModal(false)}
+                className="w-1/2 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl cursor-pointer hover:bg-slate-200"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setProfileData({
+                    name: editName,
+                    email: editEmail,
+                    phone: editPhone,
+                    cedula: editCedula,
+                    sector: editSector,
+                    avatarUrl: editAvatarUrl
+                  });
+                  setCitizenName(editName);
+                  setCitizenPhone(editPhone);
+                  setCitizenCedula(editCedula);
+                  setShowMisDatosModal(false);
+                  setProfileToast('¡Datos de usuario actualizados correctamente!');
+                  setTimeout(() => setProfileToast(null), 3500);
+                }}
+                className="w-1/2 py-2.5 bg-[#0A4191] text-white font-bold rounded-xl cursor-pointer hover:bg-blue-900 shadow-sm"
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-MODAL 2: NOTIFICACIONES SETTINGS */}
+      {showNotifSettingsModal && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs animate-in fade-in duration-200">
+            <div className="relative text-center pt-1 pb-1 border-b border-slate-100 dark:border-slate-800 pb-2">
+              <button
+                type="button"
+                onClick={() => setShowNotifSettingsModal(false)}
+                className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+              </button>
+              <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                Notificaciones
+              </h2>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700">
+                <div>
+                  <h4 className="font-extrabold text-slate-900 dark:text-white text-xs">Notificaciones Push</h4>
+                  <p className="text-[10px] text-slate-500">Avances de reportes y alertas cantonales</p>
                 </div>
-                <div className="flex justify-between">
-                  <span className="font-semibold text-slate-500">Departamento Asignado:</span>
-                  <span className="font-bold text-[#159A44]">{selectedIncident.assignedDepartment}</span>
+                <input
+                  type="checkbox"
+                  checked={notifPush}
+                  onChange={(e) => setNotifPush(e.target.checked)}
+                  className="w-5 h-5 accent-[#0A4191] rounded cursor-pointer"
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700">
+                <div>
+                  <h4 className="font-extrabold text-slate-900 dark:text-white text-xs">Alertas por Correo</h4>
+                  <p className="text-[10px] text-slate-500">Resúmenes semanales de obras en Logroño</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={notifEmail}
+                  onChange={(e) => setNotifEmail(e.target.checked)}
+                  className="w-5 h-5 accent-[#0A4191] rounded cursor-pointer"
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700">
+                <div>
+                  <h4 className="font-extrabold text-slate-900 dark:text-white text-xs">Avisos SMS de Emergencia</h4>
+                  <p className="text-[10px] text-slate-500">Alertas climáticas o de vías principales</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={notifSMS}
+                  onChange={(e) => setNotifSMS(e.target.checked)}
+                  className="w-5 h-5 accent-[#0A4191] rounded cursor-pointer"
+                />
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setShowNotifSettingsModal(false);
+                setProfileToast('Preferencias de notificaciones guardadas');
+                setTimeout(() => setProfileToast(null), 3000);
+              }}
+              className="w-full py-2.5 bg-[#0A4191] text-white font-bold rounded-xl cursor-pointer hover:bg-blue-900"
+            >
+              Guardar Preferencias
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-MODAL 3: SEGURIDAD */}
+      {showSecurityModal && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-3.5 text-xs animate-in fade-in duration-200">
+            <div className="relative text-center pt-1 pb-1 border-b border-slate-100 dark:border-slate-800 pb-2">
+              <button
+                type="button"
+                onClick={() => setShowSecurityModal(false)}
+                className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+              </button>
+              <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                Seguridad
+              </h2>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                  Nueva Contraseña
+                </label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300 mb-1">
+                  Confirmar Nueva Contraseña
+                </label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 pt-2">
+                <div>
+                  <h4 className="font-extrabold text-slate-900 dark:text-white text-xs">Autenticación en 2 Pasos (2FA)</h4>
+                  <p className="text-[10px] text-slate-500">Verificación por código SMS al ingresar</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={security2FA}
+                  onChange={(e) => setSecurity2FA(e.target.checked)}
+                  className="w-5 h-5 accent-[#0A4191] rounded cursor-pointer"
+                />
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setShowSecurityModal(false);
+                setNewPassword('');
+                setConfirmPassword('');
+                setProfileToast('Ajustes de seguridad guardados correctamente');
+                setTimeout(() => setProfileToast(null), 3000);
+              }}
+              className="w-full py-2.5 bg-[#0A4191] text-white font-bold rounded-xl cursor-pointer hover:bg-blue-900"
+            >
+              Actualizar Seguridad
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-MODAL 4: AYUDA Y SOPORTE */}
+      {showHelpSupportModal && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-3.5 text-xs animate-in fade-in duration-200 max-h-[85vh] overflow-y-auto">
+            <div className="relative text-center pt-1 pb-1 border-b border-slate-100 dark:border-slate-800 pb-2">
+              <button
+                type="button"
+                onClick={() => setShowHelpSupportModal(false)}
+                className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+              </button>
+              <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                Ayuda y Soporte
+              </h2>
+            </div>
+
+            <div className="space-y-2.5">
+              <div className="bg-blue-50 dark:bg-blue-950/60 p-3 rounded-2xl border border-blue-100 dark:border-blue-900/50 space-y-1">
+                <span className="font-extrabold text-[#0A4191] dark:text-blue-400 block text-xs">Atención Ciudadana GAD Logroño</span>
+                <p className="text-[11px] text-slate-600 dark:text-slate-300">Horario: Lunes a Viernes 08:00 - 17:00</p>
+                <p className="text-[11px] text-slate-600 dark:text-slate-300">Teléfono: (07) 2700-100</p>
+                <p className="text-[11px] text-slate-600 dark:text-slate-300">Correo: soporte@logrono.gob.ec</p>
+              </div>
+
+              <div className="space-y-2 pt-1">
+                <h4 className="font-extrabold text-slate-900 dark:text-white text-xs">Preguntas Frecuentes</h4>
+                <div className="bg-slate-50 dark:bg-slate-800 p-2.5 rounded-xl space-y-1">
+                  <span className="font-bold text-slate-800 dark:text-slate-200 block text-[11px]">¿Cuánto tarda en atenderse un reporte?</span>
+                  <p className="text-[10px] text-slate-500">Dependiendo de la prioridad, la inspección se realiza dentro de 24 a 48 horas laborables.</p>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-slate-800 p-2.5 rounded-xl space-y-1">
+                  <span className="font-bold text-slate-800 dark:text-slate-200 block text-[11px]">¿Puedo hacer un reporte de forma anónima?</span>
+                  <p className="text-[10px] text-slate-500">Sí, puedes omitir la cédula o solicitar confidencialidad al registrar la incidencia.</p>
                 </div>
               </div>
             </div>
 
             <button
               type="button"
-              onClick={() => setSelectedIncident(null)}
-              className="w-full py-2.5 bg-slate-800 text-white font-bold rounded-xl cursor-pointer"
+              onClick={() => setShowHelpSupportModal(false)}
+              className="w-full py-2.5 bg-slate-900 text-white font-bold rounded-xl cursor-pointer"
             >
-              Cerrar Detalle
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 6. INCIDENT DETAIL MODAL (MOCKUP 14 DESIGN) */}
+      {selectedIncident && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto text-xs">
+            {/* Header Row: Back / Close Arrow + Centered Title (Code) */}
+            <div className="relative text-center pt-1 pb-1">
+              <button
+                type="button"
+                onClick={() => setSelectedIncident(null)}
+                className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+              </button>
+              <h2 className="text-base font-black text-slate-900 dark:text-white font-mono tracking-tight">
+                {selectedIncident.code}
+              </h2>
+            </div>
+
+            {/* Status Banner Card (Matches Mockup 14) */}
+            {(() => {
+              let bannerBg = 'bg-amber-100/90 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/50';
+              let iconBg = 'bg-amber-500 text-white';
+              let statusText = 'En proceso';
+              let subtitleText = 'Tu reporte está siendo atendido.';
+              let IconComp = Key;
+
+              if (selectedIncident.status === 'resuelto') {
+                bannerBg = 'bg-emerald-100/90 dark:bg-emerald-950/40 border-emerald-200/80 dark:border-emerald-800/50';
+                iconBg = 'bg-emerald-500 text-white';
+                statusText = 'Solucionado';
+                subtitleText = 'Tu reporte ha sido resuelto y finalizado.';
+                IconComp = CheckCircle2;
+              } else if (selectedIncident.status === 'reportado') {
+                bannerBg = 'bg-blue-100/90 dark:bg-blue-950/40 border-blue-200/80 dark:border-blue-800/50';
+                iconBg = 'bg-[#0A4191] text-white';
+                statusText = 'Recibido';
+                subtitleText = 'Tu reporte fue recibido en el sistema municipal.';
+                IconComp = Clock;
+              } else if (selectedIncident.status === 'asignado' || selectedIncident.status === 'en_revision') {
+                bannerBg = 'bg-amber-100/90 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-800/50';
+                iconBg = 'bg-amber-500 text-white';
+                statusText = 'En revisión';
+                subtitleText = 'Tu reporte ha sido remitido al departamento técnico.';
+                IconComp = Wrench;
+              }
+
+              return (
+                <div className={`p-4 rounded-2xl border flex items-center space-x-3.5 shadow-sm ${bannerBg}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${iconBg}`}>
+                    <IconComp className="w-5 h-5 stroke-[2.2]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-extrabold text-slate-900 dark:text-white text-sm">
+                      {statusText}
+                    </h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium mt-0.5">
+                      {subtitleText}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Section Header: Progreso del reporte */}
+            <div className="pt-2">
+              <h3 className="font-extrabold text-slate-900 dark:text-white text-xs">
+                Progreso del reporte
+              </h3>
+            </div>
+
+            {/* Vertical Timeline Stepper matching Mockup 14 */}
+            <div className="relative pl-3 space-y-4 pt-1 pb-2">
+              {/* Vertical line connecting steps */}
+              <div className="absolute left-[21px] top-4 bottom-5 w-0.5 bg-slate-200 dark:bg-slate-700 -z-0" />
+
+              {/* Step 1: Recibido */}
+              <div className="flex items-center justify-between text-xs relative z-10">
+                <div className="flex items-center space-x-2">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-sm flex-shrink-0">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                  <span className="text-slate-500 dark:text-slate-400 font-bold">-</span>
+                  <span className="font-extrabold text-slate-900 dark:text-white">Recibido</span>
+                </div>
+                <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  24/05/2024 10:15
+                </span>
+              </div>
+
+              {/* Step 2: En revisión */}
+              <div className="flex items-center justify-between text-xs relative z-10">
+                <div className="flex items-center space-x-2">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-sm flex-shrink-0">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                  <span className="text-slate-500 dark:text-slate-400 font-bold">-</span>
+                  <span className="font-extrabold text-slate-900 dark:text-white">En revisión</span>
+                </div>
+                <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  24/05/2024 11:20
+                </span>
+              </div>
+
+              {/* Step 3: Asignado */}
+              <div className="flex items-center justify-between text-xs relative z-10">
+                <div className="flex items-center space-x-2">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-sm flex-shrink-0">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                  <span className="text-slate-500 dark:text-slate-400 font-bold">-</span>
+                  <span className="font-extrabold text-slate-900 dark:text-white">Asignado</span>
+                </div>
+                <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  24/05/2024 14:30
+                </span>
+              </div>
+
+              {/* Step 4: En proceso */}
+              <div className="flex items-center justify-between text-xs relative z-10">
+                <div className="flex items-center space-x-2">
+                  {selectedIncident.status === 'resuelto' ? (
+                    <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-sm flex-shrink-0">
+                      <Check className="w-3 h-3 stroke-[3]" />
+                    </div>
+                  ) : (
+                    <div className="w-5 h-5 rounded-full bg-[#0A4191] text-white flex items-center justify-center shadow-sm flex-shrink-0">
+                      <Check className="w-3 h-3 stroke-[3]" />
+                    </div>
+                  )}
+                  <span className="text-slate-500 dark:text-slate-400 font-bold">-</span>
+                  <span className={`font-extrabold ${selectedIncident.status === 'en_proceso' ? 'text-[#0A4191] dark:text-blue-400 font-black' : 'text-slate-900 dark:text-white'}`}>
+                    En proceso
+                  </span>
+                </div>
+                <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  25/05/2024 09:00
+                </span>
+              </div>
+
+              {/* Step 5: Solucionado */}
+              <div className="flex items-center justify-between text-xs relative z-10">
+                <div className="flex items-center space-x-2">
+                  {selectedIncident.status === 'resuelto' ? (
+                    <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-sm flex-shrink-0">
+                      <Check className="w-3 h-3 stroke-[3]" />
+                    </div>
+                  ) : (
+                    <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 flex-shrink-0" />
+                  )}
+                  <span className="text-slate-400 dark:text-slate-500 font-bold">-</span>
+                  <span className={`font-semibold ${selectedIncident.status === 'resuelto' ? 'text-emerald-700 dark:text-emerald-400 font-extrabold' : 'text-slate-400 dark:text-slate-500'}`}>
+                    Solucionado
+                  </span>
+                </div>
+                <span className="font-mono text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+                  {selectedIncident.status === 'resuelto' ? '26/05/2024 16:00' : ''}
+                </span>
+              </div>
+            </div>
+
+            {/* Bottom Collapsible Button: Información del reporte */}
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setShowReportInfo(!showReportInfo)}
+                className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl py-3 px-4 text-[#0A4191] dark:text-blue-400 font-bold text-center text-xs shadow-sm hover:shadow hover:border-blue-400 transition-all cursor-pointer flex items-center justify-center space-x-2"
+              >
+                <span>Información del reporte</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${showReportInfo ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Collapsible Info Card */}
+              {showReportInfo && (
+                <div className="mt-3 bg-[#F8FAFC] dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 space-y-3 shadow-sm animate-in fade-in duration-200 text-left">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#0A4191] dark:text-blue-400 block">
+                      {selectedIncident.category}
+                    </span>
+                    <h4 className="font-extrabold text-slate-900 dark:text-white text-sm mt-0.5">
+                      {selectedIncident.title}
+                    </h4>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                      {selectedIncident.description}
+                    </p>
+                  </div>
+
+                  {selectedIncident.photoUrl && (
+                    <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 max-h-48">
+                      <img src={selectedIncident.photoUrl} alt="Foto evidencia" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+
+                  <div className="pt-2 border-t border-slate-200 dark:border-slate-700 space-y-1.5 text-[11px]">
+                    <div className="flex justify-between">
+                      <span className="text-slate-500 font-medium">Ubicación / Sector:</span>
+                      <span className="font-bold text-slate-900 dark:text-white">{selectedIncident.location.sector}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500 font-medium">Dirección:</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200 text-right truncate max-w-[180px]">{selectedIncident.location.address}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500 font-medium">Departamento:</span>
+                      <span className="font-bold text-[#159A44] truncate max-w-[180px]">{selectedIncident.assignedDepartment}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setSelectedIncident(null)}
+              className="w-full py-2.5 bg-slate-900 text-white font-bold rounded-xl cursor-pointer"
+            >
+              Cerrar
             </button>
           </div>
         </div>
