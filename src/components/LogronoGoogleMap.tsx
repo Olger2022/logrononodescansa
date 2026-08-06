@@ -1,54 +1,87 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
-import { MarkerClusterer } from '@googlemaps/markerclusterer';
-import { Incident, IncidentStatus } from '../types';
-import { MapPin, Navigation, Layers, ExternalLink, Key, Filter } from 'lucide-react';
+import L from 'leaflet';
+import { Incident, IncidentStatus, LogronoSector } from '../types';
+import { MapPin, Navigation, Layers, Filter, CheckCircle2, Sparkles, LocateFixed, Compass, AlertCircle, Volume2, VolumeX, Share2, Send, Play, Square, Check, Route, Building2 } from 'lucide-react';
 
-const getApiKey = (): string => {
-  if (typeof process !== 'undefined' && process.env?.GOOGLE_MAPS_PLATFORM_KEY) {
-    return process.env.GOOGLE_MAPS_PLATFORM_KEY;
-  }
-  if ((import.meta as any).env?.VITE_GOOGLE_MAPS_PLATFORM_KEY) {
-    return (import.meta as any).env.VITE_GOOGLE_MAPS_PLATFORM_KEY;
-  }
-  if (typeof window !== 'undefined' && (window as any).GOOGLE_MAPS_PLATFORM_KEY) {
-    return (window as any).GOOGLE_MAPS_PLATFORM_KEY;
-  }
-  return '';
-};
+// Logroño, Morona Santiago, Ecuador
+const LOGRONO_CENTER: [number, number] = [-2.6280, -78.1760];
+const GAD_MUNICIPAL_COORDS: [number, number] = [-2.6280, -78.1760];
 
-interface LogronoGoogleMapProps {
-  incidents: Incident[];
-  onSelectIncident: (inc: Incident) => void;
+export function getSectorFromCoords(lat: number, lng: number): { sector: LogronoSector; address: string } {
+  const sectors: { name: LogronoSector; lat: number; lng: number; defaultStreet: string }[] = [
+    { name: 'Logroño Centro (Cabecera)', lat: -2.6280, lng: -78.1760, defaultStreet: 'Calle 10 de Agosto y Av. Intercultural' },
+    { name: 'Parroquia Yaupi', lat: -2.6315, lng: -78.1824, defaultStreet: 'Barrio Central, Parroquia Yaupi' },
+    { name: 'Parroquia Shimpis', lat: -2.6102, lng: -78.1450, defaultStreet: 'Av. Principal, Parroquia Shimpis' },
+    { name: 'Comunidad Shuar Kakaim', lat: -2.6450, lng: -78.1980, defaultStreet: 'Vía Comunal Kakaim' },
+  ];
+
+  let closestSector = sectors[0];
+  let minDistance = Infinity;
+
+  sectors.forEach((s) => {
+    const d = Math.hypot(lat - s.lat, lng - s.lng);
+    if (d < minDistance) {
+      minDistance = d;
+      closestSector = s;
+    }
+  });
+
+  const address = `${closestSector.defaultStreet} (GPS: ${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+  return { sector: closestSector.name, address };
 }
 
-// Center of Logroño, Morona Santiago, Ecuador
-const LOGRONO_CENTER = { lat: -2.6280, lng: -78.1760 };
-
-const STATUS_FILTER_OPTIONS: { id: string; label: string; statusValue?: IncidentStatus }[] = [
-  { id: 'todos', label: 'Todos' },
-  { id: 'reportado', label: 'Reportado', statusValue: 'reportado' },
-  { id: 'en_proceso', label: 'En Proceso', statusValue: 'en_proceso' },
-  { id: 'resuelto', label: 'Resuelto', statusValue: 'resuelto' },
-];
+export interface LogronoGoogleMapProps {
+  incidents?: Incident[];
+  onSelectIncident?: (inc: Incident) => void;
+  centerLat?: number;
+  centerLng?: number;
+  zoomLevel?: number;
+  selectableLocation?: boolean;
+  selectedLat?: number;
+  selectedLng?: number;
+  onLocationSelect?: (lat: number, lng: number, address: string, sector: LogronoSector) => void;
+  onDispatchToGAD?: (routeData: { lat: number; lng: number; address: string; sector: string; distance: string; time: string }) => void;
+  showRoutePanel?: boolean;
+  className?: string;
+}
 
 export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
-  incidents,
-  onSelectIncident
+  incidents = [],
+  onSelectIncident,
+  centerLat = -2.6280,
+  centerLng = -78.1760,
+  zoomLevel = 14,
+  selectableLocation = false,
+  selectedLat,
+  selectedLng,
+  onLocationSelect,
+  onDispatchToGAD,
+  showRoutePanel = true,
+  className = ''
 }) => {
-  const apiKey = getApiKey();
-  const hasValidKey = Boolean(apiKey) && apiKey !== 'YOUR_API_KEY';
-
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<google.maps.Map | null>(null);
-  const clustererRef = useRef<MarkerClusterer | null>(null);
-  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
-  const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
+  const incidentMarkersLayerRef = useRef<L.LayerGroup | null>(null);
+  const selectedMarkerRef = useRef<L.Marker | null>(null);
+  const routePolylineRef = useRef<L.Polyline | null>(null);
+  const gadMarkerRef = useRef<L.Marker | null>(null);
 
-  const [mapTypeId, setMapTypeId] = useState<'roadmap' | 'hybrid' | 'satellite'>('roadmap');
-  const [isMapLoaded, setIsMapLoaded] = useState(false);
-  
-  // Multi-select state variable for status filters ('reportado', 'en_proceso', 'resuelto')
+  const [mapType, setMapType] = useState<'hybrid' | 'roadmap'>('hybrid');
+  const [isLocating, setIsLocating] = useState(false);
+  const [gpsStatusMessage, setGpsStatusMessage] = useState<string | null>(null);
+  const [activeCoords, setActiveCoords] = useState<{ lat: number; lng: number }>({
+    lat: selectedLat || centerLat,
+    lng: selectedLng || centerLng
+  });
+
+  // Voice Navigation State
+  const [isVoiceSpeaking, setIsVoiceSpeaking] = useState(false);
+  const [activeVoiceStep, setActiveVoiceStep] = useState<number | null>(null);
+  const [isSentToGAD, setIsSentToGAD] = useState(false);
+  const [gadTrackingCode, setGadTrackingCode] = useState<string | null>(null);
+
+  // Multi-select status filters for incidents map
   const [selectedStatuses, setSelectedStatuses] = useState<IncidentStatus[]>([
     'reportado',
     'en_proceso',
@@ -69,358 +102,490 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
     }
   };
 
-  // Filtered incidents based on active multi-select status filter
   const filteredIncidents = useMemo(() => {
     return incidents.filter((inc) => selectedStatuses.includes(inc.status));
   }, [incidents, selectedStatuses]);
 
-  // Sector Fly-to Handler
-  const handleFlyToSector = (lat: number, lng: number, zoom: number = 14) => {
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.panTo({ lat, lng });
-      mapInstanceRef.current.setZoom(zoom);
+  // Tile Layer URLs
+  const tileUrls = {
+    roadmap: {
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    },
+    hybrid: {
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
     }
   };
 
-  // Toggle Map Type
-  const handleMapTypeChange = (type: 'roadmap' | 'hybrid' | 'satellite') => {
-    setMapTypeId(type);
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.setMapTypeId(type);
-    }
-  };
-
-  // Initialize Map via @googlemaps/js-api-loader
+  // Initialize Leaflet Map
   useEffect(() => {
-    if (!hasValidKey || !mapContainerRef.current) return;
+    if (!mapContainerRef.current) return;
+    if (mapInstanceRef.current) return;
 
-    setOptions({
-      key: apiKey,
-      v: 'weekly',
-      libraries: ['maps', 'marker']
+    const map = L.map(mapContainerRef.current, {
+      center: [centerLat, centerLng],
+      zoom: zoomLevel,
+      zoomControl: false
     });
 
-    let isMounted = true;
+    // Add Zoom Control at bottomright
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    async function initMap() {
-      try {
-        const { Map } = await importLibrary('maps');
-        await importLibrary('marker');
+    // Initial Tile Layer
+    const layer = L.tileLayer(tileUrls[mapType].url, {
+      maxZoom: 19,
+      attribution: tileUrls[mapType].attribution
+    }).addTo(map);
 
-        if (!isMounted || !mapContainerRef.current) return;
+    tileLayerRef.current = layer;
+    incidentMarkersLayerRef.current = L.layerGroup().addTo(map);
+    mapInstanceRef.current = map;
 
-        const map = new Map(mapContainerRef.current, {
-          center: LOGRONO_CENTER,
-          zoom: 14,
-          mapId: 'DEMO_MAP_ID',
-          mapTypeId: mapTypeId,
-          gestureHandling: 'greedy'
-        });
+    // Handle map click for selecting location
+    map.on('click', (e: L.LeafletMouseEvent) => {
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
+      setActiveCoords({ lat, lng });
 
-        mapInstanceRef.current = map;
-        infoWindowRef.current = new google.maps.InfoWindow();
-        clustererRef.current = new MarkerClusterer({ map });
-        setIsMapLoaded(true);
-      } catch (err) {
-        console.warn('Google Maps API Loader Error:', err);
+      const { sector, address } = getSectorFromCoords(lat, lng);
+      setGpsStatusMessage(`Punto seleccionado en mapa: ${sector}`);
+
+      if (onLocationSelect) {
+        onLocationSelect(lat, lng, address, sector);
+      }
+    });
+
+    // Invalidate size on mount
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 250);
+
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+    };
+  }, []);
+
+  // Handle Map Type change
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+
+    if (tileLayerRef.current) {
+      mapInstanceRef.current.removeLayer(tileLayerRef.current);
+    }
+
+    const newLayer = L.tileLayer(tileUrls[mapType].url, {
+      maxZoom: 19,
+      attribution: tileUrls[mapType].attribution
+    }).addTo(mapInstanceRef.current);
+
+    tileLayerRef.current = newLayer;
+  }, [mapType]);
+
+  // Update selected pin when selectableLocation or activeCoords change
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+
+    const currentLat = selectedLat || activeCoords.lat;
+    const currentLng = selectedLng || activeCoords.lng;
+
+    if (selectedMarkerRef.current) {
+      selectedMarkerRef.current.remove();
+      selectedMarkerRef.current = null;
+    }
+
+    if (selectableLocation || (selectedLat && selectedLng)) {
+      const pinHtml = `
+        <div style="position:relative; width:36px; height:36px; display:flex; align-items:center; justify-content:center;">
+          <div style="position:absolute; inset:0; background:rgba(10,65,145,0.3); border-radius:50%; animation:ping 1.8s infinite;"></div>
+          <div style="width:28px; height:28px; background:#0A4191; border:3px solid #ffffff; border-radius:50%; box-shadow:0 4px 10px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; color:#ffffff;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+        </div>
+      `;
+
+      const customIcon = L.divIcon({
+        html: pinHtml,
+        className: 'custom-gps-pin',
+        iconSize: [36, 36],
+        iconAnchor: [18, 18]
+      });
+
+      const marker = L.marker([currentLat, currentLng], {
+        icon: customIcon,
+        draggable: true
+      }).addTo(mapInstanceRef.current);
+
+      marker.on('dragend', (e) => {
+        const position = e.target.getLatLng();
+        setActiveCoords({ lat: position.lat, lng: position.lng });
+        const { sector, address } = getSectorFromCoords(position.lat, position.lng);
+        setGpsStatusMessage(`Marcador arrastrado a: ${sector}`);
+        if (onLocationSelect) {
+          onLocationSelect(position.lat, position.lng, address, sector);
+        }
+      });
+
+      selectedMarkerRef.current = marker;
+    }
+
+    // Render Route Polyline from Selected Pin to GAD Municipal Palacio
+    if (mapInstanceRef.current) {
+      if (routePolylineRef.current) {
+        routePolylineRef.current.remove();
+        routePolylineRef.current = null;
+      }
+      if (gadMarkerRef.current) {
+        gadMarkerRef.current.remove();
+        gadMarkerRef.current = null;
+      }
+
+      // Add GAD Municipal Destination Pin
+      const gadPinHtml = `
+        <div style="position:relative; width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
+          <div style="width:26px; height:26px; background:#159A44; border:2.5px solid #ffffff; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; color:#ffffff;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+              <path d="M6 12h12"/>
+              <path d="M6 7h12"/>
+              <path d="M6 17h12"/>
+            </svg>
+          </div>
+        </div>
+      `;
+
+      const gadIcon = L.divIcon({
+        html: gadPinHtml,
+        className: 'gad-pin-icon',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+
+      gadMarkerRef.current = L.marker(GAD_MUNICIPAL_COORDS, { icon: gadIcon })
+        .addTo(mapInstanceRef.current)
+        .bindPopup(`
+          <div style="padding:4px; font-family:sans-serif; text-align:center;">
+            <strong style="color:#0A4191; font-size:12px;">Palacio Municipal GAD Logroño</strong><br/>
+            <span style="font-size:10px; color:#64748b;">Destino Final de Trámites y Gestión</span>
+          </div>
+        `);
+
+      // Polyline route calculation with smooth bends
+      const startLat = currentLat;
+      const startLng = currentLng;
+      const destLat = GAD_MUNICIPAL_COORDS[0];
+      const destLng = GAD_MUNICIPAL_COORDS[1];
+
+      // Draw polyline if not identical to GAD center
+      if (Math.abs(startLat - destLat) > 0.0001 || Math.abs(startLng - destLng) > 0.0001) {
+        const midLat = startLat + (destLat - startLat) * 0.5 + 0.0005;
+        const midLng = startLng + (destLng - startLng) * 0.5 - 0.0008;
+
+        const polylineCoords: [number, number][] = [
+          [startLat, startLng],
+          [midLat, midLng],
+          [destLat, destLng]
+        ];
+
+        routePolylineRef.current = L.polyline(polylineCoords, {
+          color: '#0A4191',
+          weight: 5,
+          opacity: 0.85,
+          dashArray: '8, 8',
+          lineCap: 'round',
+          lineJoin: 'round'
+        }).addTo(mapInstanceRef.current);
       }
     }
 
-    initMap();
+    if (selectedLat && selectedLng && mapInstanceRef.current) {
+      mapInstanceRef.current.flyTo([selectedLat, selectedLng], 15, { duration: 1.2 });
+    }
+  }, [selectedLat, selectedLng, activeCoords, selectableLocation]);
 
-    return () => {
-      isMounted = false;
-    };
-  }, [apiKey, hasValidKey]);
-
-  // Update Markers and MarkerClusterer whenever filteredIncidents change or map loads
+  // Render incident markers on map
   useEffect(() => {
-    if (!isMapLoaded || !mapInstanceRef.current || !clustererRef.current) return;
+    if (!mapInstanceRef.current || !incidentMarkersLayerRef.current) return;
 
-    // Clear previous markers & cluster
-    clustererRef.current.clearMarkers();
-    markersRef.current = [];
+    incidentMarkersLayerRef.current.clearLayers();
 
-    const map = mapInstanceRef.current;
-    const infoWindow = infoWindowRef.current || new google.maps.InfoWindow();
-
-    filteredIncidents.forEach((inc, index) => {
-      // Pin styling
+    filteredIncidents.forEach((inc) => {
       let pinBg = '#10B981'; // Emerald
-      if (inc.priority === 'critica') pinBg = '#EF4444'; // Red
-      else if (inc.priority === 'alta') pinBg = '#F59E0B'; // Amber
+      if (inc.priority === 'critica') pinBg = '#EF4444';
+      else if (inc.priority === 'alta') pinBg = '#F59E0B';
 
-      const pinElement = new google.maps.marker.PinElement({
-        background: pinBg,
-        glyphColor: '#FFFFFF',
-        borderColor: '#0F172A'
+      const pinHtml = `
+        <div style="
+          width:28px; 
+          height:28px; 
+          background:${pinBg}; 
+          border:2px solid #0F172A; 
+          border-radius:50%; 
+          box-shadow:0 4px 10px rgba(0,0,0,0.4); 
+          display:flex; 
+          align-items:center; 
+          justify-content:center; 
+          color:#ffffff; 
+          font-weight:bold;
+          cursor:pointer;
+          transition: transform 0.2s ease;
+        " onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+      `;
+
+      const customIcon = L.divIcon({
+        html: pinHtml,
+        className: `incident-pin-${inc.id}`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
       });
 
-      // Apply entrance bounce/drop animation with staggered delay
-      const pinDom = pinElement.element;
-      pinDom.style.animation = 'markerDrop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both';
-      pinDom.style.animationDelay = `${index * 90}ms`;
-      pinDom.style.transition = 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease, filter 0.2s ease';
-      pinDom.style.cursor = 'pointer';
+      const marker = L.marker([inc.location.lat, inc.location.lng], { icon: customIcon });
 
-      const marker = new google.maps.marker.AdvancedMarkerElement({
-        map,
-        position: { lat: inc.location.lat, lng: inc.location.lng },
-        title: `${inc.code} - ${inc.title}`,
-        content: pinDom
-      });
+      const statusBadgeClass =
+        inc.status === 'resuelto'
+          ? 'background:#d1fae5; color:#065f46;'
+          : inc.status === 'en_proceso'
+          ? 'background:#dbeafe; color:#1e40af;'
+          : 'background:#fef3c7; color:#92400e;';
 
-      // Mouseover and Mouseout handlers for visual hover feedback
-      const handleMouseOver = () => {
-        pinDom.style.transform = 'scale(1.25)';
-        pinDom.style.opacity = '0.95';
-        pinDom.style.filter = 'drop-shadow(0 4px 8px rgba(0,0,0,0.35))';
-        marker.zIndex = 999;
-      };
+      const priorityBadgeClass =
+        inc.priority === 'critica'
+          ? 'background:#fee2e2; color:#991b1b;'
+          : inc.priority === 'alta'
+          ? 'background:#fef3c7; color:#92400e;'
+          : 'background:#d1fae5; color:#065f46;';
 
-      const handleMouseOut = () => {
-        pinDom.style.transform = 'scale(1)';
-        pinDom.style.opacity = '1';
-        pinDom.style.filter = 'none';
-        marker.zIndex = null;
-      };
-
-      marker.addListener('mouseover', handleMouseOver);
-      marker.addListener('mouseout', handleMouseOut);
-
-      // DOM fallback hover listeners
-      pinDom.addEventListener('mouseenter', handleMouseOver);
-      pinDom.addEventListener('mouseleave', handleMouseOut);
-
-      // Marker Click Handler to open InfoWindow with incident details
-      const handleMarkerClick = () => {
-        const statusStyle =
-          inc.status === 'resuelto'
-            ? 'background:#d1fae5; color:#065f46;'
-            : inc.status === 'en_proceso'
-            ? 'background:#dbeafe; color:#1e40af;'
-            : 'background:#fef3c7; color:#92400e;';
-
-        const priorityStyle =
-          inc.priority === 'critica'
-            ? 'background:#fee2e2; color:#991b1b;'
-            : inc.priority === 'alta'
-            ? 'background:#fef3c7; color:#92400e;'
-            : 'background:#d1fae5; color:#065f46;';
-
-        const contentString = `
-          <div style="padding:4px; max-width:260px; font-family:sans-serif; font-size:12px; color:#0f172a;">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:4px; margin-bottom:6px;">
-              <span style="font-family:monospace; font-weight:bold; color:#047857;">${inc.code}</span>
-              <div>
-                <span style="font-size:9px; font-weight:bold; padding:2px 6px; border-radius:4px; text-transform:uppercase; margin-right:4px; ${statusStyle}">
-                  ${inc.status.replace('_', ' ')}
-                </span>
-                <span style="font-size:9px; font-weight:bold; padding:2px 6px; border-radius:4px; text-transform:uppercase; ${priorityStyle}">
-                  ${inc.priority}
-                </span>
-              </div>
-            </div>
-            <h4 style="font-weight:bold; margin:0 0 4px 0; font-size:13px; line-height:1.2; color:#0f172a;">${inc.title}</h4>
-            ${inc.photoUrl ? `<img src="${inc.photoUrl}" style="width:100%; height:90px; object-fit:cover; border-radius:8px; margin-bottom:6px; border:1px solid #cbd5e1;" />` : ''}
-            <div style="font-size:10px; color:#475569; margin-bottom:8px;">
-              📍 <strong>${inc.location.sector}</strong>
-            </div>
-            <button id="btn-inspect-${inc.id}" style="width:100%; background:#047857; color:#ffffff; font-weight:bold; font-size:11px; border:none; padding:7px; border-radius:6px; cursor:pointer; font-family:sans-serif; transition:background 0.2s;">
-              Ver Detalle Completo
-            </button>
-          </div>
-        `;
-
-        infoWindow.setContent(contentString);
-        infoWindow.open({
-          anchor: marker,
-          map
-        });
-
-        // Attach event listener for the InfoWindow button
-        google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
-          const btn = document.getElementById(`btn-inspect-${inc.id}`);
-          if (btn) {
-            btn.addEventListener('click', () => {
-              infoWindow.close();
-              onSelectIncident(inc);
-            });
-          }
-        });
-      };
-
-      marker.addListener('gmp-click', handleMarkerClick);
-      marker.addListener('click', handleMarkerClick);
-
-      markersRef.current.push(marker);
-    });
-
-    clustererRef.current.addMarkers(markersRef.current);
-  }, [filteredIncidents, isMapLoaded, onSelectIncident]);
-
-  if (!hasValidKey) {
-    return (
-      <div className="space-y-4">
-        {/* Splash screen instructions for setting Google Maps API key */}
-        <div className="bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 text-white p-5 rounded-2xl border border-emerald-700/60 shadow-lg space-y-3">
-          <div className="flex items-start space-x-3">
-            <div className="p-2.5 bg-amber-500/20 text-amber-400 rounded-xl border border-amber-500/30 shrink-0 mt-0.5">
-              <Key className="w-6 h-6" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="font-bold text-sm text-amber-300">
-                Se requiere Clave de API de Google Maps Platform
-              </h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Para visualizar el mapa satelital e interactivo con la API oficial de Google Maps Platform, configure la clave de API:
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-xs space-y-2 font-sans">
-            <p className="font-semibold text-emerald-400">Instrucciones de Configuración:</p>
-            <ol className="list-decimal list-inside space-y-1 text-slate-300 text-[11px]">
-              <li>
-                Obtenga una Clave de API en{' '}
-                <a
-                  href="https://console.cloud.google.com/google/maps-apis/start?utm_campaign=gmp-code-assist-ais"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-amber-400 underline font-medium inline-flex items-center space-x-0.5"
-                >
-                  <span>Google Cloud Console</span>
-                  <ExternalLink className="w-3 h-3 inline" />
-                </a>
-              </li>
-              <li>
-                Abra <strong>Ajustes</strong> (icono de engranaje ⚙️ en la esquina superior derecha de la pantalla).
-              </li>
-              <li>
-                Seleccione <strong>Secrets / Variables de Entorno</strong>.
-              </li>
-              <li>
-                Escriba <code className="bg-slate-800 text-amber-300 px-1.5 py-0.5 rounded font-mono">GOOGLE_MAPS_PLATFORM_KEY</code> y presione <strong>Enter</strong>.
-              </li>
-              <li>Pegue la clave de API y presione <strong>Enter</strong>. El proyecto se compilará automáticamente.</li>
-            </ol>
-          </div>
-        </div>
-
-        {/* Status Filter Control Panel for Fallback */}
-        <div className="bg-slate-900/90 border border-slate-800 p-2.5 rounded-xl flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center space-x-2 text-xs font-medium text-slate-300">
-            <Filter className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Filtrar por Estado:</span>
-          </div>
-          <div className="flex flex-wrap items-center gap-1.5">
-            {[
-              { status: 'reportado' as IncidentStatus, label: 'Reportado', badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/50' },
-              { status: 'en_proceso' as IncidentStatus, label: 'En Proceso', badgeClass: 'bg-blue-500/20 text-blue-300 border-blue-500/50' },
-              { status: 'resuelto' as IncidentStatus, label: 'Resuelto', badgeClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' }
-            ].map(({ status, label, badgeClass }) => {
-              const isSelected = selectedStatuses.includes(status);
-              const count = incidents.filter((i) => i.status === status).length;
-              return (
-                <button
-                  key={status}
-                  type="button"
-                  onClick={() => toggleStatusFilter(status)}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border cursor-pointer flex items-center space-x-1 ${
-                    isSelected
-                      ? `${badgeClass} ring-1 ring-white/20 shadow-sm opacity-100`
-                      : 'bg-slate-800 text-slate-400 border-slate-700/60 opacity-50 hover:opacity-80'
-                  }`}
-                >
-                  <span>{label}</span>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-black/40 font-mono">
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Fallback Interactive Map View with Incident Markers */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
-            <span>Vista Georreferenciada de Incidencias en Logroño (WGS84)</span>
-            <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">
-              {filteredIncidents.length} {filteredIncidents.length === 1 ? 'Punto Activo' : 'Puntos Activos'}
-            </span>
-          </div>
-
-          <div className="relative w-full h-[380px] bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-inner flex flex-col justify-between p-4">
-            <div className="absolute inset-0 opacity-25 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:20px_20px]"></div>
-
-            <div className="relative z-10 flex justify-between items-center text-[10px] text-white bg-slate-900/80 p-2 rounded-xl border border-slate-800 backdrop-blur-sm">
-              <div className="flex items-center space-x-2 font-mono">
-                <MapPin className="w-3.5 h-3.5 text-amber-400" />
-                <span>Cantón Logroño (Morona Santiago, Ecuador)</span>
-              </div>
-              <span className="bg-emerald-950 text-emerald-300 font-bold px-2 py-0.5 rounded border border-emerald-700">
-                Coordenadas GPS Reales
+      const popupHtml = `
+        <div style="padding:4px; max-width:240px; font-family:sans-serif; font-size:12px; color:#0f172a;">
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:4px; margin-bottom:6px;">
+            <span style="font-family:monospace; font-weight:bold; color:#0A4191;">${inc.code}</span>
+            <div>
+              <span style="font-size:9px; font-weight:bold; padding:2px 6px; border-radius:4px; text-transform:uppercase; margin-right:4px; ${statusBadgeClass}">
+                ${inc.status.replace('_', ' ')}
+              </span>
+              <span style="font-size:9px; font-weight:bold; padding:2px 6px; border-radius:4px; text-transform:uppercase; ${priorityBadgeClass}">
+                ${inc.priority}
               </span>
             </div>
-
-            <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-2 my-auto">
-              {filteredIncidents.length === 0 ? (
-                <div className="col-span-2 text-center py-8 text-slate-400 text-xs">
-                  No hay incidencias registradas con el estado seleccionado.
-                </div>
-              ) : (
-                filteredIncidents.map((inc) => (
-                  <button
-                    key={inc.id}
-                    onClick={() => onSelectIncident(inc)}
-                    className={`p-3 rounded-xl text-left border transition-all cursor-pointer backdrop-blur-md ${
-                      inc.priority === 'critica'
-                        ? 'bg-red-950/90 border-red-500/80 text-red-100 hover:bg-red-900'
-                        : inc.priority === 'alta'
-                        ? 'bg-amber-950/90 border-amber-500/80 text-amber-100 hover:bg-amber-900'
-                        : 'bg-emerald-950/90 border-emerald-500/80 text-emerald-100 hover:bg-emerald-900'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-[10px] font-bold text-amber-300">{inc.code}</span>
-                      <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-black/40">
-                        {inc.priority}
-                      </span>
-                    </div>
-                    <h4 className="font-bold text-xs line-clamp-1 mt-1 text-white">{inc.title}</h4>
-                    <div className="text-[10px] text-slate-300 flex items-center justify-between mt-1">
-                      <span className="flex items-center space-x-1">
-                        <MapPin className="w-3 h-3 text-amber-400" />
-                        <span>{inc.location.sector}</span>
-                      </span>
-                      <span className="font-mono text-[9px] text-slate-400">
-                        {inc.location.lat}, {inc.location.lng}
-                      </span>
-                    </div>
-                  </button>
-                ))
-              )}
-            </div>
-
-            <div className="relative z-10 flex justify-between items-center text-[10px] text-slate-400 bg-slate-900/80 p-2 rounded-xl border border-slate-800">
-              <span>Sectores: Logroño Centro • Yaupi • Shimpis • Kakaim</span>
-              <span className="text-emerald-400 font-bold">GAD Municipal Logroño</span>
-            </div>
           </div>
+          <h4 style="font-weight:bold; margin:0 0 4px 0; font-size:13px; line-height:1.2; color:#0f172a;">${inc.title}</h4>
+          ${inc.photoUrl ? `<img src="${inc.photoUrl}" style="width:100%; height:85px; object-fit:cover; border-radius:8px; margin-bottom:6px; border:1px solid #cbd5e1;" />` : ''}
+          <div style="font-size:10px; color:#475569; margin-bottom:8px;">
+            📍 <strong>${inc.location.sector}</strong>
+          </div>
+          <button id="leaflet-btn-inspect-${inc.id}" style="width:100%; background:#0A4191; color:#ffffff; font-weight:bold; font-size:11px; border:none; padding:7px; border-radius:6px; cursor:pointer; font-family:sans-serif; transition:background 0.2s;">
+            Ver Detalle Completo
+          </button>
         </div>
-      </div>
+      `;
+
+      marker.bindPopup(popupHtml, { maxWidth: 260 });
+
+      marker.on('popupopen', () => {
+        setTimeout(() => {
+          const btn = document.getElementById(`leaflet-btn-inspect-${inc.id}`);
+          if (btn && onSelectIncident) {
+            btn.onclick = () => {
+              onSelectIncident(inc);
+            };
+          }
+        }, 100);
+      });
+
+      incidentMarkersLayerRef.current?.addLayer(marker);
+    });
+  }, [filteredIncidents, onSelectIncident]);
+
+  // Real-time Geolocation Handler (Usar Ubicación Actual)
+  const handleGetRealTimeLocation = () => {
+    setIsLocating(true);
+    setGpsStatusMessage('Obteniendo ubicación GPS en tiempo real...');
+
+    if (!navigator.geolocation) {
+      setIsLocating(false);
+      setGpsStatusMessage('Navegador no soporta Geolocalización. Se usará el centro de Logroño.');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setIsLocating(false);
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        setActiveCoords({ lat, lng });
+
+        const { sector, address } = getSectorFromCoords(lat, lng);
+        setGpsStatusMessage(`📍 Ubicación GPS obtenida: ${sector}`);
+
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.flyTo([lat, lng], 16, {
+            duration: 1.2
+          });
+        }
+
+        if (onLocationSelect) {
+          onLocationSelect(lat, lng, address, sector);
+        }
+      },
+      (error) => {
+        setIsLocating(false);
+        console.warn('Geolocation warning:', error);
+        // Fallback to Logroño town center default coordinates smoothly
+        const defaultLat = -2.6280;
+        const defaultLng = -78.1760;
+        setActiveCoords({ lat: defaultLat, lng: defaultLng });
+
+        const { sector, address } = getSectorFromCoords(defaultLat, defaultLng);
+        setGpsStatusMessage('📍 Fijado en Logroño Centro. Toca el mapa para afinar tu ubicación exactas.');
+
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.flyTo([defaultLat, defaultLng], 15);
+        }
+
+        if (onLocationSelect) {
+          onLocationSelect(defaultLat, defaultLng, address, sector);
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 8000,
+        maximumAge: 0
+      }
     );
-  }
+  };
+
+  const handleFlyToSector = (lat: number, lng: number, zoom = 15) => {
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.flyTo([lat, lng], zoom, { duration: 1 });
+      setActiveCoords({ lat, lng });
+      const { sector, address } = getSectorFromCoords(lat, lng);
+      setGpsStatusMessage(`Centrado en ${sector}`);
+      if (onLocationSelect) {
+        onLocationSelect(lat, lng, address, sector);
+      }
+    }
+  };
+
+  // Route Metrics & Calculations
+  const routeDistanceKm = useMemo(() => {
+    const currentLat = selectedLat || activeCoords.lat;
+    const currentLng = selectedLng || activeCoords.lng;
+    const dist = Math.hypot(currentLat - GAD_MUNICIPAL_COORDS[0], currentLng - GAD_MUNICIPAL_COORDS[1]) * 111;
+    return Math.max(0.3, +dist.toFixed(2));
+  }, [selectedLat, selectedLng, activeCoords]);
+
+  const routeTimeMin = useMemo(() => {
+    return Math.max(2, Math.round(routeDistanceKm * 2.8));
+  }, [routeDistanceKm]);
+
+  const currentSectorInfo = useMemo(() => {
+    const currentLat = selectedLat || activeCoords.lat;
+    const currentLng = selectedLng || activeCoords.lng;
+    return getSectorFromCoords(currentLat, currentLng);
+  }, [selectedLat, selectedLng, activeCoords]);
+
+  // GPS Voice Navigation Instructions
+  const gpsVoiceInstructions = useMemo(() => {
+    return [
+      `Iniciando navegación GPS hacia el GAD Municipal de Logroño desde ${currentSectorInfo.sector}.`,
+      `Avanzar ${Math.round(routeDistanceKm * 280)} metros por la vía principal.`,
+      `Gire a la derecha por la Avenida Intercultural del cantón Logroño.`,
+      `Continúe directo durante ${(routeDistanceKm * 0.5).toFixed(1)} kilómetros.`,
+      `Gire a la izquierda hacia la Calle 10 de Agosto.`,
+      `Ha llegado a su destino en el Palacio Municipal del GAD Logroño.`
+    ];
+  }, [currentSectorInfo, routeDistanceKm]);
+
+  const speakGpsInstruction = (stepIdx?: number) => {
+    if (!('speechSynthesis' in window)) {
+      alert('Su navegador no soporta la síntesis de voz GPS.');
+      return;
+    }
+    window.speechSynthesis.cancel();
+
+    const targetIdx = stepIdx !== undefined ? stepIdx : 0;
+    setActiveVoiceStep(targetIdx);
+
+    const textToSpeak = gpsVoiceInstructions[targetIdx] || gpsVoiceInstructions[0];
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.lang = 'es-EC';
+    utterance.rate = 0.95;
+    utterance.pitch = 1.0;
+
+    utterance.onstart = () => setIsVoiceSpeaking(true);
+    utterance.onend = () => {
+      setIsVoiceSpeaking(false);
+    };
+    utterance.onerror = () => setIsVoiceSpeaking(false);
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const stopGpsVoice = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsVoiceSpeaking(false);
+    setActiveVoiceStep(null);
+  };
+
+  const handleShareWhatsApp = () => {
+    const currentLat = selectedLat || activeCoords.lat;
+    const currentLng = selectedLng || activeCoords.lng;
+    const text = `*📍 REPORTE Y RUTA GPS - CANTÓN LOGROÑO*\n\n` +
+      `*Sector:* ${currentSectorInfo.sector}\n` +
+      `*Ubicación:* ${currentSectorInfo.address}\n` +
+      `*Coordenadas GPS:* ${currentLat.toFixed(5)}, ${currentLng.toFixed(5)}\n` +
+      `*Ruta al GAD Municipal:* ${routeDistanceKm} km (~${routeTimeMin} min)\n\n` +
+      `*Ver en Google Maps:* https://maps.google.com/?q=${currentLat},${currentLng}\n\n` +
+      `_Logroño Conecta - Morona Santiago_`;
+
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  };
+
+  const handleDispatchToGAD = () => {
+    const currentLat = selectedLat || activeCoords.lat;
+    const currentLng = selectedLng || activeCoords.lng;
+    const code = 'TRM-2026-' + Math.floor(1000 + Math.random() * 9000);
+    setGadTrackingCode(code);
+    setIsSentToGAD(true);
+    setGpsStatusMessage(`✅ Trámite Nº ${code} ingresado y derivado al Panel GAD Municipal.`);
+
+    if (onDispatchToGAD) {
+      onDispatchToGAD({
+        lat: currentLat,
+        lng: currentLng,
+        address: currentSectorInfo.address,
+        sector: currentSectorInfo.sector,
+        distance: `${routeDistanceKm} km`,
+        time: `${routeTimeMin} min`
+      });
+    }
+
+    setTimeout(() => {
+      setIsSentToGAD(false);
+    }, 6000);
+  };
 
   return (
-    <div className="space-y-3">
-      {/* Top Map Toolbar */}
+    <div className={`space-y-3 ${className}`}>
+      {/* Map Header Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div className="flex flex-wrap gap-1.5 mb-2 sm:mb-0">
+        <div className="flex flex-wrap gap-1.5">
           <button
             type="button"
-            onClick={() => handleFlyToSector(-2.6280, -78.1760, 14)}
+            onClick={() => handleFlyToSector(-2.6280, -78.1760, 15)}
             className="bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg border border-slate-700 transition-all cursor-pointer flex items-center space-x-1"
           >
             <Navigation className="w-3 h-3 text-emerald-400" />
@@ -429,7 +594,7 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
 
           <button
             type="button"
-            onClick={() => handleFlyToSector(-2.6315, -78.1824, 14)}
+            onClick={() => handleFlyToSector(-2.6315, -78.1824, 15)}
             className="bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg border border-slate-700 transition-all cursor-pointer flex items-center space-x-1"
           >
             <Navigation className="w-3 h-3 text-amber-400" />
@@ -438,7 +603,7 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
 
           <button
             type="button"
-            onClick={() => handleFlyToSector(-2.6102, -78.1450, 14)}
+            onClick={() => handleFlyToSector(-2.6102, -78.1450, 15)}
             className="bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg border border-slate-700 transition-all cursor-pointer flex items-center space-x-1"
           >
             <Navigation className="w-3 h-3 text-blue-400" />
@@ -447,7 +612,7 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
 
           <button
             type="button"
-            onClick={() => handleFlyToSector(-2.6450, -78.1980, 14)}
+            onClick={() => handleFlyToSector(-2.6450, -78.1980, 15)}
             className="bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg border border-slate-700 transition-all cursor-pointer flex items-center space-x-1"
           >
             <Navigation className="w-3 h-3 text-purple-400" />
@@ -455,18 +620,14 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
           </button>
         </div>
 
+        {/* Map Type Toggle */}
         <div className="flex items-center space-x-1.5 self-end sm:self-auto">
-          <span className="hidden md:flex items-center space-x-1 text-[10px] font-bold bg-slate-800 text-emerald-400 px-2.5 py-1 rounded-lg border border-slate-700">
-            <Layers className="w-3 h-3 text-emerald-400" />
-            <span>Loader API & MarkerClusterer</span>
-          </span>
-
           <button
             type="button"
-            onClick={() => handleMapTypeChange('roadmap')}
+            onClick={() => setMapType('roadmap')}
             className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
-              mapTypeId === 'roadmap'
-                ? 'bg-emerald-600 text-white'
+              mapType === 'roadmap'
+                ? 'bg-[#0A4191] text-white shadow-sm'
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
             }`}
           >
@@ -474,92 +635,196 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => handleMapTypeChange('hybrid')}
+            onClick={() => setMapType('hybrid')}
             className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
-              mapTypeId === 'hybrid'
-                ? 'bg-emerald-600 text-white'
+              mapType === 'hybrid'
+                ? 'bg-[#0A4191] text-white shadow-sm'
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
             }`}
           >
-            Satelital
+            Satelital HD
           </button>
         </div>
       </div>
 
-      {/* Inline styles for marker entrance keyframe animations */}
-      <style>{`
-        @keyframes markerDrop {
-          0% {
-            transform: translateY(-45px) scale(0.3);
-            opacity: 0;
-          }
-          65% {
-            transform: translateY(8px) scale(1.15);
-            opacity: 1;
-          }
-          85% {
-            transform: translateY(-4px) scale(0.95);
-          }
-          100% {
-            transform: translateY(0) scale(1);
-            opacity: 1;
-          }
-        }
-      `}</style>
+      {/* Main Map Canvas */}
+      <div className="relative w-full h-[380px] sm:h-[450px] rounded-2xl overflow-hidden border border-slate-300 dark:border-slate-800 shadow-md bg-slate-900">
+        <div ref={mapContainerRef} className="w-full h-full z-0" />
 
-      {/* Main Google Maps Container via Loader with floating control panel */}
-      <div
-        id="map-container"
-        ref={mapContainerRef}
-        className="relative w-full h-[450px] rounded-2xl overflow-hidden border border-slate-300 dark:border-slate-800 shadow-md bg-slate-900"
-      >
-        {/* Floating Control Panel for Multi-Select Status Marker Visibility */}
-        <div className="absolute top-3 left-3 z-10 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 p-2.5 rounded-xl shadow-xl space-y-2 max-w-[calc(100%-24px)] sm:max-w-md">
-          <div className="flex items-center justify-between gap-3 text-xs font-semibold text-slate-100">
-            <div className="flex items-center space-x-1.5">
-              <Filter className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Visibilidad de Marcadores:</span>
+        {/* Floating Toolbar inside Map */}
+        <div className="absolute top-3 left-3 right-3 z-10 pointer-events-none flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          {/* Status Filter Badges (if incidents present) */}
+          {incidents.length > 0 && (
+            <div className="pointer-events-auto bg-slate-900/90 backdrop-blur-md border border-slate-700/80 p-2 rounded-xl shadow-xl flex items-center space-x-1.5">
+              <Filter className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <div className="flex items-center space-x-1">
+                {[
+                  { status: 'reportado' as IncidentStatus, label: 'Reportados', color: 'bg-amber-400' },
+                  { status: 'en_proceso' as IncidentStatus, label: 'En Proceso', color: 'bg-blue-400' },
+                  { status: 'resuelto' as IncidentStatus, label: 'Resueltos', color: 'bg-emerald-400' }
+                ].map(({ status, label, color }) => {
+                  const isSelected = selectedStatuses.includes(status);
+                  const count = incidents.filter((i) => i.status === status).length;
+                  return (
+                    <button
+                      key={status}
+                      type="button"
+                      onClick={() => toggleStatusFilter(status)}
+                      className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer flex items-center space-x-1 ${
+                        isSelected
+                          ? 'bg-slate-800 text-white border border-slate-600'
+                          : 'bg-slate-950/60 text-slate-500 border border-slate-800'
+                      }`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${color}`} />
+                      <span>{label}</span>
+                      <span className="text-[9px] font-mono opacity-80">({count})</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
+          )}
+
+          {/* Button: Usar mi ubicación actual */}
+          <div className="pointer-events-auto ml-auto">
             <button
               type="button"
-              onClick={toggleAllStatuses}
-              className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold underline cursor-pointer"
+              onClick={handleGetRealTimeLocation}
+              disabled={isLocating}
+              className="bg-[#0A4191] hover:bg-blue-900 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-xl border border-blue-400/30 flex items-center space-x-2 transition-all cursor-pointer active:scale-95 disabled:opacity-75"
             >
-              {selectedStatuses.length === 3 ? 'Desmarcar todos' : 'Marcar todos'}
+              {isLocating ? (
+                <>
+                  <Sparkles className="w-4 h-4 text-amber-300 animate-spin" />
+                  <span>Obteniendo GPS...</span>
+                </>
+              ) : (
+                <>
+                  <LocateFixed className="w-4 h-4 text-emerald-400" />
+                  <span>Usar ubicación actual</span>
+                </>
+              )}
             </button>
           </div>
-          <div className="flex flex-wrap items-center gap-1.5">
-            {[
-              { status: 'reportado' as IncidentStatus, label: 'Reportado', badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/50' },
-              { status: 'en_proceso' as IncidentStatus, label: 'En Proceso', badgeClass: 'bg-blue-500/20 text-blue-300 border-blue-500/50' },
-              { status: 'resuelto' as IncidentStatus, label: 'Resuelto', badgeClass: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' }
-            ].map(({ status, label, badgeClass }) => {
-              const isSelected = selectedStatuses.includes(status);
-              const count = incidents.filter((i) => i.status === status).length;
-              return (
-                <button
-                  key={status}
-                  type="button"
-                  onClick={() => toggleStatusFilter(status)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border cursor-pointer flex items-center space-x-1.5 ${
-                    isSelected
-                      ? `${badgeClass} ring-1 ring-white/20 shadow-sm opacity-100`
-                      : 'bg-slate-800/80 text-slate-400 border-slate-700/60 opacity-50 hover:opacity-80'
-                  }`}
-                >
-                  <span className={`w-2 h-2 rounded-full ${
-                    status === 'reportado' ? 'bg-amber-400' : status === 'en_proceso' ? 'bg-blue-400' : 'bg-emerald-400'
-                  }`} />
-                  <span>{label}</span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-black/40 font-mono">
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
         </div>
+
+        {/* Floating status pill at bottom left */}
+        {gpsStatusMessage && (
+          <div className="absolute bottom-3 left-3 right-12 z-10 pointer-events-none">
+            <div className="pointer-events-auto inline-flex items-center space-x-1.5 bg-slate-900/95 text-emerald-300 border border-emerald-500/40 px-3 py-1.5 rounded-xl shadow-lg text-[11px] font-bold backdrop-blur-md animate-in fade-in">
+              <Compass className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span className="truncate">{gpsStatusMessage}</span>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Interactive Route Panel & Voice Navigation Controls */}
+      {showRoutePanel && (
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 shadow-sm space-y-3 animate-in fade-in">
+          {/* Header row: Route badge + Distance + Time */}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-2.5">
+            <div className="flex items-center space-x-2">
+              <div className="w-7 h-7 rounded-lg bg-[#0A4191]/10 text-[#0A4191] dark:bg-blue-950 dark:text-blue-400 flex items-center justify-center">
+                <Route className="w-4 h-4 stroke-[2.5]" />
+              </div>
+              <div>
+                <h4 className="font-extrabold text-slate-900 dark:text-white text-xs leading-tight">
+                  Ruta Recorrido al GAD Municipal Logroño
+                </h4>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                  Origen: {currentSectorInfo.sector}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 text-[11px] font-mono">
+              <span className="bg-blue-50 dark:bg-blue-950/80 text-[#0A4191] dark:text-blue-300 px-2 py-0.5 rounded-md font-bold border border-blue-100 dark:border-blue-900">
+                📏 {routeDistanceKm} km
+              </span>
+              <span className="bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-md font-bold border border-emerald-100 dark:border-emerald-900">
+                ⏱️ ~{routeTimeMin} min
+              </span>
+            </div>
+          </div>
+
+          {/* Action Buttons Row: Voice Guidance, WhatsApp Share, GAD Dispatch */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {/* 1. Direccionar con Voz GPS */}
+            <button
+              type="button"
+              onClick={() => {
+                if (isVoiceSpeaking) {
+                  stopGpsVoice();
+                } else {
+                  speakGpsInstruction();
+                }
+              }}
+              className={`py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-xs ${
+                isVoiceSpeaking
+                  ? 'bg-amber-500 hover:bg-amber-600 text-white animate-pulse'
+                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+              }`}
+              title="Escuchar navegación guiada por voz GPS en español"
+            >
+              {isVoiceSpeaking ? (
+                <>
+                  <VolumeX className="w-4 h-4" />
+                  <span>Detener Voz GPS</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-4 h-4" />
+                  <span>Voz del GPS</span>
+                </>
+              )}
+            </button>
+
+            {/* 2. Compartir en WhatsApp */}
+            <button
+              type="button"
+              onClick={handleShareWhatsApp}
+              className="py-2 px-3 bg-[#25D366] hover:bg-emerald-600 text-white rounded-xl text-xs font-black flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-xs"
+              title="Compartir mapa, ruta y coordenadas por WhatsApp"
+            >
+              <Share2 className="w-4 h-4" />
+              <span>Compartir WhatsApp</span>
+            </button>
+
+            {/* 3. Enviar a Panel GAD (Dar trámite real) */}
+            <button
+              type="button"
+              onClick={handleDispatchToGAD}
+              disabled={isSentToGAD}
+              className="py-2 px-3 bg-[#0A4191] hover:bg-blue-900 text-white rounded-xl text-xs font-black flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-xs disabled:opacity-80"
+              title="Ingresar solicitud a la bandeja del GAD Municipal para trámite inmediato"
+            >
+              {isSentToGAD ? (
+                <>
+                  <Check className="w-4 h-4 text-emerald-300" />
+                  <span>Enviado a GAD</span>
+                </>
+              ) : (
+                <>
+                  <Building2 className="w-4 h-4 text-amber-300" />
+                  <span>Trámite Real GAD</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Success Banner when sent to GAD */}
+          {gadTrackingCode && (
+            <div className="bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800 p-2.5 rounded-xl text-[11px] font-bold text-emerald-800 dark:text-emerald-200 flex items-center space-x-2 animate-in fade-in">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>
+                ¡Trámite Nº <strong className="font-mono text-[#0A4191] dark:text-blue-300">{gadTrackingCode}</strong> derivado exitosamente a la mesa de entrada del GAD Municipal de Logroño!
+              </span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

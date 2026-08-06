@@ -78,14 +78,23 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
+      let resolvedName = '';
+      if (loginEmail.includes('admin')) {
+        resolvedName = 'Ing. María Viteri';
+      } else {
+        const prefix = loginEmail.split('@')[0];
+        const words = prefix.split(/[._-]/).filter(Boolean);
+        resolvedName = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') || 'Ciudadano Logroño';
+      }
+
       const user: UserProfile = {
         id: `usr-${Date.now()}`,
-        name: loginEmail.includes('admin') ? 'Ing. María Viteri' : 'Juan Shakaim',
+        name: resolvedName,
         email: loginEmail,
         role: loginEmail.includes('admin') ? 'admin' : 'ciudadano',
         sector: 'Logroño Centro (Cabecera)',
         provider: 'password',
-        avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+        avatarUrl: ''
       };
       onLoginSuccess(user);
     }, 600);

@@ -117,3 +117,15 @@ export interface ShuarTerm {
   shuar: string;
   phonetic: string;
 }
+
+export interface AgendaEvent {
+  id: string;
+  title: string;
+  day: number;
+  month: string;
+  year: number;
+  time: string;
+  location: string;
+  description?: string;
+  category?: 'Minga' | 'Cabildo' | 'Cultura' | 'Deportes' | 'Inauguración' | 'General';
+}

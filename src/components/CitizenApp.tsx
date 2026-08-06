@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Incident, IncidentCategory, LogronoSector, LanguageMode, AIAnalysisResult, UserProfile } from '../types';
+import { Incident, IncidentCategory, LogronoSector, LanguageMode, AIAnalysisResult, UserProfile, AgendaEvent } from '../types';
 import { SHUAR_DICTIONARY } from '../data/shuarDictionary';
 import { LogronoGoogleMap } from './LogronoGoogleMap';
 import { validateName, validateEcuadorianCedula, validatePhone, validateEmail } from '../utils/validation';
@@ -62,7 +62,11 @@ import {
   Settings,
   ListFilter,
   HardHat,
-  Megaphone
+  Megaphone,
+  Edit3,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 
 export interface NewsItem {
@@ -140,11 +144,237 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
   const [reportStep, setReportStep] = useState<'category' | 'wizard'>('category');
   const [reportWizardStep, setReportWizardStep] = useState<1 | 2 | 3 | 4>(1);
   const [misReportesFilter, setMisReportesFilter] = useState<'todos' | 'en_proceso' | 'solucionados'>('todos');
+  const [misReportesSortBy, setMisReportesSortBy] = useState<'fecha_desc' | 'fecha_asc' | 'prioridad_desc' | 'prioridad_asc'>('fecha_desc');
   const [noticiasFilter, setNoticiasFilter] = useState<'todos' | 'comunicados' | 'obras' | 'eventos'>('todos');
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
-  const [selectedAgendaDay, setSelectedAgendaDay] = useState<number>(24);
+  const SPANISH_MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+  const [currentCalendarYear, setCurrentCalendarYear] = useState<number>(new Date().getFullYear());
+  const [currentCalendarMonth, setCurrentCalendarMonth] = useState<number>(new Date().getMonth());
+  const [selectedAgendaDay, setSelectedAgendaDay] = useState<number>(new Date().getDate());
   const [showReportInfo, setShowReportInfo] = useState<boolean>(false);
-  const [isPhoneFrame, setIsPhoneFrame] = useState<boolean>(true);
+  const [isPhoneFrame, setIsPhoneFrame] = useState<boolean>(false);
+
+  // Synchronize profile data and user fields when currentUser changes
+  React.useEffect(() => {
+    if (currentUser) {
+      setProfileData({
+        name: currentUser.name || '',
+        email: currentUser.email || '',
+        phone: currentUser.phone || '',
+        cedula: currentUser.cedula || '',
+        sector: currentUser.sector || 'Logroño Centro (Cabecera)',
+        avatarUrl: currentUser.avatarUrl || ''
+      });
+      if (currentUser.name) setCitizenName(currentUser.name);
+      if (currentUser.phone) setCitizenPhone(currentUser.phone);
+      if (currentUser.cedula) setCitizenCedula(currentUser.cedula);
+    }
+  }, [currentUser]);
+
+  // Dynamic Current Date Helper Constants
+  const realCurrentYear = new Date().getFullYear();
+  const realCurrentMonthName = SPANISH_MONTHS[new Date().getMonth()];
+  const realCurrentDay = new Date().getDate();
+
+  // Agenda Municipal State with Dynamic Events
+  const [agendaEvents, setAgendaEvents] = useState<AgendaEvent[]>([
+    {
+      id: 'evt-1',
+      title: 'Minga Comunitaria de Limpieza y Reforestación',
+      day: realCurrentDay,
+      month: realCurrentMonthName,
+      year: realCurrentYear,
+      time: '08:00 AM',
+      location: 'Parque Central de Logroño',
+      description: 'Jornada participativa con vecinos y comunidades para la limpieza de espacios verdes y reforestación con plantas nativas.',
+      category: 'Minga'
+    },
+    {
+      id: 'evt-2',
+      title: 'Sesión Ordinaria de Cabildo Cantonal',
+      day: realCurrentDay,
+      month: realCurrentMonthName,
+      year: realCurrentYear,
+      time: '15:00 PM',
+      location: 'Sala de Sesiones GAD Municipal',
+      description: 'Tratamiento de ordenanzas cantonales y socialización de obras en el sector Transkutukú.',
+      category: 'Cabildo'
+    },
+    {
+      id: 'evt-3',
+      title: 'Feria Intercultural Shuar y Agroecológica',
+      day: Math.min(28, realCurrentDay + 1),
+      month: realCurrentMonthName,
+      year: realCurrentYear,
+      time: '09:00 AM',
+      location: 'Plaza Intercultural de Logroño',
+      description: 'Exposición y venta de gastronomía típica, artesanías Shuar, medicina ancestral y productos agrícolas locales.',
+      category: 'Cultura'
+    },
+    {
+      id: 'evt-4',
+      title: 'Campeonato Deportivo Interparroquial Yaupi - Shimpis',
+      day: Math.min(28, realCurrentDay + 3),
+      month: realCurrentMonthName,
+      year: realCurrentYear,
+      time: '10:00 AM',
+      location: 'Estadio Municipal de Logroño',
+      description: 'Encuentro relámpago de fútbol masculino, femenino y ecuavoley con delegaciones parroquiales.',
+      category: 'Deportes'
+    }
+  ]);
+
+  const [isSyncingAgenda, setIsSyncingAgenda] = useState<boolean>(false);
+  const [agendaSyncToast, setAgendaSyncToast] = useState<string | null>(null);
+  const [agendaToast, setAgendaToast] = useState<string | null>(null);
+
+  // Agenda Modals & Form State
+  const [showCreateAgendaModal, setShowCreateAgendaModal] = useState<boolean>(false);
+  const [showEditAgendaModal, setShowEditAgendaModal] = useState<boolean>(false);
+  const [editingAgendaEvent, setEditingAgendaEvent] = useState<AgendaEvent | null>(null);
+
+  const [agendaFormTitle, setAgendaFormTitle] = useState('');
+  const [agendaFormDay, setAgendaFormDay] = useState<number>(new Date().getDate());
+  const [agendaFormMonth, setAgendaFormMonth] = useState<string>(SPANISH_MONTHS[new Date().getMonth()]);
+  const [agendaFormYear, setAgendaFormYear] = useState<number>(new Date().getFullYear());
+  const [agendaFormTime, setAgendaFormTime] = useState('09:00 AM');
+
+  // Calendar Navigation Functions
+  const handlePrevCalendarMonth = () => {
+    if (currentCalendarMonth === 0) {
+      setCurrentCalendarMonth(11);
+      setCurrentCalendarYear((prev) => prev - 1);
+    } else {
+      setCurrentCalendarMonth((prev) => prev - 1);
+    }
+  };
+
+  const handleNextCalendarMonth = () => {
+    if (currentCalendarMonth === 11) {
+      setCurrentCalendarMonth(0);
+      setCurrentCalendarYear((prev) => prev + 1);
+    } else {
+      setCurrentCalendarMonth((prev) => prev + 1);
+    }
+  };
+
+  const handleJumpCalendarToToday = () => {
+    const now = new Date();
+    setCurrentCalendarYear(now.getFullYear());
+    setCurrentCalendarMonth(now.getMonth());
+    setSelectedAgendaDay(now.getDate());
+  };
+  const [agendaFormLocation, setAgendaFormLocation] = useState('Parque Central de Logroño');
+  const [agendaFormCategory, setAgendaFormCategory] = useState<'Minga' | 'Cabildo' | 'Cultura' | 'Deportes' | 'Inauguración' | 'General'>('General');
+  const [agendaFormDescription, setAgendaFormDescription] = useState('');
+  const [agendaFormError, setAgendaFormError] = useState<string | null>(null);
+
+  const handleOpenCreateAgenda = (dayToSet?: number) => {
+    setAgendaFormTitle('');
+    setAgendaFormDay(dayToSet || selectedAgendaDay || new Date().getDate());
+    setAgendaFormMonth(SPANISH_MONTHS[currentCalendarMonth]);
+    setAgendaFormYear(currentCalendarYear);
+    setAgendaFormTime('09:00 AM');
+    setAgendaFormLocation('Logroño Centro / GAD Municipal');
+    setAgendaFormCategory('General');
+    setAgendaFormDescription('');
+    setAgendaFormError(null);
+    setShowCreateAgendaModal(true);
+  };
+
+  const handleOpenEditAgenda = (event: AgendaEvent) => {
+    setEditingAgendaEvent(event);
+    setAgendaFormTitle(event.title);
+    setAgendaFormDay(event.day);
+    setAgendaFormMonth(event.month || SPANISH_MONTHS[currentCalendarMonth]);
+    setAgendaFormYear(event.year || currentCalendarYear);
+    setAgendaFormTime(event.time);
+    setAgendaFormLocation(event.location);
+    setAgendaFormCategory(event.category || 'General');
+    setAgendaFormDescription(event.description || '');
+    setAgendaFormError(null);
+    setShowEditAgendaModal(true);
+  };
+
+  const handleSaveCreateAgenda = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!agendaFormTitle.trim()) {
+      setAgendaFormError('Por favor ingresa el título de la agenda o evento.');
+      return;
+    }
+    if (!agendaFormLocation.trim()) {
+      setAgendaFormError('Por favor ingresa la ubicación o lugar.');
+      return;
+    }
+
+    const newEvent: AgendaEvent = {
+      id: `evt-${Date.now()}`,
+      title: agendaFormTitle.trim(),
+      day: Number(agendaFormDay),
+      month: agendaFormMonth || SPANISH_MONTHS[currentCalendarMonth],
+      year: Number(agendaFormYear) || currentCalendarYear,
+      time: agendaFormTime.trim() || '09:00 AM',
+      location: agendaFormLocation.trim(),
+      category: agendaFormCategory,
+      description: agendaFormDescription.trim()
+    };
+
+    setAgendaEvents((prev) => [newEvent, ...prev]);
+    setSelectedAgendaDay(Number(agendaFormDay));
+    setShowCreateAgendaModal(false);
+    setAgendaToast(`Evento "${newEvent.title}" creado con éxito`);
+    setTimeout(() => setAgendaToast(null), 3500);
+  };
+
+  const handleSaveEditAgenda = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingAgendaEvent) return;
+    if (!agendaFormTitle.trim()) {
+      setAgendaFormError('Por favor ingresa el título de la agenda.');
+      return;
+    }
+
+    setAgendaEvents((prev) =>
+      prev.map((ev) =>
+        ev.id === editingAgendaEvent.id
+          ? {
+              ...ev,
+              title: agendaFormTitle.trim(),
+              day: Number(agendaFormDay),
+              month: agendaFormMonth || SPANISH_MONTHS[currentCalendarMonth],
+              year: Number(agendaFormYear) || currentCalendarYear,
+              time: agendaFormTime.trim() || '09:00 AM',
+              location: agendaFormLocation.trim(),
+              category: agendaFormCategory,
+              description: agendaFormDescription.trim()
+            }
+          : ev
+      )
+    );
+
+    setShowEditAgendaModal(false);
+    setEditingAgendaEvent(null);
+    setAgendaToast(`Evento "${agendaFormTitle.trim()}" actualizado correctamente`);
+    setTimeout(() => setAgendaToast(null), 3500);
+  };
+
+  const handleDeleteAgendaEvent = (eventId: string, title: string) => {
+    setAgendaEvents((prev) => prev.filter((ev) => ev.id !== eventId));
+    setAgendaToast(`Evento "${title}" eliminado de la agenda`);
+    setTimeout(() => setAgendaToast(null), 3500);
+  };
+
+  const handleSyncAgenda = () => {
+    setIsSyncingAgenda(true);
+    setAgendaSyncToast('Sincronizando agenda municipal con el servidor...');
+    setTimeout(() => {
+      setIsSyncingAgenda(false);
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      setAgendaSyncToast(`Agenda sincronizada correctamente (${timeStr})`);
+      setTimeout(() => setAgendaSyncToast(null), 4000);
+    }, 1000);
+  };
 
   // Configuration Settings State (Mockup 18: CONFIGURACIÓN)
   const [configNotificaciones, setConfigNotificaciones] = useState(true);
@@ -157,12 +387,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
   // User Profile State (Mockup 17: PERFIL)
   const [profileData, setProfileData] = useState({
-    name: currentUser?.name || 'María Fernanda Shakaim',
-    email: currentUser?.email || 'maria.shakaim@gmail.com',
-    phone: '0984712039',
-    cedula: currentUser?.cedula || '1710034065',
+    name: currentUser?.name || '',
+    email: currentUser?.email || '',
+    phone: currentUser?.phone || '',
+    cedula: currentUser?.cedula || '',
     sector: currentUser?.sector || 'Logroño Centro (Cabecera)',
-    avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80'
+    avatarUrl: currentUser?.avatarUrl || ''
   });
 
   // Profile Sub-modals & Edit States
@@ -242,10 +472,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
   const [category, setCategory] = useState<IncidentCategory>('Vías y Aceras');
   const [sector, setSector] = useState<LogronoSector>(currentUser?.sector || 'Logroño Centro (Cabecera)');
   const [address, setAddress] = useState('Calle 10 de Agosto y Av. Intercultural, Logroño');
+  const [reportLat, setReportLat] = useState<number>(-2.6280);
+  const [reportLng, setReportLng] = useState<number>(-78.1760);
   const [reference, setReference] = useState('');
-  const [citizenName, setCitizenName] = useState(currentUser?.name || 'María Fernanda Shakaim');
-  const [citizenPhone, setCitizenPhone] = useState('0984712039');
-  const [citizenCedula, setCitizenCedula] = useState(currentUser?.cedula || '1710034065');
+  const [citizenName, setCitizenName] = useState(currentUser?.name || profileData.name || '');
+  const [citizenPhone, setCitizenPhone] = useState(currentUser?.phone || profileData.phone || '');
+  const [citizenCedula, setCitizenCedula] = useState(currentUser?.cedula || profileData.cedula || '');
   const [photoUrl, setPhotoUrl] = useState<string>('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&auto=format&fit=crop&q=80');
   const [reportValidationError, setReportValidationError] = useState<string | null>(null);
   
@@ -378,8 +610,8 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
       status: 'reportado',
       priority: aiPreview?.priority || 'media',
       location: {
-        lat: sector === 'Parroquia Yaupi' ? -2.6315 : sector === 'Parroquia Shimpis' ? -2.6102 : -2.6280,
-        lng: sector === 'Parroquia Yaupi' ? -78.1824 : sector === 'Parroquia Shimpis' ? -78.1450 : -78.1760,
+        lat: reportLat,
+        lng: reportLng,
         address: address || 'Calle 24 de Mayo y Sucre',
         sector,
         reference
@@ -429,42 +661,45 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
     }, 3500);
   };
 
-  // User display name helper (e.g., "María")
-  const userFirstName = currentUser?.name ? currentUser.name.split(' ')[0] : 'María';
+  // User display name helper
+  const userDisplayName = currentUser?.name?.trim() || profileData.name?.trim() || (currentUser?.email ? currentUser.email.split('@')[0] : 'Ciudadano');
+  const userFirstName = userDisplayName ? userDisplayName.split(' ')[0] : 'Ciudadano';
 
   return (
     <div className="max-w-7xl mx-auto px-2 sm:px-4 py-2 sm:py-4">
       
       {/* Frame Switcher Bar */}
-      <div className="flex justify-between items-center bg-slate-200 dark:bg-slate-800 p-2 rounded-xl mb-3 border border-slate-300 dark:border-slate-700">
+      <div className="flex justify-between items-center bg-slate-200 dark:bg-slate-800 p-2.5 rounded-2xl mb-4 border border-slate-300 dark:border-slate-700 shadow-xs">
         <div className="flex items-center space-x-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
-          <span className="bg-[#0A4191] text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-            Logroño Conecta Mobile
+          <span className="bg-[#0A4191] text-white text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+            {isPhoneFrame ? "Vista Smartphone" : "Pantalla Normal Web"}
           </span>
-          <span className="hidden sm:inline">Vista de la Aplicación Móvil</span>
+          <span className="hidden sm:inline text-slate-600 dark:text-slate-300">
+            {isPhoneFrame ? "Vista compacta de dispositivo móvil" : "Plantilla principal de pantalla normal completa"}
+          </span>
         </div>
         
         <button
           onClick={() => setIsPhoneFrame(!isPhoneFrame)}
           id="btn-toggle-phone-frame"
-          className="flex items-center space-x-1.5 bg-white dark:bg-slate-700 hover:bg-slate-100 text-slate-800 dark:text-slate-100 text-xs px-3 py-1 rounded-lg border border-slate-300 dark:border-slate-600 shadow-sm transition-all cursor-pointer font-medium"
+          className="flex items-center space-x-1.5 bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 text-xs px-3.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-600 shadow-xs transition-all cursor-pointer font-bold"
         >
           {isPhoneFrame ? (
             <>
-              <Maximize2 className="w-3.5 h-3.5" />
-              <span>Vista Extendida</span>
+              <Maximize2 className="w-3.5 h-3.5 text-[#0A4191]" />
+              <span>Cambiar a Pantalla Normal</span>
             </>
           ) : (
             <>
-              <Minimize2 className="w-3.5 h-3.5" />
-              <span>Formato Smartphone</span>
+              <Minimize2 className="w-3.5 h-3.5 text-[#0A4191]" />
+              <span>Simular Formato Celular</span>
             </>
           )}
         </button>
       </div>
 
-      {/* Main Smartphone Layout Box */}
-      <div className={isPhoneFrame ? "max-w-sm sm:max-w-md mx-auto bg-slate-950 p-2 sm:p-3 rounded-[40px] shadow-2xl border-4 border-slate-800 transition-all duration-300" : "max-w-4xl mx-auto transition-all duration-300"}>
+      {/* Main Layout Box */}
+      <div className={isPhoneFrame ? "max-w-sm sm:max-w-md mx-auto bg-slate-950 p-2 sm:p-3 rounded-[40px] shadow-2xl border-4 border-slate-800 transition-all duration-300" : "max-w-6xl mx-auto transition-all duration-300"}>
         
         {/* Smartphone Screen Notch Header */}
         {isPhoneFrame && (
@@ -480,8 +715,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
           </div>
         )}
 
-        {/* Smartphone Inner Screen Content */}
-        <div className="bg-slate-100 dark:bg-slate-900 rounded-[32px] shadow-inner overflow-hidden flex flex-col min-h-[720px] relative border border-slate-300 dark:border-slate-800">
+        {/* Screen Content Wrapper */}
+        <div className={`bg-slate-100 dark:bg-slate-900 shadow-xl overflow-hidden flex flex-col min-h-[720px] relative border border-slate-200 dark:border-slate-800 ${
+          isPhoneFrame ? "rounded-[32px]" : "rounded-3xl"
+        }`}>
           
           {/* ==================== 1. ROYAL BLUE HEADER ==================== */}
           <div className="bg-gradient-to-b from-[#083578] via-[#0A4191] to-[#0D4FB0] text-white px-4 pt-4 pb-10 flex items-center justify-between relative z-10">
@@ -1285,33 +1522,46 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                     {reportWizardStep === 2 && (
                       <div className="space-y-4 pt-1">
                         {/* Interactive Map Component */}
-                        <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm h-52">
+                        <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm">
                           <LogronoGoogleMap
-                            centerLat={-2.6280}
-                            centerLng={-78.1760}
+                            centerLat={reportLat}
+                            centerLng={reportLng}
+                            selectedLat={reportLat}
+                            selectedLng={reportLng}
+                            selectableLocation={true}
                             zoomLevel={15}
                             incidents={[]}
+                            onLocationSelect={(lat, lng, newAddress, newSector) => {
+                              setReportLat(lat);
+                              setReportLng(lng);
+                              if (newAddress) setAddress(newAddress);
+                              if (newSector) setSector(newSector);
+                            }}
                           />
-                          {/* Floating Button: 📍 Usar mi ubicación actual */}
-                          <div className="absolute bottom-3 left-3 right-3 z-10">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setAddress('Calle 24 de Mayo y Sucre');
-                                setSector('Logroño Centro (Cabecera)');
-                              }}
-                              className="w-full py-2.5 px-3 bg-[#0A4191] hover:bg-blue-900 text-white text-xs font-bold rounded-xl shadow-lg flex items-center justify-center space-x-1.5 cursor-pointer active:scale-95 transition-all"
-                            >
-                              <Navigation className="w-4 h-4 text-sky-300 fill-current" />
-                              <span>Usar mi ubicación actual</span>
-                            </button>
-                          </div>
+                        </div>
+
+                        {/* Sector Selector */}
+                        <div className="space-y-1">
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                            Parroquia / Sector de Logroño
+                          </label>
+                          <select
+                            value={sector}
+                            onChange={(e) => setSector(e.target.value as LogronoSector)}
+                            className="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-semibold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#159A44]"
+                          >
+                            <option value="Logroño Centro (Cabecera)">Logroño Centro (Cabecera)</option>
+                            <option value="Parroquia Yaupi">Parroquia Yaupi</option>
+                            <option value="Parroquia Shimpis">Parroquia Shimpis</option>
+                            <option value="Comunidad Shuar Kakaim">Comunidad Shuar Kakaim</option>
+                            <option value="Comunidad Shuar Kimius">Comunidad Shuar Kimius</option>
+                          </select>
                         </div>
 
                         {/* Address Field */}
                         <div className="space-y-1">
                           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                            Dirección aproximada
+                            Dirección aproximada / Referencia
                           </label>
                           <input
                             type="text"
@@ -1320,6 +1570,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                             placeholder="Calle 24 de Mayo y Sucre"
                             className="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#159A44]"
                           />
+                          <div className="text-[10px] text-slate-500 font-mono flex items-center justify-between pt-0.5">
+                            <span>Coordenadas GPS:</span>
+                            <span className="font-bold text-[#0A4191] dark:text-blue-400">{reportLat.toFixed(5)}, {reportLng.toFixed(5)}</span>
+                          </div>
                         </div>
 
                         {/* Bottom Buttons: Atrás & Siguiente */}
@@ -1636,178 +1890,275 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   </h2>
                 </div>
 
-                {/* Filter Pills Bar: Todos | En proceso | Solucionados */}
-                <div className="grid grid-cols-3 gap-2 py-0.5">
-                  <button
-                    type="button"
-                    onClick={() => setMisReportesFilter('todos')}
-                    title="Ver todos los reportes"
-                    className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
-                      misReportesFilter === 'todos'
-                        ? 'bg-[#0A4191] text-white shadow-sm'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
-                    }`}
-                  >
-                    <ListFilter className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span className="hidden xs:inline">Todos</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMisReportesFilter('en_proceso')}
-                    title="Ver reportes en proceso"
-                    className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
-                      misReportesFilter === 'en_proceso'
-                        ? 'bg-[#0A4191] text-white shadow-sm'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
-                    }`}
-                  >
-                    <Clock className="w-3.5 h-3.5 flex-shrink-0 text-amber-500" />
-                    <span className="hidden xs:inline">En proceso</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMisReportesFilter('solucionados')}
-                    title="Ver reportes solucionados"
-                    className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
-                      misReportesFilter === 'solucionados'
-                        ? 'bg-[#0A4191] text-white shadow-sm'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
-                    }`}
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-emerald-500" />
-                    <span className="hidden xs:inline">Solucionados</span>
-                  </button>
+                {/* Filter & Sort Bar */}
+                <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between py-0.5">
+                  {/* Status Filter Pills: Todos | En proceso | Solucionados */}
+                  <div className="grid grid-cols-3 gap-2 flex-1">
+                    <button
+                      type="button"
+                      onClick={() => setMisReportesFilter('todos')}
+                      title="Ver todos los reportes"
+                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
+                        misReportesFilter === 'todos'
+                          ? 'bg-[#0A4191] text-white shadow-xs'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      <ListFilter className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span className="hidden xs:inline">Todos</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMisReportesFilter('en_proceso')}
+                      title="Ver reportes en proceso"
+                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
+                        misReportesFilter === 'en_proceso'
+                          ? 'bg-[#0A4191] text-white shadow-xs'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      <Clock className="w-3.5 h-3.5 flex-shrink-0 text-amber-500" />
+                      <span className="hidden xs:inline">En proceso</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMisReportesFilter('solucionados')}
+                      title="Ver reportes solucionados"
+                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
+                        misReportesFilter === 'solucionados'
+                          ? 'bg-[#0A4191] text-white shadow-xs'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-emerald-500" />
+                      <span className="hidden xs:inline">Solucionados</span>
+                    </button>
+                  </div>
+
+                  {/* Dropdown Selector for Sorting */}
+                  <div className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700/80">
+                    <ArrowUpDown className="w-3.5 h-3.5 text-[#0A4191] dark:text-blue-400 flex-shrink-0" />
+                    <label htmlFor="select-mis-reportes-sort" className="text-[11px] font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                      Ordenar:
+                    </label>
+                    <select
+                      id="select-mis-reportes-sort"
+                      value={misReportesSortBy}
+                      onChange={(e) => setMisReportesSortBy(e.target.value as any)}
+                      className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-xs font-bold rounded-lg px-2 py-1 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-2xs"
+                    >
+                      <option value="fecha_desc">Fecha (Recientes primero)</option>
+                      <option value="fecha_asc">Fecha (Antiguos primero)</option>
+                      <option value="prioridad_desc">Prioridad (Mayor a Menor)</option>
+                      <option value="prioridad_asc">Prioridad (Menor a Mayor)</option>
+                    </select>
+                  </div>
                 </div>
 
-                {/* List of Incident Cards (Responsive Grid) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-                  {incidents
-                    .filter((inc) => {
-                      if (misReportesFilter === 'en_proceso') {
-                        return inc.status === 'en_proceso' || inc.status === 'reportado' || inc.status === 'asignado' || inc.status === 'en_revision';
-                      }
-                      if (misReportesFilter === 'solucionados') {
-                        return inc.status === 'resuelto';
-                      }
-                      return true;
-                    })
-                    .map((inc) => {
-                      // Icon & Category styling map according to Mockup 13
-                      const getCategoryDetails = (cat: string) => {
-                        const lower = cat.toLowerCase();
-                        if (lower.includes('alumbrado') || lower.includes('luz')) {
-                          return {
-                            bg: 'bg-amber-100/80 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40',
-                            icon: <Lightbulb className="w-6 h-6 text-amber-500 fill-amber-300/40 stroke-[2]" />,
-                            label: 'Alumbrado Público'
-                          };
-                        }
-                        if (lower.includes('vías') || lower.includes('calles') || lower.includes('acera')) {
-                          return {
-                            bg: 'bg-sky-100/80 dark:bg-sky-950/40 border border-sky-200/60 dark:border-sky-800/40',
-                            icon: <Milestone className="w-6 h-6 text-sky-600 stroke-[2]" />,
-                            label: 'Calles'
-                          };
-                        }
-                        if (lower.includes('residuos') || lower.includes('basura')) {
-                          return {
-                            bg: 'bg-emerald-100/80 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40',
-                            icon: <Trash2 className="w-6 h-6 text-emerald-600 stroke-[2]" />,
-                            label: 'Basura'
-                          };
-                        }
-                        if (lower.includes('parques') || lower.includes('verdes')) {
-                          return {
-                            bg: 'bg-emerald-100/80 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40',
-                            icon: <Trees className="w-6 h-6 text-emerald-600 fill-emerald-100 stroke-[2]" />,
-                            label: 'Parques'
-                          };
-                        }
-                        if (lower.includes('agua') || lower.includes('alcantarillado')) {
-                          return {
-                            bg: 'bg-blue-100/80 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/40',
-                            icon: <Droplets className="w-6 h-6 text-blue-600 fill-blue-200/40 stroke-[2]" />,
-                            label: 'Agua Potable'
-                          };
-                        }
-                        return {
-                          bg: 'bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700',
-                          icon: <AlertTriangle className="w-6 h-6 text-slate-600 dark:text-slate-300 stroke-[2]" />,
-                          label: cat
-                        };
-                      };
+                {/* Custom Professional Data Table for Mis Reportes */}
+                <div className="pt-1">
+                  <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-xs bg-white dark:bg-slate-800">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 text-[11px] font-extrabold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                          <th className="py-3 px-3.5">Código</th>
+                          <th className="py-3 px-3.5">Categoría / Asunto</th>
+                          <th className="py-3 px-3.5">Ubicación / Sector</th>
+                          
+                          {/* Column Header: Fecha (Interactive Sort) */}
+                          <th
+                            className="py-3 px-3.5 cursor-pointer select-none hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            onClick={() => {
+                              if (misReportesSortBy === 'fecha_desc') {
+                                setMisReportesSortBy('fecha_asc');
+                              } else {
+                                setMisReportesSortBy('fecha_desc');
+                              }
+                            }}
+                            title="Haz clic para ordenar por fecha de creación"
+                          >
+                            <div className="flex items-center space-x-1">
+                              <span>Fecha</span>
+                              {misReportesSortBy === 'fecha_desc' && <ArrowDown className="w-3.5 h-3.5 text-[#0A4191] dark:text-blue-400 stroke-[2.5]" />}
+                              {misReportesSortBy === 'fecha_asc' && <ArrowUp className="w-3.5 h-3.5 text-[#0A4191] dark:text-blue-400 stroke-[2.5]" />}
+                              {!misReportesSortBy.startsWith('fecha') && <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />}
+                            </div>
+                          </th>
 
-                      const catDetails = getCategoryDetails(inc.category);
+                          {/* Column Header: Prioridad (Interactive Sort) */}
+                          <th
+                            className="py-3 px-3.5 cursor-pointer select-none hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            onClick={() => {
+                              if (misReportesSortBy === 'prioridad_desc') {
+                                setMisReportesSortBy('prioridad_asc');
+                              } else {
+                                setMisReportesSortBy('prioridad_desc');
+                              }
+                            }}
+                            title="Haz clic para ordenar por nivel de prioridad"
+                          >
+                            <div className="flex items-center space-x-1">
+                              <span>Prioridad</span>
+                              {misReportesSortBy === 'prioridad_desc' && <ArrowDown className="w-3.5 h-3.5 text-[#0A4191] dark:text-blue-400 stroke-[2.5]" />}
+                              {misReportesSortBy === 'prioridad_asc' && <ArrowUp className="w-3.5 h-3.5 text-[#0A4191] dark:text-blue-400 stroke-[2.5]" />}
+                              {!misReportesSortBy.startsWith('prioridad') && <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />}
+                            </div>
+                          </th>
 
-                      // Date formatting: DD/MM/YYYY
-                      const dateFormatted = (() => {
-                        try {
-                          const d = new Date(inc.createdAt);
-                          if (isNaN(d.getTime())) return '24/05/2024';
-                          const day = String(d.getDate()).padStart(2, '0');
-                          const month = String(d.getMonth() + 1).padStart(2, '0');
-                          const year = d.getFullYear();
-                          return `${day}/${month}/${year}`;
-                        } catch {
-                          return '24/05/2024';
-                        }
-                      })();
+                          <th className="py-3 px-3.5">Estado</th>
+                          <th className="py-3 px-3.5 text-center">Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60 text-xs">
+                        {incidents
+                          .filter((inc) => {
+                            if (misReportesFilter === 'en_proceso') {
+                              return inc.status === 'en_proceso' || inc.status === 'reportado' || inc.status === 'asignado' || inc.status === 'en_revision';
+                            }
+                            if (misReportesFilter === 'solucionados') {
+                              return inc.status === 'resuelto';
+                            }
+                            return true;
+                          })
+                          .sort((a, b) => {
+                            if (misReportesSortBy === 'fecha_desc') {
+                              const timeA = new Date(a.createdAt).getTime() || 0;
+                              const timeB = new Date(b.createdAt).getTime() || 0;
+                              return timeB - timeA;
+                            }
+                            if (misReportesSortBy === 'fecha_asc') {
+                              const timeA = new Date(a.createdAt).getTime() || 0;
+                              const timeB = new Date(b.createdAt).getTime() || 0;
+                              return timeA - timeB;
+                            }
+                            if (misReportesSortBy === 'prioridad_desc') {
+                              const prioWeight: Record<string, number> = { critica: 4, alta: 3, media: 2, baja: 1 };
+                              return (prioWeight[b.priority] || 0) - (prioWeight[a.priority] || 0);
+                            }
+                            if (misReportesSortBy === 'prioridad_asc') {
+                              const prioWeight: Record<string, number> = { critica: 4, alta: 3, media: 2, baja: 1 };
+                              return (prioWeight[a.priority] || 0) - (prioWeight[b.priority] || 0);
+                            }
+                            return 0;
+                          })
+                          .map((inc) => {
+                            // Date formatting: DD/MM/YYYY
+                            const dateFormatted = (() => {
+                              try {
+                                const d = new Date(inc.createdAt);
+                                if (isNaN(d.getTime())) return '24/05/2024';
+                                const day = String(d.getDate()).padStart(2, '0');
+                                const month = String(d.getMonth() + 1).padStart(2, '0');
+                                const year = d.getFullYear();
+                                return `${day}/${month}/${year}`;
+                              } catch {
+                                return '24/05/2024';
+                              }
+                            })();
 
-                      return (
-                        <div
-                          key={inc.id}
-                          onClick={() => setSelectedIncident(inc)}
-                          className="bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl p-3 flex items-center justify-between shadow-sm hover:shadow-md hover:border-blue-400 cursor-pointer transition-all space-x-3.5 group"
-                        >
-                          {/* Custom Category Icon Container */}
-                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105 ${catDetails.bg}`}>
-                            {catDetails.icon}
-                          </div>
+                            // Priority styling badge
+                            const priorityBadge = (() => {
+                              switch (inc.priority) {
+                                case 'critica':
+                                  return <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300">Crítica</span>;
+                                case 'alta':
+                                  return <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">Alta</span>;
+                                case 'media':
+                                  return <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">Media</span>;
+                                default:
+                                  return <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">Baja</span>;
+                              }
+                            })();
 
-                          {/* Code + Subtitle Category Name */}
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-extrabold text-slate-900 dark:text-white text-xs tracking-tight font-mono">
-                              {inc.code}
-                            </h4>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5 truncate">
-                              {catDetails.label}
-                            </p>
-                          </div>
+                            return (
+                              <tr
+                                key={inc.id}
+                                onClick={() => setSelectedIncident(inc)}
+                                className="hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition-colors cursor-pointer group"
+                              >
+                                {/* Code Column */}
+                                <td className="py-3 px-3.5 font-mono font-extrabold text-[#0A4191] dark:text-blue-400 whitespace-nowrap">
+                                  {inc.code}
+                                </td>
 
-                          {/* Date & Status Badge Column */}
-                          <div className="text-right flex-shrink-0 space-y-1">
-                            <span className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 block">
-                              {dateFormatted}
-                            </span>
-                            <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full inline-block ${
-                              inc.status === 'resuelto' 
-                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300' 
-                                : inc.status === 'reportado'
-                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300'
-                                : 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300'
-                            }`}>
-                              {inc.status === 'resuelto' ? 'Solucionado' : inc.status === 'reportado' ? 'Recibido' : 'En proceso'}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
+                                {/* Title / Category Column */}
+                                <td className="py-3 px-3.5">
+                                  <div className="font-extrabold text-slate-900 dark:text-white group-hover:text-[#0A4191] dark:group-hover:text-blue-400 transition-colors line-clamp-1">
+                                    {inc.title}
+                                  </div>
+                                  <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                                    {inc.category}
+                                  </div>
+                                </td>
 
-                  {incidents.filter((inc) => {
-                    if (misReportesFilter === 'en_proceso') {
-                      return inc.status === 'en_proceso' || inc.status === 'reportado' || inc.status === 'asignado' || inc.status === 'en_revision';
-                    }
-                    if (misReportesFilter === 'solucionados') {
-                      return inc.status === 'resuelto';
-                    }
-                    return true;
-                  }).length === 0 && (
-                    <div className="text-center py-8 space-y-2 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
-                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                        No hay reportes en esta categoría.
-                      </p>
-                    </div>
-                  )}
+                                {/* Location Column */}
+                                <td className="py-3 px-3.5">
+                                  <div className="font-semibold text-slate-800 dark:text-slate-200">
+                                    {inc.location.sector}
+                                  </div>
+                                  <div className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1">
+                                    {inc.location.address}
+                                  </div>
+                                </td>
+
+                                {/* Date Column */}
+                                <td className="py-3 px-3.5 font-mono text-[11px] text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                                  {dateFormatted}
+                                </td>
+
+                                {/* Priority Column */}
+                                <td className="py-3 px-3.5 whitespace-nowrap">
+                                  {priorityBadge}
+                                </td>
+
+                                {/* Status Column */}
+                                <td className="py-3 px-3.5 whitespace-nowrap">
+                                  <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full inline-block ${
+                                    inc.status === 'resuelto' 
+                                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60' 
+                                      : inc.status === 'reportado'
+                                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60'
+                                      : 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60'
+                                  }`}>
+                                    {inc.status === 'resuelto' ? 'Solucionado' : inc.status === 'reportado' ? 'Recibido' : 'En proceso'}
+                                  </span>
+                                </td>
+
+                                {/* Action Column */}
+                                <td className="py-3 px-3.5 text-center whitespace-nowrap">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedIncident(inc);
+                                    }}
+                                    className="px-2.5 py-1 text-[11px] font-bold bg-slate-100 dark:bg-slate-700 hover:bg-[#0A4191] hover:text-white dark:hover:bg-blue-600 text-slate-700 dark:text-slate-200 rounded-lg transition-all cursor-pointer"
+                                  >
+                                    Ver Detalle
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+
+                        {incidents.filter((inc) => {
+                          if (misReportesFilter === 'en_proceso') {
+                            return inc.status === 'en_proceso' || inc.status === 'reportado' || inc.status === 'asignado' || inc.status === 'en_revision';
+                          }
+                          if (misReportesFilter === 'solucionados') {
+                            return inc.status === 'resuelto';
+                          }
+                          return true;
+                        }).length === 0 && (
+                          <tr>
+                            <td colSpan={7} className="text-center py-8 text-xs font-medium text-slate-500 dark:text-slate-400">
+                              No hay reportes registrados en esta categoría.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             )}
@@ -2047,213 +2398,316 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
               </div>
             )}
 
-            {/* TAB 8: AGENDA MUNICIPAL (MATCHES MOCKUP 16. AGENDA EXACTLY) */}
+            {/* TAB 8: AGENDA MUNICIPAL (COMPLETE INTERACTIVE IMPLEMENTATION) */}
             {citizenTab === 'agenda' && (
               <div className="space-y-4 text-xs animate-in fade-in duration-200 pb-2">
-                {/* Header Row: Back Arrow + Centered Title "Agenda Municipal" */}
-                <div className="relative text-center pt-1 pb-1">
-                  <button
-                    type="button"
-                    onClick={() => setCitizenTab('inicio')}
-                    className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
-                  >
-                    <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
-                  </button>
-                  <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
-                    Agenda Municipal
-                  </h2>
-                </div>
-
-                {/* Calendar View Container */}
-                <div className="bg-white dark:bg-slate-900 rounded-3xl p-3.5 border border-slate-100 dark:border-slate-800 shadow-2xs space-y-3">
-                  {/* Month Header: < Mayo 2024 > */}
-                  <div className="flex items-center justify-between px-3 pt-1">
+                {/* Header Row: Back Arrow + Centered Title "Agenda Municipal" + Action Buttons */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1 pb-1">
+                  <div className="flex items-center space-x-2">
                     <button
                       type="button"
-                      className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors cursor-pointer"
+                      onClick={() => setCitizenTab('inicio')}
+                      className="p-1.5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
+                      title="Volver a Inicio"
                     >
-                      <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
+                      <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
                     </button>
-                    <span className="font-black text-sm text-slate-900 dark:text-white tracking-tight">
-                      Mayo 2024
-                    </span>
+                    <div>
+                      <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                        Agenda Municipal
+                      </h2>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                        Logroño • Morona Santiago
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Top Action Buttons: Sincronizar & + Crear Agenda */}
+                  <div className="flex items-center space-x-2 self-end sm:self-auto">
                     <button
                       type="button"
-                      className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors cursor-pointer"
+                      onClick={handleSyncAgenda}
+                      disabled={isSyncingAgenda}
+                      className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl font-extrabold text-[11px] flex items-center space-x-1.5 transition-all cursor-pointer active:scale-95 disabled:opacity-60"
+                      title="Sincronizar información de la agenda con el servidor"
                     >
-                      <ChevronRight className="w-5 h-5 stroke-[2.5]" />
+                      <RefreshCw className={`w-3.5 h-3.5 text-[#0A4191] dark:text-blue-400 ${isSyncingAgenda ? 'animate-spin' : ''}`} />
+                      <span>{isSyncingAgenda ? 'Sincronizando...' : 'Sincronizar'}</span>
                     </button>
-                  </div>
 
-                  {/* Days of week header: L  M  M  J  V  S  D */}
-                  <div className="grid grid-cols-7 text-center font-extrabold text-slate-400 dark:text-slate-500 text-[11px] py-1">
-                    <span>L</span>
-                    <span>M</span>
-                    <span>M</span>
-                    <span>J</span>
-                    <span>V</span>
-                    <span>S</span>
-                    <span>D</span>
-                  </div>
-
-                  {/* Days of month grid (May 2024 starts on Wednesday=1, Monday/Tuesday are 29/30 Apr) */}
-                  <div className="grid grid-cols-7 gap-y-2 gap-x-1 text-center items-center">
-                    {/* Row 1: 29 Apr, 30 Apr, 1, 2, 3, 4, 5 */}
-                    <span className="text-[11px] font-medium text-slate-300 dark:text-slate-600 py-1">29</span>
-                    <span className="text-[11px] font-medium text-slate-300 dark:text-slate-600 py-1">30</span>
-                    {[1, 2, 3, 4, 5].map((d) => (
-                      <button
-                        key={`day-${d}`}
-                        type="button"
-                        onClick={() => setSelectedAgendaDay(d)}
-                        className={`py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          selectedAgendaDay === d
-                            ? 'w-8 h-8 rounded-xl bg-[#0A4191] text-white flex items-center justify-center font-black shadow-md mx-auto'
-                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
-                        }`}
-                      >
-                        {d}
-                      </button>
-                    ))}
-
-                    {/* Row 2: 6, 7, 8, 9, 10, 11, 12 */}
-                    {[6, 7, 8, 9, 10, 11, 12].map((d) => (
-                      <button
-                        key={`day-${d}`}
-                        type="button"
-                        onClick={() => setSelectedAgendaDay(d)}
-                        className={`py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          selectedAgendaDay === d
-                            ? 'w-8 h-8 rounded-xl bg-[#0A4191] text-white flex items-center justify-center font-black shadow-md mx-auto'
-                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
-                        }`}
-                      >
-                        {d}
-                      </button>
-                    ))}
-
-                    {/* Row 3: 13, 14, 15, 16, 17, 18, 19 */}
-                    {[13, 14, 15, 16, 17, 18, 19].map((d) => (
-                      <button
-                        key={`day-${d}`}
-                        type="button"
-                        onClick={() => setSelectedAgendaDay(d)}
-                        className={`py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          selectedAgendaDay === d
-                            ? 'w-8 h-8 rounded-xl bg-[#0A4191] text-white flex items-center justify-center font-black shadow-md mx-auto'
-                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
-                        }`}
-                      >
-                        {d}
-                      </button>
-                    ))}
-
-                    {/* Row 4: 20, 21, 22, 23, 24, 25, 26 */}
-                    {[20, 21, 22, 23, 24, 25, 26].map((d) => (
-                      <button
-                        key={`day-${d}`}
-                        type="button"
-                        onClick={() => setSelectedAgendaDay(d)}
-                        className={`py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          selectedAgendaDay === d
-                            ? 'w-8 h-8 rounded-xl bg-[#0A4191] text-white flex items-center justify-center font-black shadow-md mx-auto'
-                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
-                        }`}
-                      >
-                        {d}
-                      </button>
-                    ))}
-
-                    {/* Row 5: 27, 28, 29, 30, 31, 1 Jun, 2 Jun */}
-                    {[27, 28, 29, 30, 31].map((d) => (
-                      <button
-                        key={`day-${d}`}
-                        type="button"
-                        onClick={() => setSelectedAgendaDay(d)}
-                        className={`py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          selectedAgendaDay === d
-                            ? 'w-8 h-8 rounded-xl bg-[#0A4191] text-white flex items-center justify-center font-black shadow-md mx-auto'
-                            : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
-                        }`}
-                      >
-                        {d}
-                      </button>
-                    ))}
-                    <span className="text-[11px] font-medium text-slate-300 dark:text-slate-600 py-1">1</span>
-                    <span className="text-[11px] font-medium text-slate-300 dark:text-slate-600 py-1">2</span>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenCreateAgenda()}
+                      className="px-3 py-1.5 bg-[#0A4191] hover:bg-blue-900 text-white rounded-xl font-extrabold text-[11px] flex items-center space-x-1.5 shadow-sm transition-all cursor-pointer active:scale-95"
+                      title="Crear nueva agenda o evento municipal"
+                    >
+                      <Plus className="w-4 h-4 stroke-[3]" />
+                      <span>Crear Agenda</span>
+                    </button>
                   </div>
                 </div>
 
-                {/* Section Subtitle: Eventos del 24 de mayo */}
-                <div className="pt-1 space-y-2.5">
-                  <h3 className="font-black text-slate-900 dark:text-white text-xs tracking-tight">
-                    Eventos del {selectedAgendaDay} de mayo
-                  </h3>
+                {/* Toast Notification Banner */}
+                {agendaSyncToast && (
+                  <div className="bg-blue-50 dark:bg-blue-950/80 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 p-2.5 rounded-2xl flex items-center space-x-2 text-xs font-bold animate-in slide-in-from-top-2 shadow-xs">
+                    <RefreshCw className={`w-4 h-4 text-[#0A4191] dark:text-blue-400 flex-shrink-0 ${isSyncingAgenda ? 'animate-spin' : ''}`} />
+                    <span className="flex-1">{agendaSyncToast}</span>
+                  </div>
+                )}
 
-                  {/* List of Event Cards */}
-                  <div className="space-y-3">
-                    {selectedAgendaDay === 24 ? (
-                      <>
-                        {/* Event 1: Minga comunitaria */}
-                        <div className="bg-[#F8FAFC] dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-3 flex items-center space-x-3.5 relative overflow-hidden shadow-xs hover:shadow-md transition-all">
-                          {/* Left Cyan Accent Strip */}
-                          <div className="absolute left-0 top-2 bottom-2 w-1 bg-cyan-400 rounded-r-full" />
-                          
-                          {/* Left Red Icon Badge */}
-                          <div className="w-11 h-11 rounded-2xl bg-red-100 dark:bg-red-950/70 text-red-500 dark:text-red-400 flex items-center justify-center flex-shrink-0 ml-1.5 shadow-2xs">
-                            <div className="w-7 h-7 bg-red-400/90 text-white rounded-xl flex items-center justify-center font-black text-xs">
-                              ?
-                            </div>
+                {agendaToast && (
+                  <div className="bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 p-2.5 rounded-2xl flex items-center space-x-2 text-xs font-bold animate-in slide-in-from-top-2 shadow-xs">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                    <span className="flex-1">{agendaToast}</span>
+                  </div>
+                )}
+
+                {/* Dynamic Real Calendar View Container */}
+                {(() => {
+                  const currentMonthName = SPANISH_MONTHS[currentCalendarMonth];
+                  const daysInMonth = new Date(currentCalendarYear, currentCalendarMonth + 1, 0).getDate();
+                  const firstDayIndex = (new Date(currentCalendarYear, currentCalendarMonth, 1).getDay() + 6) % 7; // Mon=0 ... Sun=6
+                  const prevMonthDaysCount = new Date(currentCalendarYear, currentCalendarMonth, 0).getDate();
+
+                  const prevPaddingDays = Array.from({ length: firstDayIndex }, (_, i) => prevMonthDaysCount - firstDayIndex + i + 1);
+                  const currentMonthDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+                  const totalGridCells = firstDayIndex + daysInMonth;
+                  const nextPaddingCount = (7 - (totalGridCells % 7)) % 7;
+                  const nextPaddingDays = Array.from({ length: nextPaddingCount }, (_, i) => i + 1);
+
+                  const isCurrentMonthReal = currentCalendarMonth === new Date().getMonth() && currentCalendarYear === new Date().getFullYear();
+                  const todayDate = new Date().getDate();
+
+                  const dayEvents = agendaEvents.filter((ev) => {
+                    return ev.day === selectedAgendaDay && 
+                           (ev.month === currentMonthName || !ev.month) && 
+                           (ev.year === currentCalendarYear || !ev.year);
+                  });
+
+                  return (
+                    <div className="space-y-4">
+                      <div className="bg-white dark:bg-slate-900 rounded-3xl p-3.5 border border-slate-100 dark:border-slate-800 shadow-2xs space-y-3">
+                        {/* Month Header: < Agosto 2026 > + Today jump button */}
+                        <div className="flex items-center justify-between px-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={handlePrevCalendarMonth}
+                            className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+                            title="Mes anterior"
+                          >
+                            <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
+                          </button>
+
+                          <div className="flex items-center space-x-2">
+                            <span className="font-black text-sm text-slate-900 dark:text-white tracking-tight">
+                              {currentMonthName} {currentCalendarYear}
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={handleJumpCalendarToToday}
+                              className="px-2 py-0.5 bg-blue-50 dark:bg-blue-950 text-[#0A4191] dark:text-blue-300 font-extrabold text-[10px] rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900 transition-all cursor-pointer"
+                              title="Ir al día de hoy"
+                            >
+                              Hoy
+                            </button>
                           </div>
 
-                          {/* Middle Content */}
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-extrabold text-slate-900 dark:text-white text-xs leading-snug">
-                              Minga comunitaria
-                            </h4>
-                            <p className="text-[11px] font-mono text-slate-400 dark:text-slate-400 font-medium mt-0.5">
-                              08:00 AM - Parque Central
-                            </p>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={handleNextCalendarMonth}
+                            className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+                            title="Mes siguiente"
+                          >
+                            <ChevronRight className="w-5 h-5 stroke-[2.5]" />
+                          </button>
                         </div>
 
-                        {/* Event 2: Sesión de Cabildo */}
-                        <div className="bg-[#F8FAFC] dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-3 flex items-center space-x-3.5 relative overflow-hidden shadow-xs hover:shadow-md transition-all">
-                          {/* Left Amber Accent Strip */}
-                          <div className="absolute left-0 top-2 bottom-2 w-1 bg-amber-400 rounded-r-full" />
-                          
-                          {/* Left Green Icon Badge */}
-                          <div className="w-11 h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0 ml-1.5 shadow-2xs">
-                            <div className="w-7 h-7 bg-emerald-500/90 text-white rounded-xl flex items-center justify-center">
-                              <Building2 className="w-4 h-4 stroke-[2.5]" />
-                            </div>
-                          </div>
-
-                          {/* Middle Content */}
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-extrabold text-slate-900 dark:text-white text-xs leading-snug">
-                              Sesión de Cabildo
-                            </h4>
-                            <p className="text-[11px] font-mono text-slate-400 dark:text-slate-400 font-medium mt-0.5">
-                              15:00 PM - Sala de Sesiones
-                            </p>
-                          </div>
+                        {/* Days of week header: Lu  Ma  Mi  Ju  Vi  Sá  Do */}
+                        <div className="grid grid-cols-7 text-center font-extrabold text-slate-400 dark:text-slate-500 text-[11px] py-1">
+                          <span>Lu</span>
+                          <span>Ma</span>
+                          <span>Mi</span>
+                          <span>Ju</span>
+                          <span>Vi</span>
+                          <span>Sá</span>
+                          <span>Do</span>
                         </div>
-                      </>
+
+                        {/* Days of month grid */}
+                        <div className="grid grid-cols-7 gap-y-2 gap-x-1 text-center items-center">
+                          {/* Previous Month Padding */}
+                          {prevPaddingDays.map((pDay) => (
+                            <span key={`prev-p-${pDay}`} className="text-[11px] font-medium text-slate-300 dark:text-slate-700 py-1 select-none">
+                              {pDay}
+                            </span>
+                          ))}
+
+                          {/* Current Month Real Days */}
+                          {currentMonthDays.map((d) => {
+                            const hasEvents = agendaEvents.some(
+                              (ev) => ev.day === d && (ev.month === currentMonthName || !ev.month) && (ev.year === currentCalendarYear || !ev.year)
+                            );
+                            const isSelected = selectedAgendaDay === d;
+                            const isToday = isCurrentMonthReal && d === todayDate;
+
+                            return (
+                              <button
+                                key={`month-day-${d}`}
+                                type="button"
+                                onClick={() => setSelectedAgendaDay(d)}
+                                className={`relative py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex flex-col items-center justify-center ${
+                                  isSelected
+                                    ? 'w-8 h-8 rounded-xl bg-[#0A4191] text-white font-black shadow-md mx-auto'
+                                    : isToday
+                                    ? 'w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 mx-auto font-black'
+                                    : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                }`}
+                              >
+                                <span>{d}</span>
+                                {/* Dot indicator for days with scheduled events */}
+                                {hasEvents && !isSelected && (
+                                  <span className="w-1.5 h-1.5 rounded-full bg-[#159A44] absolute bottom-0.5" />
+                                )}
+                                {hasEvents && isSelected && (
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 absolute bottom-0.5" />
+                                )}
+                              </button>
+                            );
+                          })}
+
+                          {/* Next Month Padding */}
+                          {nextPaddingDays.map((nDay) => (
+                            <span key={`next-p-${nDay}`} className="text-[11px] font-medium text-slate-300 dark:text-slate-700 py-1 select-none">
+                              {nDay}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Section Subtitle: Eventos del X de [mes] [año] */}
+                      <div className="pt-1 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-black text-slate-900 dark:text-white text-xs tracking-tight flex items-center space-x-1.5">
+                            <Calendar className="w-4 h-4 text-[#0A4191] dark:text-blue-400" />
+                            <span>Eventos del {selectedAgendaDay} de {currentMonthName.toLowerCase()} de {currentCalendarYear}</span>
+                            <span className="text-[10px] font-normal text-slate-500 font-mono">
+                              ({dayEvents.length})
+                            </span>
+                          </h3>
+
+                          <button
+                            type="button"
+                            onClick={() => handleOpenCreateAgenda(selectedAgendaDay)}
+                            className="text-[11px] font-bold text-[#0A4191] dark:text-blue-400 hover:underline flex items-center space-x-1 cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>Agregar a esta fecha</span>
+                          </button>
+                        </div>
+
+                        {/* List of Event Cards for selected day */}
+                        <div className="space-y-3">
+                          {dayEvents.length > 0 ? (
+                            dayEvents.map((ev) => {
+                          const categoryColor =
+                            ev.category === 'Minga'
+                              ? 'bg-cyan-500 text-white'
+                              : ev.category === 'Cabildo'
+                              ? 'bg-[#0A4191] text-white'
+                              : ev.category === 'Cultura'
+                              ? 'bg-purple-600 text-white'
+                              : ev.category === 'Deportes'
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-amber-500 text-white';
+
+                          return (
+                            <div
+                              key={ev.id}
+                              className="bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl p-3.5 shadow-sm hover:shadow-md transition-all space-y-2.5 relative overflow-hidden"
+                            >
+                              {/* Top Bar: Category Badge + Time + Action Buttons */}
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-2">
+                                  <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${categoryColor}`}>
+                                    {ev.category || 'General'}
+                                  </span>
+                                  <span className="text-[11px] font-mono font-bold text-slate-600 dark:text-slate-300 flex items-center space-x-1">
+                                    <Clock className="w-3 h-3 text-slate-400" />
+                                    <span>{ev.time}</span>
+                                  </span>
+                                </div>
+
+                                {/* EDIT AND DELETE BUTTONS */}
+                                <div className="flex items-center space-x-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenEditAgenda(ev)}
+                                    className="p-1.5 text-slate-600 dark:text-slate-300 hover:text-[#0A4191] dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer flex items-center space-x-1 font-bold text-[11px]"
+                                    title="Editar esta agenda"
+                                  >
+                                    <Edit3 className="w-3.5 h-3.5" />
+                                    <span className="hidden xs:inline">Editar</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteAgendaEvent(ev.id, ev.title)}
+                                    className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer flex items-center space-x-1 font-bold text-[11px]"
+                                    title="Eliminar esta agenda"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span className="hidden xs:inline">Eliminar</span>
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* Title & Description */}
+                              <div>
+                                <h4 className="font-extrabold text-slate-900 dark:text-white text-xs leading-snug">
+                                  {ev.title}
+                                </h4>
+                                {ev.description && (
+                                  <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                                    {ev.description}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Location */}
+                              <div className="pt-1 border-t border-slate-100 dark:border-slate-700/60 flex items-center space-x-1.5 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                                <MapPin className="w-3.5 h-3.5 text-red-500 flex-shrink-0" />
+                                <span className="truncate">{ev.location}</span>
+                              </div>
+                            </div>
+                          );
+                        })
                     ) : (
-                      <div className="bg-[#F8FAFC] dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-4 text-center space-y-1">
+                      <div className="bg-[#F8FAFC] dark:bg-slate-800/90 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-5 text-center space-y-2">
                         <p className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
-                          No hay eventos programados para esta fecha
+                          No hay agendas programadas para el {selectedAgendaDay} de {currentMonthName.toLowerCase()} de {currentCalendarYear}
                         </p>
-                        <p className="text-[11px] text-slate-400">
-                          Selecciona el día 24 de mayo para consultar los eventos del cantón.
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
+                          Puedes crear una nueva agenda municipal para esta fecha usando el botón a continuación.
                         </p>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenCreateAgenda(selectedAgendaDay)}
+                          className="px-3.5 py-2 bg-[#0A4191] hover:bg-blue-900 text-white rounded-xl font-extrabold text-xs inline-flex items-center space-x-1.5 transition-all cursor-pointer shadow-sm active:scale-95 mt-1"
+                        >
+                          <Plus className="w-4 h-4 stroke-[3]" />
+                          <span>Crear agenda para esta fecha</span>
+                        </button>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
-            )}
+            );
+          })()}
+        </div>
+      )}
+
 
             {/* TAB 9: PERFIL (MATCHES MOCKUP 17. PERFIL EXACTLY) */}
             {citizenTab === 'perfil' && (
@@ -3852,6 +4306,299 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
         </div>
       )}
 
+      {/* MODAL 3: CREAR NUEVA AGENDA MUNICIPAL */}
+      {showCreateAgendaModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4 text-slate-900 dark:text-slate-100 relative text-left max-h-[90vh] overflow-y-auto text-xs">
+            <button
+              type="button"
+              onClick={() => setShowCreateAgendaModal(false)}
+              className="absolute top-3.5 right-3.5 p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full cursor-pointer transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-center space-x-3 text-[#0A4191] dark:text-blue-400 pr-6">
+              <div className="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-950/80 flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-5 h-5 stroke-[2.2]" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base leading-tight">Nueva Agenda Municipal</h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Agregar evento al calendario del cantón</p>
+              </div>
+            </div>
+
+            {agendaFormError && (
+              <div className="p-2.5 bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-xl text-xs font-bold flex items-center space-x-2">
+                <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                <span>{agendaFormError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveCreateAgenda} className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Título de la Agenda / Evento *
+                </label>
+                <input
+                  type="text"
+                  value={agendaFormTitle}
+                  onChange={(e) => setAgendaFormTitle(e.target.value)}
+                  placeholder="Ej: Minga de Limpieza en Sector Río Upano"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Día de Mayo *
+                  </label>
+                  <select
+                    value={agendaFormDay}
+                    onChange={(e) => setAgendaFormDay(Number(e.target.value))}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  >
+                    {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                      <option key={`opt-day-${d}`} value={d}>
+                        {d} de Mayo 2024
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Horario *
+                  </label>
+                  <input
+                    type="text"
+                    value={agendaFormTime}
+                    onChange={(e) => setAgendaFormTime(e.target.value)}
+                    placeholder="Ej: 09:00 AM"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Categoría
+                  </label>
+                  <select
+                    value={agendaFormCategory}
+                    onChange={(e) => setAgendaFormCategory(e.target.value as any)}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  >
+                    <option value="Minga">Minga</option>
+                    <option value="Cabildo">Cabildo</option>
+                    <option value="Cultura">Cultura</option>
+                    <option value="Deportes">Deportes</option>
+                    <option value="Inauguración">Inauguración</option>
+                    <option value="General">General</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Lugar / Ubicación *
+                  </label>
+                  <input
+                    type="text"
+                    value={agendaFormLocation}
+                    onChange={(e) => setAgendaFormLocation(e.target.value)}
+                    placeholder="Ej: Parque Central Logroño"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Descripción o Detalles
+                </label>
+                <textarea
+                  rows={2.5}
+                  value={agendaFormDescription}
+                  onChange={(e) => setAgendaFormDescription(e.target.value)}
+                  placeholder="Detalles adicionales sobre el evento o convocatoria comunitaria..."
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateAgendaModal(false)}
+                  className="py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="py-2.5 rounded-xl bg-[#0A4191] hover:bg-blue-900 text-white font-bold text-xs shadow-md transition-colors cursor-pointer flex items-center justify-center space-x-1"
+                >
+                  <Plus className="w-4 h-4 stroke-[2.5]" />
+                  <span>Guardar Agenda</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: EDITAR AGENDA MUNICIPAL */}
+      {showEditAgendaModal && editingAgendaEvent && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4 text-slate-900 dark:text-slate-100 relative text-left max-h-[90vh] overflow-y-auto text-xs">
+            <button
+              type="button"
+              onClick={() => {
+                setShowEditAgendaModal(false);
+                setEditingAgendaEvent(null);
+              }}
+              className="absolute top-3.5 right-3.5 p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full cursor-pointer transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-center space-x-3 text-[#0A4191] dark:text-blue-400 pr-6">
+              <div className="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-950/80 flex items-center justify-center flex-shrink-0">
+                <Edit3 className="w-5 h-5 stroke-[2.2]" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base leading-tight">Editar Agenda</h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Modificar datos del evento programado</p>
+              </div>
+            </div>
+
+            {agendaFormError && (
+              <div className="p-2.5 bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-xl text-xs font-bold flex items-center space-x-2">
+                <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                <span>{agendaFormError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveEditAgenda} className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Título de la Agenda / Evento *
+                </label>
+                <input
+                  type="text"
+                  value={agendaFormTitle}
+                  onChange={(e) => setAgendaFormTitle(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Día de Mayo *
+                  </label>
+                  <select
+                    value={agendaFormDay}
+                    onChange={(e) => setAgendaFormDay(Number(e.target.value))}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  >
+                    {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                      <option key={`edit-opt-day-${d}`} value={d}>
+                        {d} de Mayo 2024
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Horario *
+                  </label>
+                  <input
+                    type="text"
+                    value={agendaFormTime}
+                    onChange={(e) => setAgendaFormTime(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Categoría
+                  </label>
+                  <select
+                    value={agendaFormCategory}
+                    onChange={(e) => setAgendaFormCategory(e.target.value as any)}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  >
+                    <option value="Minga">Minga</option>
+                    <option value="Cabildo">Cabildo</option>
+                    <option value="Cultura">Cultura</option>
+                    <option value="Deportes">Deportes</option>
+                    <option value="Inauguración">Inauguración</option>
+                    <option value="General">General</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Lugar / Ubicación *
+                  </label>
+                  <input
+                    type="text"
+                    value={agendaFormLocation}
+                    onChange={(e) => setAgendaFormLocation(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Descripción o Detalles
+                </label>
+                <textarea
+                  rows={2.5}
+                  value={agendaFormDescription}
+                  onChange={(e) => setAgendaFormDescription(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditAgendaModal(false);
+                    setEditingAgendaEvent(null);
+                  }}
+                  className="py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="py-2.5 rounded-xl bg-[#0A4191] hover:bg-blue-900 text-white font-bold text-xs shadow-md transition-colors cursor-pointer flex items-center justify-center space-x-1"
+                >
+                  <Check className="w-4 h-4 stroke-[2.5]" />
+                  <span>Guardar Cambios</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
+
