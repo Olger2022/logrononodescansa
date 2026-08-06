@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Incident, IncidentCategory, LogronoSector, LanguageMode, AIAnalysisResult, UserProfile } from '../types';
 import { SHUAR_DICTIONARY } from '../data/shuarDictionary';
 import { LogronoGoogleMap } from './LogronoGoogleMap';
+import { validateName, validateEcuadorianCedula, validatePhone, validateEmail } from '../utils/validation';
 import { 
   PlusCircle, 
   MapPin, 
@@ -156,10 +157,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
   // User Profile State (Mockup 17: PERFIL)
   const [profileData, setProfileData] = useState({
-    name: currentUser?.name || 'María Fernanda',
-    email: currentUser?.email || 'maria@gmail.com',
-    phone: '098 471 2039',
-    cedula: currentUser?.cedula || '1400829104',
+    name: currentUser?.name || 'María Fernanda Shakaim',
+    email: currentUser?.email || 'maria.shakaim@gmail.com',
+    phone: '0984712039',
+    cedula: currentUser?.cedula || '1710034065',
     sector: currentUser?.sector || 'Logroño Centro (Cabecera)',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80'
   });
@@ -170,6 +171,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
   const [showSecurityModal, setShowSecurityModal] = useState(false);
   const [showHelpSupportModal, setShowHelpSupportModal] = useState(false);
   const [profileToast, setProfileToast] = useState<string | null>(null);
+  const [profileValidationError, setProfileValidationError] = useState<string | null>(null);
 
   // Edit fields for "Mis datos"
   const [editName, setEditName] = useState(profileData.name);
@@ -241,10 +243,11 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
   const [sector, setSector] = useState<LogronoSector>(currentUser?.sector || 'Logroño Centro (Cabecera)');
   const [address, setAddress] = useState('Calle 10 de Agosto y Av. Intercultural, Logroño');
   const [reference, setReference] = useState('');
-  const [citizenName, setCitizenName] = useState(currentUser?.name || 'María Shakaim');
+  const [citizenName, setCitizenName] = useState(currentUser?.name || 'María Fernanda Shakaim');
   const [citizenPhone, setCitizenPhone] = useState('0984712039');
-  const [citizenCedula, setCitizenCedula] = useState(currentUser?.cedula || '1400829104');
+  const [citizenCedula, setCitizenCedula] = useState(currentUser?.cedula || '1710034065');
   const [photoUrl, setPhotoUrl] = useState<string>('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&auto=format&fit=crop&q=80');
+  const [reportValidationError, setReportValidationError] = useState<string | null>(null);
   
   // AI Analysis State
   const [isAnalyzingAI, setIsAnalyzingAI] = useState(false);
@@ -337,8 +340,31 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
   // Submit Incident Handler
   const handleSubmitIncident = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!description) return;
+    if (!description || !description.trim()) {
+      setReportValidationError('Por favor ingrese una descripción del reporte.');
+      return;
+    }
 
+    // Validate Citizen Details before submission
+    const nameVal = validateName(citizenName);
+    if (!nameVal.isValid) {
+      setReportValidationError(`Nombre inválido: ${nameVal.error}`);
+      return;
+    }
+
+    const cedulaVal = validateEcuadorianCedula(citizenCedula);
+    if (!cedulaVal.isValid) {
+      setReportValidationError(`Cédula inválida: ${cedulaVal.error}`);
+      return;
+    }
+
+    const phoneVal = validatePhone(citizenPhone);
+    if (!phoneVal.isValid) {
+      setReportValidationError(`Teléfono inválido: ${phoneVal.error}`);
+      return;
+    }
+
+    setReportValidationError(null);
     setIsSubmitting(true);
     const randomNum = String(Math.floor(10 + Math.random() * 9899)).padStart(5, '0');
     const newCode = `RPT-2026-${randomNum}`;
@@ -759,19 +785,19 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   </button>
                 </div>
 
-                {/* 6-GRID ACTION CARDS (2 rows x 3 columns on mobile, 6 columns on desktop) */}
-                <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
+                {/* 6 ACTION CARDS GROUPED IN 3 COLUMNS */}
+                <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5">
                   
                   {/* Card 1: Mis reportes */}
                   <button
                     type="button"
                     onClick={() => setCitizenTab('mis_reportes')}
-                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-blue-400 transition-all cursor-pointer group aspect-square"
+                    className="bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:border-blue-500/60 transition-all duration-200 cursor-pointer group"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0A4191] dark:text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                      <FileText className="w-6 h-6 stroke-[2.2]" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/70 text-[#0A4191] dark:text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-xs">
+                      <FileText className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
                     </div>
-                    <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 line-clamp-1">
+                    <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 line-clamp-1">
                       Mis reportes
                     </span>
                   </button>
@@ -783,12 +809,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       setSelectedIncident(null);
                       setCitizenTab('noticias');
                     }}
-                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-blue-400 transition-all cursor-pointer group aspect-square"
+                    className="bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:border-blue-500/60 transition-all duration-200 cursor-pointer group"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0A4191] dark:text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                      <Newspaper className="w-6 h-6 stroke-[2.2]" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/70 text-[#0A4191] dark:text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-xs">
+                      <Newspaper className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
                     </div>
-                    <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 line-clamp-1">
+                    <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 line-clamp-1">
                       Noticias
                     </span>
                   </button>
@@ -800,12 +826,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       setSelectedIncident(null);
                       setCitizenTab('agenda');
                     }}
-                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-red-400 transition-all cursor-pointer group aspect-square"
+                    className="bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:border-red-500/60 transition-all duration-200 cursor-pointer group"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                      <Calendar className="w-6 h-6 stroke-[2.2]" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-red-50 dark:bg-red-950/70 text-red-600 dark:text-red-400 flex items-center justify-center mb-2 group-hover:scale-110 group-hover:bg-red-600 group-hover:text-white transition-all shadow-xs">
+                      <Calendar className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
                     </div>
-                    <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 line-clamp-1">
+                    <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 line-clamp-1">
                       Agenda
                     </span>
                   </button>
@@ -814,12 +840,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowEmergencyModal(true)}
-                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-red-400 transition-all cursor-pointer group aspect-square"
+                    className="bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:border-red-500/60 transition-all duration-200 cursor-pointer group"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                      <Siren className="w-6 h-6 stroke-[2.2]" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-red-50 dark:bg-red-950/70 text-red-600 dark:text-red-400 flex items-center justify-center mb-2 group-hover:scale-110 group-hover:bg-red-600 group-hover:text-white transition-all shadow-xs">
+                      <Siren className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
                     </div>
-                    <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 line-clamp-1">
+                    <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 line-clamp-1">
                       Emergencias
                     </span>
                   </button>
@@ -828,12 +854,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   <button
                     type="button"
                     onClick={() => setCitizenTab('directorio')}
-                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-blue-400 transition-all cursor-pointer group aspect-square"
+                    className="bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:border-emerald-500/60 transition-all duration-200 cursor-pointer group"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0A4191] dark:text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                      <PhoneCall className="w-6 h-6 stroke-[2.2]" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 text-[#159A44] dark:text-emerald-400 flex items-center justify-center mb-2 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-xs">
+                      <PhoneCall className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
                     </div>
-                    <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 line-clamp-1">
+                    <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 line-clamp-1">
                       Directorio
                     </span>
                   </button>
@@ -842,12 +868,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   <button
                     type="button"
                     onClick={() => setCitizenTab('pqrs')}
-                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-emerald-400 transition-all cursor-pointer group aspect-square"
+                    className="bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:border-emerald-500/60 transition-all duration-200 cursor-pointer group"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-[#159A44] dark:text-emerald-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                      <FileCheck className="w-6 h-6 stroke-[2.2]" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 text-[#159A44] dark:text-emerald-400 flex items-center justify-center mb-2 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-xs">
+                      <FileCheck className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
                     </div>
-                    <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 line-clamp-1">
+                    <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 line-clamp-1">
                       Trámites
                     </span>
                   </button>
@@ -1357,6 +1383,139 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                             </div>
                           </div>
                         </div>
+
+                        {/* Citizen Information & Form Validation Card */}
+                        <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-3">
+                          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+                            <div className="flex items-center space-x-2">
+                              <UserCheck className="w-4 h-4 text-[#0A4191] dark:text-blue-400" />
+                              <span className="text-xs font-extrabold text-slate-900 dark:text-white">
+                                Datos del Ciudadano Solicitante
+                              </span>
+                            </div>
+                            <span className="text-[10px] font-bold text-[#0A4191] bg-blue-50 dark:bg-blue-950/60 dark:text-blue-300 px-2 py-0.5 rounded-full border border-blue-100 dark:border-blue-900">
+                              Validación en Vivo
+                            </span>
+                          </div>
+
+                          {/* Field 1: Nombre y Apellido */}
+                          <div className="space-y-1">
+                            <div className="flex justify-between items-center">
+                              <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                Nombres y Apellidos *
+                              </label>
+                              {validateName(citizenName).isValid ? (
+                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center space-x-1">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  <span>Nombre Válido</span>
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-bold text-red-500">Formato Requerido</span>
+                              )}
+                            </div>
+                            <input
+                              type="text"
+                              value={citizenName}
+                              onChange={(e) => {
+                                setCitizenName(e.target.value);
+                                setReportValidationError(null);
+                              }}
+                              placeholder="Ej: María Fernanda Shakaim"
+                              className={`w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-900 font-semibold text-slate-900 dark:text-white outline-none focus:ring-2 ${
+                                validateName(citizenName).isValid
+                                  ? 'border-slate-200 dark:border-slate-700 focus:ring-emerald-500'
+                                  : 'border-red-300 dark:border-red-700 focus:ring-red-500'
+                              }`}
+                            />
+                            {!validateName(citizenName).isValid && citizenName && (
+                              <p className="text-[10px] font-semibold text-red-500 mt-0.5">
+                                {validateName(citizenName).error}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Field 2: Cédula de Ciudadanía */}
+                          <div className="space-y-1">
+                            <div className="flex justify-between items-center">
+                              <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                Cédula de Ciudadanía (Ecuador) *
+                              </label>
+                              {validateEcuadorianCedula(citizenCedula).isValid ? (
+                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center space-x-1">
+                                  <ShieldCheck className="w-3 h-3" />
+                                  <span>Cédula Válida</span>
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-bold text-red-500">Cédula Inválida</span>
+                              )}
+                            </div>
+                            <input
+                              type="text"
+                              maxLength={10}
+                              value={citizenCedula}
+                              onChange={(e) => {
+                                setCitizenCedula(e.target.value.replace(/\D/g, ''));
+                                setReportValidationError(null);
+                              }}
+                              placeholder="1710034065"
+                              className={`w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-900 font-semibold text-slate-900 dark:text-white outline-none focus:ring-2 ${
+                                validateEcuadorianCedula(citizenCedula).isValid
+                                  ? 'border-slate-200 dark:border-slate-700 focus:ring-emerald-500'
+                                  : 'border-red-300 dark:border-red-700 focus:ring-red-500'
+                              }`}
+                            />
+                            {!validateEcuadorianCedula(citizenCedula).isValid && citizenCedula && (
+                              <p className="text-[10px] font-semibold text-red-500 mt-0.5">
+                                {validateEcuadorianCedula(citizenCedula).error}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Field 3: Teléfono de Contacto */}
+                          <div className="space-y-1">
+                            <div className="flex justify-between items-center">
+                              <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                Teléfono de Contacto (Celular / Fijo) *
+                              </label>
+                              {validatePhone(citizenPhone).isValid ? (
+                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center space-x-1">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  <span>Teléfono Válido</span>
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-bold text-red-500">Teléfono Inválido</span>
+                              )}
+                            </div>
+                            <input
+                              type="text"
+                              maxLength={10}
+                              value={citizenPhone}
+                              onChange={(e) => {
+                                setCitizenPhone(e.target.value.replace(/\D/g, ''));
+                                setReportValidationError(null);
+                              }}
+                              placeholder="0984712039"
+                              className={`w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-900 font-semibold text-slate-900 dark:text-white outline-none focus:ring-2 ${
+                                validatePhone(citizenPhone).isValid
+                                  ? 'border-slate-200 dark:border-slate-700 focus:ring-emerald-500'
+                                  : 'border-red-300 dark:border-red-700 focus:ring-red-500'
+                              }`}
+                            />
+                            {!validatePhone(citizenPhone).isValid && citizenPhone && (
+                              <p className="text-[10px] font-semibold text-red-500 mt-0.5">
+                                {validatePhone(citizenPhone).error}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Error Banner if validation fails on submission attempt */}
+                        {reportValidationError && (
+                          <div className="bg-red-50 dark:bg-red-950/80 border border-red-300 dark:border-red-800 text-red-800 dark:text-red-200 p-3 rounded-2xl flex items-start space-x-2 text-xs font-bold animate-in fade-in">
+                            <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                            <span>{reportValidationError}</span>
+                          </div>
+                        )}
 
                         {/* Bottom Buttons: Atrás & Enviar reporte */}
                         <div className="grid grid-cols-2 gap-3 pt-1">
@@ -2953,62 +3112,159 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
               </div>
             </div>
 
-            {/* Form Fields */}
+            {/* Form Fields with Validation Feedback */}
             <div className="space-y-3 pt-1">
+              {profileValidationError && (
+                <div className="bg-red-50 dark:bg-red-950/80 border border-red-300 dark:border-red-800 text-red-800 dark:text-red-200 p-2.5 rounded-xl flex items-start space-x-2 text-[11px] font-bold">
+                  <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                  <span>{profileValidationError}</span>
+                </div>
+              )}
+
               {/* Field 1: Name */}
               <div>
-                <label className="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300 mb-1">
-                  Nombres y Apellidos *
-                </label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300">
+                    Nombres y Apellidos *
+                  </label>
+                  {validateName(editName).isValid ? (
+                    <span className="text-[10px] font-bold text-emerald-600 flex items-center space-x-0.5">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>Válido</span>
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold text-red-500">Requerido</span>
+                  )}
+                </div>
                 <input
                   type="text"
                   value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-semibold text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  placeholder="Ej: María Fernanda"
+                  onChange={(e) => {
+                    setEditName(e.target.value);
+                    setProfileValidationError(null);
+                  }}
+                  className={`w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-slate-900 dark:text-white font-semibold text-xs focus:ring-2 focus:outline-none ${
+                    validateName(editName).isValid
+                      ? 'border-slate-200 dark:border-slate-700 focus:ring-emerald-500'
+                      : 'border-red-300 focus:ring-red-500'
+                  }`}
+                  placeholder="Ej: María Fernanda Shakaim"
                 />
+                {!validateName(editName).isValid && editName && (
+                  <p className="text-[10px] font-semibold text-red-500 mt-0.5">
+                    {validateName(editName).error}
+                  </p>
+                )}
               </div>
 
               {/* Field 2: Email */}
               <div>
-                <label className="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300 mb-1">
-                  Correo Electrónico *
-                </label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300">
+                    Correo Electrónico *
+                  </label>
+                  {validateEmail(editEmail).isValid ? (
+                    <span className="text-[10px] font-bold text-emerald-600 flex items-center space-x-0.5">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>Válido</span>
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold text-red-500">Inválido</span>
+                  )}
+                </div>
                 <input
                   type="email"
                   value={editEmail}
-                  onChange={(e) => setEditEmail(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-semibold text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  onChange={(e) => {
+                    setEditEmail(e.target.value);
+                    setProfileValidationError(null);
+                  }}
+                  className={`w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-slate-900 dark:text-white font-semibold text-xs focus:ring-2 focus:outline-none ${
+                    validateEmail(editEmail).isValid
+                      ? 'border-slate-200 dark:border-slate-700 focus:ring-emerald-500'
+                      : 'border-red-300 focus:ring-red-500'
+                  }`}
                   placeholder="ejemplo@gmail.com"
                 />
+                {!validateEmail(editEmail).isValid && editEmail && (
+                  <p className="text-[10px] font-semibold text-red-500 mt-0.5">
+                    {validateEmail(editEmail).error}
+                  </p>
+                )}
               </div>
 
               {/* Field 3: Phone */}
               <div>
-                <label className="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300 mb-1">
-                  Teléfono Móvil
-                </label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300">
+                    Teléfono Móvil *
+                  </label>
+                  {validatePhone(editPhone).isValid ? (
+                    <span className="text-[10px] font-bold text-emerald-600 flex items-center space-x-0.5">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>Válido</span>
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold text-red-500">Inválido</span>
+                  )}
+                </div>
                 <input
                   type="text"
+                  maxLength={10}
                   value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-semibold text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  placeholder="099 123 4567"
+                  onChange={(e) => {
+                    setEditPhone(e.target.value.replace(/\D/g, ''));
+                    setProfileValidationError(null);
+                  }}
+                  className={`w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-slate-900 dark:text-white font-semibold text-xs focus:ring-2 focus:outline-none ${
+                    validatePhone(editPhone).isValid
+                      ? 'border-slate-200 dark:border-slate-700 focus:ring-emerald-500'
+                      : 'border-red-300 focus:ring-red-500'
+                  }`}
+                  placeholder="0984712039"
                 />
+                {!validatePhone(editPhone).isValid && editPhone && (
+                  <p className="text-[10px] font-semibold text-red-500 mt-0.5">
+                    {validatePhone(editPhone).error}
+                  </p>
+                )}
               </div>
 
               {/* Field 4: Cedula */}
               <div>
-                <label className="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300 mb-1">
-                  Cédula / DNI
-                </label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-[11px] font-extrabold text-slate-700 dark:text-slate-300">
+                    Cédula de Ciudadanía (Ecuador) *
+                  </label>
+                  {validateEcuadorianCedula(editCedula).isValid ? (
+                    <span className="text-[10px] font-bold text-emerald-600 flex items-center space-x-0.5">
+                      <ShieldCheck className="w-3 h-3" />
+                      <span>Cédula Válida</span>
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold text-red-500">Inválida</span>
+                  )}
+                </div>
                 <input
                   type="text"
+                  maxLength={10}
                   value={editCedula}
-                  onChange={(e) => setEditCedula(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-semibold text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  placeholder="1400829104"
+                  onChange={(e) => {
+                    setEditCedula(e.target.value.replace(/\D/g, ''));
+                    setProfileValidationError(null);
+                  }}
+                  className={`w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-slate-900 dark:text-white font-semibold text-xs focus:ring-2 focus:outline-none ${
+                    validateEcuadorianCedula(editCedula).isValid
+                      ? 'border-slate-200 dark:border-slate-700 focus:ring-emerald-500'
+                      : 'border-red-300 focus:ring-red-500'
+                  }`}
+                  placeholder="1710034065"
                 />
+                {!validateEcuadorianCedula(editCedula).isValid && editCedula && (
+                  <p className="text-[10px] font-semibold text-red-500 mt-0.5">
+                    {validateEcuadorianCedula(editCedula).error}
+                  </p>
+                )}
               </div>
 
               {/* Field 5: Sector */}
@@ -3034,7 +3290,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
             <div className="pt-2 flex space-x-2">
               <button
                 type="button"
-                onClick={() => setShowMisDatosModal(false)}
+                onClick={() => {
+                  setShowMisDatosModal(false);
+                  setProfileValidationError(null);
+                }}
                 className="w-1/2 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl cursor-pointer hover:bg-slate-200"
               >
                 Cancelar
@@ -3042,6 +3301,18 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
               <button
                 type="button"
                 onClick={() => {
+                  const nVal = validateName(editName);
+                  const eVal = validateEmail(editEmail);
+                  const pVal = validatePhone(editPhone);
+                  const cVal = validateEcuadorianCedula(editCedula);
+
+                  if (!nVal.isValid || !eVal.isValid || !pVal.isValid || !cVal.isValid) {
+                    const err = nVal.error || eVal.error || pVal.error || cVal.error;
+                    setProfileValidationError(`Datos inválidos: ${err}`);
+                    return;
+                  }
+
+                  setProfileValidationError(null);
                   setProfileData({
                     name: editName,
                     email: editEmail,
