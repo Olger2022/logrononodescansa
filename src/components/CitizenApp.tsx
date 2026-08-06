@@ -58,7 +58,10 @@ import {
   Moon,
   Sun,
   Info,
-  Settings
+  Settings,
+  ListFilter,
+  HardHat,
+  Megaphone
 } from 'lucide-react';
 
 export interface NewsItem {
@@ -183,6 +186,46 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
   // Security settings state
   const [security2FA, setSecurity2FA] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  // Confirmation Modals State (Logout and Cancel Procedure/Trámite)
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showCancelTramiteConfirm, setShowCancelTramiteConfirm] = useState(false);
+  const [pendingCancelType, setPendingCancelType] = useState<'pqrs' | 'wizard' | null>(null);
+
+  const handleTriggerCancelTramite = (type: 'pqrs' | 'wizard') => {
+    if (type === 'pqrs' && (pqrsSubject.trim() || pqrsDetail.trim())) {
+      setPendingCancelType('pqrs');
+      setShowCancelTramiteConfirm(true);
+    } else if (type === 'pqrs') {
+      setCitizenTab('inicio');
+    } else if (type === 'wizard' && (description.trim() || reportWizardStep > 1)) {
+      setPendingCancelType('wizard');
+      setShowCancelTramiteConfirm(true);
+    } else if (type === 'wizard') {
+      setReportStep('category');
+    }
+  };
+
+  const handleConfirmCancelTramite = () => {
+    if (pendingCancelType === 'pqrs') {
+      setPqrsSubject('');
+      setPqrsDetail('');
+      setPqrsType('Petición');
+      setPqrsSuccess(false);
+      setCitizenTab('inicio');
+    } else if (pendingCancelType === 'wizard') {
+      setReportStep('category');
+      setReportWizardStep(1);
+      setDescription('');
+      setTitle('');
+      setPhotoUrl('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&auto=format&fit=crop&q=80');
+      setCitizenTab('inicio');
+    }
+    setShowCancelTramiteConfirm(false);
+    setPendingCancelType(null);
+  };
 
   // Modals state for 6-grid & nav items
   const [showNewsModal, setShowNewsModal] = useState(false);
@@ -395,7 +438,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
       </div>
 
       {/* Main Smartphone Layout Box */}
-      <div className={isPhoneFrame ? "max-w-sm mx-auto bg-slate-950 p-2 sm:p-3 rounded-[40px] shadow-2xl border-4 border-slate-800" : "max-w-2xl mx-auto"}>
+      <div className={isPhoneFrame ? "max-w-sm sm:max-w-md mx-auto bg-slate-950 p-2 sm:p-3 rounded-[40px] shadow-2xl border-4 border-slate-800 transition-all duration-300" : "max-w-4xl mx-auto transition-all duration-300"}>
         
         {/* Smartphone Screen Notch Header */}
         {isPhoneFrame && (
@@ -716,8 +759,8 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   </button>
                 </div>
 
-                {/* 6-GRID ACTION CARDS (2 rows x 3 columns) */}
-                <div className="grid grid-cols-3 gap-3">
+                {/* 6-GRID ACTION CARDS (2 rows x 3 columns on mobile, 6 columns on desktop) */}
+                <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
                   
                   {/* Card 1: Mis reportes */}
                   <button
@@ -1043,32 +1086,44 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                     {/* Stepper Header for Steps 1, 2, 3 */}
                     {reportWizardStep < 4 && (
                       <div className="space-y-2">
-                        {/* Top navigation row with back arrow */}
-                        <div className="relative text-center pt-1 pb-1">
+                        {/* Top navigation row with back arrow and cancel button */}
+                        <div className="relative text-center pt-1 pb-1 flex items-center justify-between">
                           <button
                             type="button"
                             onClick={() => {
                               if (reportWizardStep === 1) {
-                                setReportStep('category');
+                                handleTriggerCancelTramite('wizard');
                               } else {
                                 setReportWizardStep((prev) => (prev - 1) as any);
                               }
                             }}
-                            className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer"
+                            className="p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer"
+                            title="Regresar / Cancelar"
                           >
                             <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
                           </button>
                           
-                          <h2 className="text-base font-black text-slate-900 dark:text-white font-serif tracking-tight">
-                            {reportWizardStep === 1 && (category || 'Alumbrado Público')}
-                            {reportWizardStep === 2 && 'Ubicación del problema'}
-                            {reportWizardStep === 3 && 'Confirmar información'}
-                          </h2>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                            {reportWizardStep === 1 && 'Cuéntanos más sobre el problema'}
-                            {reportWizardStep === 2 && 'Confirma o ajusta la ubicación'}
-                            {reportWizardStep === 3 && 'Revisa los datos antes de enviar'}
-                          </p>
+                          <div className="flex-1 px-2">
+                            <h2 className="text-base font-black text-slate-900 dark:text-white font-serif tracking-tight">
+                              {reportWizardStep === 1 && (category || 'Alumbrado Público')}
+                              {reportWizardStep === 2 && 'Ubicación del problema'}
+                              {reportWizardStep === 3 && 'Confirmar información'}
+                            </h2>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                              {reportWizardStep === 1 && 'Cuéntanos más sobre el problema'}
+                              {reportWizardStep === 2 && 'Confirma o ajusta la ubicación'}
+                              {reportWizardStep === 3 && 'Revisa los datos antes de enviar'}
+                            </p>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleTriggerCancelTramite('wizard')}
+                            className="text-[11px] font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 px-2.5 py-1 rounded-lg cursor-pointer transition-colors"
+                            title="Cancelar trámite o reporte"
+                          >
+                            Cancelar
+                          </button>
                         </div>
 
                         {/* Numbered Stepper: 1 - 2 - 3 - 4 */}
@@ -1427,40 +1482,46 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   <button
                     type="button"
                     onClick={() => setMisReportesFilter('todos')}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer text-center ${
+                    title="Ver todos los reportes"
+                    className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
                       misReportesFilter === 'todos'
                         ? 'bg-[#0A4191] text-white shadow-sm'
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
                     }`}
                   >
-                    Todos
+                    <ListFilter className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="hidden xs:inline">Todos</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setMisReportesFilter('en_proceso')}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer text-center ${
+                    title="Ver reportes en proceso"
+                    className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
                       misReportesFilter === 'en_proceso'
                         ? 'bg-[#0A4191] text-white shadow-sm'
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
                     }`}
                   >
-                    En proceso
+                    <Clock className="w-3.5 h-3.5 flex-shrink-0 text-amber-500" />
+                    <span className="hidden xs:inline">En proceso</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setMisReportesFilter('solucionados')}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer text-center ${
+                    title="Ver reportes solucionados"
+                    className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
                       misReportesFilter === 'solucionados'
                         ? 'bg-[#0A4191] text-white shadow-sm'
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
                     }`}
                   >
-                    Solucionados
+                    <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-emerald-500" />
+                    <span className="hidden xs:inline">Solucionados</span>
                   </button>
                 </div>
 
-                {/* List of Incident Cards */}
-                <div className="space-y-3 pt-1">
+                {/* List of Incident Cards (Responsive Grid) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
                   {incidents
                     .filter((inc) => {
                       if (misReportesFilter === 'en_proceso') {
@@ -1554,13 +1615,19 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                             </p>
                           </div>
 
-                          {/* Date Column (matching screenshot 13 format) */}
-                          <div className="text-right flex-shrink-0 space-y-0.5">
+                          {/* Date & Status Badge Column */}
+                          <div className="text-right flex-shrink-0 space-y-1">
                             <span className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 block">
                               {dateFormatted}
                             </span>
-                            <span className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 block">
-                              {dateFormatted}
+                            <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full inline-block ${
+                              inc.status === 'resuelto' 
+                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300' 
+                                : inc.status === 'reportado'
+                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300'
+                                : 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300'
+                            }`}>
+                              {inc.status === 'resuelto' ? 'Solucionado' : inc.status === 'reportado' ? 'Recibido' : 'En proceso'}
                             </span>
                           </div>
                         </div>
@@ -1680,9 +1747,18 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       />
                     </div>
 
-                    <button type="submit" className="w-full py-3 bg-[#159A44] hover:bg-emerald-700 text-white font-bold rounded-2xl shadow cursor-pointer">
-                      REGISTRAR TRÁMITE
-                    </button>
+                    <div className="grid grid-cols-2 gap-2.5 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => handleTriggerCancelTramite('pqrs')}
+                        className="w-full py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-2xl border border-slate-300 dark:border-slate-700 cursor-pointer transition-colors"
+                      >
+                        Cancelar Trámite
+                      </button>
+                      <button type="submit" className="w-full py-3 bg-[#159A44] hover:bg-emerald-700 text-white font-bold text-xs rounded-2xl shadow cursor-pointer transition-colors">
+                        REGISTRAR TRÁMITE
+                      </button>
+                    </div>
                   </form>
                 )}
               </div>
@@ -1698,7 +1774,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   </h3>
                 </div>
 
-                <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700">
                     <h4 className="font-bold text-[#0A4191] dark:text-blue-400">Alcaldía Cantón Logroño</h4>
                     <p className="text-slate-600 dark:text-slate-300 mt-0.5">Palacio Municipal, Calle 10 de Agosto</p>
@@ -1746,26 +1822,34 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       obras: 'Obras',
                       eventos: 'Eventos'
                     };
+                    const icons: Record<string, React.ReactNode> = {
+                      todos: <ListFilter className="w-3.5 h-3.5 flex-shrink-0" />,
+                      comunicados: <Megaphone className="w-3.5 h-3.5 flex-shrink-0 text-amber-500" />,
+                      obras: <HardHat className="w-3.5 h-3.5 flex-shrink-0 text-orange-500" />,
+                      eventos: <Calendar className="w-3.5 h-3.5 flex-shrink-0 text-emerald-500" />
+                    };
                     const isActive = noticiasFilter === filter;
                     return (
                       <button
                         key={filter}
                         type="button"
                         onClick={() => setNoticiasFilter(filter)}
-                        className={`py-2 px-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer text-center truncate ${
+                        title={`Filtrar por ${labels[filter]}`}
+                        className={`py-2 px-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer flex items-center justify-center space-x-1 truncate ${
                           isActive
                             ? 'bg-[#0A4191] text-white shadow-sm'
                             : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
                         }`}
                       >
-                        {labels[filter]}
+                        {icons[filter]}
+                        <span className="hidden sm:inline truncate">{labels[filter]}</span>
                       </button>
                     );
                   })}
                 </div>
 
-                {/* List of News Cards matching Mockup 15 */}
-                <div className="space-y-3 pt-1">
+                {/* List of News Cards (Responsive Grid) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
                   {MOCK_NEWS.filter((item) => {
                     if (noticiasFilter === 'todos') return true;
                     return item.category === noticiasFilter;
@@ -2160,7 +2244,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   {/* 5. Cerrar sesión */}
                   <button
                     type="button"
-                    onClick={onLogout}
+                    onClick={() => setShowLogoutConfirm(true)}
                     className="w-full p-4 flex items-center justify-between hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer group"
                   >
                     <div className="flex items-center space-x-3.5">
@@ -2180,7 +2264,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
           </div>
 
           {/* ==================== 3. BOTTOM NAVIGATION BAR (MATCHES SCREENSHOT EXACTLY) ==================== */}
-          <div className="absolute bottom-0 inset-x-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-3 py-2 z-30 flex items-center justify-around shadow-2xl">
+          <div className="absolute bottom-0 inset-x-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-2 sm:px-4 py-2 z-30 flex items-center justify-around shadow-2xl">
             
             {/* Nav 1: Inicio */}
             <button
@@ -2189,12 +2273,13 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                 setSelectedIncident(null);
                 setCitizenTab('inicio');
               }}
-              className={`flex flex-col items-center justify-center space-y-0.5 transition-colors cursor-pointer ${
-                citizenTab === 'inicio' ? 'text-[#0A4191] dark:text-blue-400 font-bold' : 'text-slate-400 hover:text-slate-600'
+              title="Ir a Inicio / Dashboard"
+              className={`flex flex-col items-center justify-center space-y-0.5 transition-all cursor-pointer group ${
+                citizenTab === 'inicio' ? 'text-[#0A4191] dark:text-blue-400 font-bold scale-105' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
               }`}
             >
-              <Home className="w-5 h-5 stroke-[2.2]" />
-              <span className="text-[10px]">Inicio</span>
+              <Home className="w-5 h-5 stroke-[2.2] group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] hidden xs:block font-medium">Inicio</span>
             </button>
 
             {/* Nav 2: Reportes */}
@@ -2204,12 +2289,13 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                 setSelectedIncident(null);
                 setCitizenTab('mis_reportes');
               }}
-              className={`flex flex-col items-center justify-center space-y-0.5 transition-colors cursor-pointer ${
-                citizenTab === 'mis_reportes' ? 'text-[#0A4191] dark:text-blue-400 font-bold' : 'text-slate-400 hover:text-slate-600'
+              title="Ver Mis Reportes y Trámites"
+              className={`flex flex-col items-center justify-center space-y-0.5 transition-all cursor-pointer group ${
+                citizenTab === 'mis_reportes' ? 'text-[#0A4191] dark:text-blue-400 font-bold scale-105' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
               }`}
             >
-              <FileText className="w-5 h-5 stroke-[2.2]" />
-              <span className="text-[10px]">Reportes</span>
+              <FileText className="w-5 h-5 stroke-[2.2] group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] hidden xs:block font-medium">Reportes</span>
             </button>
 
             {/* Nav 3: FLOATING PLUS (+) BUTTON IN CENTER */}
@@ -2221,7 +2307,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                 setCitizenTab('reportar');
               }}
               className="w-12 h-12 rounded-full bg-[#159A44] hover:bg-[#128239] active:scale-95 text-white flex items-center justify-center shadow-lg -translate-y-3 transition-transform border-4 border-white dark:border-slate-900 cursor-pointer"
-              title="Crear Nuevo Reporte"
+              title="Crear Nuevo Reporte o Trámite"
             >
               <Plus className="w-6 h-6 stroke-[3]" />
             </button>
@@ -2233,12 +2319,13 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                 setSelectedIncident(null);
                 setCitizenTab('noticias');
               }}
-              className={`flex flex-col items-center justify-center space-y-0.5 transition-colors cursor-pointer ${
-                citizenTab === 'noticias' ? 'text-[#0A4191] dark:text-blue-400 font-bold' : 'text-slate-400 hover:text-slate-600'
+              title="Ver Noticias y Comunicados Municipal"
+              className={`flex flex-col items-center justify-center space-y-0.5 transition-all cursor-pointer group ${
+                citizenTab === 'noticias' ? 'text-[#0A4191] dark:text-blue-400 font-bold scale-105' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
               }`}
             >
-              <Newspaper className="w-5 h-5 stroke-[2.2]" />
-              <span className="text-[10px]">Noticias</span>
+              <Newspaper className="w-5 h-5 stroke-[2.2] group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] hidden xs:block font-medium">Noticias</span>
             </button>
 
             {/* Nav 5: Perfil */}
@@ -2248,12 +2335,13 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                 setSelectedIncident(null);
                 setCitizenTab('perfil');
               }}
-              className={`flex flex-col items-center justify-center space-y-0.5 transition-colors cursor-pointer ${
-                citizenTab === 'perfil' ? 'text-[#0A4191] dark:text-blue-400 font-bold' : 'text-slate-400 hover:text-slate-600'
+              title="Ajustes de Perfil y Cuenta"
+              className={`flex flex-col items-center justify-center space-y-0.5 transition-all cursor-pointer group ${
+                citizenTab === 'perfil' ? 'text-[#0A4191] dark:text-blue-400 font-bold scale-105' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
               }`}
             >
-              <User className="w-5 h-5 stroke-[2.2]" />
-              <span className="text-[10px]">Perfil</span>
+              <User className="w-5 h-5 stroke-[2.2] group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] hidden xs:block font-medium">Perfil</span>
             </button>
 
           </div>
@@ -3393,6 +3481,102 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
             >
               Cerrar
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 1: Confirmación de Cierre de Sesión */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 max-w-xs w-full shadow-2xl space-y-4 text-slate-900 dark:text-slate-100 relative text-left">
+            <button
+              type="button"
+              onClick={() => setShowLogoutConfirm(false)}
+              className="absolute top-3.5 right-3.5 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="flex items-center space-x-3 text-red-600 dark:text-red-400">
+              <div className="w-10 h-10 rounded-2xl bg-red-100 dark:bg-red-950/80 flex items-center justify-center flex-shrink-0">
+                <LogOut className="w-6 h-6 stroke-[2.2]" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base leading-tight">¿Cerrar Sesión?</h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Prevención de acciones accidentales</p>
+              </div>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              ¿Está seguro de que desea salir? Se cerrará la sesión actual en la aplicación del GAD Municipal de Logroño.
+            </p>
+            <div className="grid grid-cols-2 gap-2.5 pt-1">
+              <button
+                type="button"
+                onClick={() => setShowLogoutConfirm(false)}
+                className="py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowLogoutConfirm(false);
+                  if (onLogout) onLogout();
+                }}
+                className="py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-md transition-colors cursor-pointer flex items-center justify-center space-x-1"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sí, salir</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: Confirmación de Cancelación de Trámite */}
+      {showCancelTramiteConfirm && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 max-w-xs w-full shadow-2xl space-y-4 text-slate-900 dark:text-slate-100 relative text-left">
+            <button
+              type="button"
+              onClick={() => {
+                setShowCancelTramiteConfirm(false);
+                setPendingCancelType(null);
+              }}
+              className="absolute top-3.5 right-3.5 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="flex items-center space-x-3 text-amber-600 dark:text-amber-400">
+              <div className="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/80 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-6 h-6 stroke-[2.2]" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base leading-tight">¿Cancelar Trámite?</h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Prevención de pérdida de datos</p>
+              </div>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              Está a punto de cancelar el trámite o reporte en curso. Se perderán los datos ingresados. ¿Desea cancelar de todas formas?
+            </p>
+            <div className="grid grid-cols-2 gap-2.5 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCancelTramiteConfirm(false);
+                  setPendingCancelType(null);
+                }}
+                className="py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+              >
+                No, continuar
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmCancelTramite}
+                className="py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-colors cursor-pointer flex items-center justify-center space-x-1"
+              >
+                <span>Sí, cancelar</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
