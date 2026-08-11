@@ -17,7 +17,7 @@ interface WelcomeSplashProps {
   onStart: () => void;
 }
 
-const logronoLandscape = '/src/assets/images/logrono_landscape_1785899342636.jpg';
+import logronoLandscape from '../assets/images/logrono_landscape.jpg';
 
 // Highlights ticker for dynamic animated presentation
 const HIGHLIGHT_CAROUSEL = [
@@ -236,7 +236,7 @@ export const WelcomeSplash: React.FC<WelcomeSplashProps> = ({ onStart }) => {
           {/* Animated Ken Burns Landscape Background Photo */}
           <motion.img 
             src={logronoLandscape}
-            alt="Paisaje de Logroño Morona Santiago"
+            alt="Palacio Municipal - Cantón Logroño Morona Santiago"
             referrerPolicy="no-referrer"
             animate={{ scale: [1, 1.08, 1] }}
             transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
@@ -250,7 +250,7 @@ export const WelcomeSplash: React.FC<WelcomeSplashProps> = ({ onStart }) => {
           <div className="absolute top-3 left-4 right-4 flex items-center justify-between pointer-events-none">
             <span className="bg-slate-900/80 backdrop-blur-md text-white/90 text-[10px] font-bold px-3 py-1 rounded-full border border-white/20 flex items-center space-x-1.5 shadow-md">
               <Building2 className="w-3 h-3 text-amber-400" />
-              <span>Morona Santiago • Ecuador</span>
+              <span>GAD Municipal Cantón Logroño • Morona Santiago</span>
             </span>
             <span className="bg-emerald-500/90 backdrop-blur-md text-white text-[10px] font-black px-2.5 py-1 rounded-full border border-emerald-300 shadow-md flex items-center space-x-1">
               <CheckCircle2 className="w-3 h-3" />
