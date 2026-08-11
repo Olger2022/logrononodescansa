@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Incident, IncidentStatus, IncidentPriority, LogronoSector } from '../types';
 import { LogronoGoogleMap } from './LogronoGoogleMap';
+import { ReportIncidentChat } from './ReportIncidentChat';
 import { 
   LayoutDashboard, 
   MapPin, 
@@ -198,17 +199,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     <div className="max-w-7xl mx-auto px-2 sm:px-4 py-6 space-y-6">
       
       {/* Top Header Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border-2 border-[#0A4191] shadow-sm">
         <div>
           <div className="flex items-center space-x-2">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white font-serif">
+            <h2 className="text-xl font-bold text-[#0A4191] font-serif">
               Panel Administrativo de Control Municipal
             </h2>
-            <span className="bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-300">
+            <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-300">
               GAD Logroño
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-600 mt-0.5">
             Gestión en tiempo real de cuadrillas, asignación de departamentos y priorización inteligente.
           </p>
         </div>
@@ -226,7 +227,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
           <button
             onClick={() => handleExportData('excel')}
-            className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer"
+            className="flex items-center space-x-1 bg-blue-50 hover:bg-blue-100 text-[#0A4191] text-xs font-bold px-3 py-2 rounded-xl border border-blue-200 cursor-pointer"
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
             <span>Exportar Excel</span>
@@ -234,7 +235,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
           <button
             onClick={() => handleExportData('pdf')}
-            className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer"
+            className="flex items-center space-x-1 bg-blue-50 hover:bg-blue-100 text-[#0A4191] text-xs font-bold px-3 py-2 rounded-xl border border-blue-200 cursor-pointer"
           >
             <FileText className="w-4 h-4 text-red-600" />
             <span>Informe PDF</span>
@@ -243,13 +244,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       </div>
 
       {/* Top Navigation SubTabs: Active vs Archived Panel */}
-      <div className="flex border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl p-1.5 shadow-sm">
+      <div className="flex border-2 border-[#0A4191] bg-blue-50/80 rounded-2xl p-1.5 shadow-sm">
         <button
           onClick={() => setAdminSubTab('activas')}
           className={`flex-1 py-3 px-4 rounded-xl font-extrabold text-xs flex items-center justify-center space-x-2 transition-all cursor-pointer ${
             adminSubTab === 'activas'
               ? 'bg-[#0A4191] text-white shadow-md'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+              : 'text-[#0A4191] hover:bg-blue-100'
           }`}
         >
           <Activity className="w-4 h-4 text-amber-400 shrink-0" />
@@ -264,7 +265,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           className={`flex-1 py-3 px-4 rounded-xl font-extrabold text-xs flex items-center justify-center space-x-2 transition-all cursor-pointer ${
             adminSubTab === 'atendidas'
               ? 'bg-emerald-700 text-white shadow-md'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+              : 'text-[#0A4191] hover:bg-blue-100'
           }`}
         >
           <Archive className="w-4 h-4 text-emerald-300 shrink-0" />
@@ -277,46 +278,46 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
       {/* Analytics Counter Widgets Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-4 rounded-2xl border-2 border-blue-200 shadow-sm flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Reportes</span>
-            <span className="block text-2xl font-extrabold text-slate-900 dark:text-white mt-1">{totalCount}</span>
+            <span className="block text-2xl font-extrabold text-[#0A4191] mt-1">{totalCount}</span>
             <span className="text-[10px] text-emerald-600 font-medium">100% Georreferenciados</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300">
+          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#0A4191]">
             <LayoutDashboard className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-4 rounded-2xl border-2 border-blue-200 shadow-sm flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Prioridad Alta / Crítica</span>
-            <span className="block text-2xl font-extrabold text-red-600 dark:text-red-400 mt-1">{criticalCount}</span>
+            <span className="block text-2xl font-extrabold text-red-600 mt-1">{criticalCount}</span>
             <span className="text-[10px] text-red-500 font-medium">Requieren Despacho Inmediato</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 flex items-center justify-center text-red-600">
+          <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-600">
             <ShieldAlert className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-4 rounded-2xl border-2 border-blue-200 shadow-sm flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">En Cuadrilla / Proceso</span>
-            <span className="block text-2xl font-extrabold text-amber-600 dark:text-amber-400 mt-1">{inProgressCount}</span>
-            <span className="text-[10px] text-amber-500 font-medium">Maquinaria en Terreno</span>
+            <span className="block text-2xl font-extrabold text-amber-600 mt-1">{inProgressCount}</span>
+            <span className="text-[10px] text-amber-600 font-medium">Maquinaria en Terreno</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center text-amber-600">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
             <Clock className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-4 rounded-2xl border-2 border-blue-200 shadow-sm flex items-center justify-between">
           <div>
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Atendidos y Archivados</span>
-            <span className="block text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">{resolvedCount}</span>
+            <span className="block text-2xl font-extrabold text-emerald-600 mt-1">{resolvedCount}</span>
             <span className="text-[10px] text-emerald-600 font-medium">Archivados Automáticamente</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-600">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
             <CheckCircle2 className="w-5 h-5" />
           </div>
         </div>
@@ -351,18 +352,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       {adminSubTab === 'activas' && (
         <>
           {/* Filters Bar for Active */}
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+          <div className="bg-white p-4 rounded-2xl border-2 border-blue-200 shadow-sm space-y-3">
             <div className="flex flex-col md:flex-row gap-3">
               
               {/* Search Input */}
               <div className="flex-1 relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <Search className="w-4 h-4 text-[#0A4191] absolute left-3 top-3" />
                 <input
                   type="text"
                   placeholder="Buscar en activas por código, título o ciudadano..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full pl-9 pr-4 py-2 rounded-xl border border-blue-200 bg-blue-50/40 text-xs text-[#0A4191] font-semibold outline-none focus:ring-2 focus:ring-[#0A4191]"
                 />
               </div>
 
@@ -371,7 +372,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <select
                   value={sectorFilter}
                   onChange={(e) => setSectorFilter(e.target.value)}
-                  className="w-full p-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white outline-none"
+                  className="w-full p-2 rounded-xl border border-blue-200 bg-blue-50/40 text-xs text-[#0A4191] font-semibold outline-none"
                 >
                   <option value="todos">Todos los Sectores</option>
                   <option value="Logroño Centro (Cabecera)">Logroño Centro</option>
@@ -387,7 +388,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <select
                   value={priorityFilter}
                   onChange={(e) => setPriorityFilter(e.target.value)}
-                  className="w-full p-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white outline-none"
+                  className="w-full p-2 rounded-xl border border-blue-200 bg-blue-50/40 text-xs text-[#0A4191] font-semibold outline-none"
                 >
                   <option value="todos">Todas Prioridades</option>
                   <option value="critica">Crítica</option>
@@ -402,7 +403,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full p-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white outline-none"
+                  className="w-full p-2 rounded-xl border border-blue-200 bg-blue-50/40 text-xs text-[#0A4191] font-semibold outline-none"
                 >
                   <option value="todos">Todos los Estados Activos</option>
                   <option value="reportado">Reportado</option>
@@ -415,24 +416,24 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
           {/* Real-Time Selected Map & GPS Route Navigation Panel */}
           {selectedMapIncident && (
-            <div id="gad-realtime-map-section" className="bg-white dark:bg-slate-900 rounded-2xl border border-blue-200 dark:border-blue-900 shadow-md p-4 space-y-3">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div id="gad-realtime-map-section" className="bg-white rounded-2xl border-2 border-blue-200 shadow-md p-4 space-y-3">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-blue-100 pb-3">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-xl bg-[#0A4191] text-white flex items-center justify-center shadow-sm shrink-0">
                     <Navigation className="w-5 h-5 text-amber-300 stroke-[2.5]" />
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="bg-[#0A4191]/10 text-[#0A4191] dark:bg-blue-950 dark:text-blue-300 font-black text-[10px] px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800 uppercase font-mono">
+                      <span className="bg-blue-100 text-[#0A4191] font-black text-[10px] px-2 py-0.5 rounded-md border border-blue-200 uppercase font-mono">
                         {selectedMapIncident.code}
                       </span>
-                      <span className="text-[11px] font-extrabold text-emerald-600 dark:text-emerald-400 flex items-center space-x-1">
+                      <span className="text-[11px] font-extrabold text-emerald-600 flex items-center space-x-1">
                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block" />
                         <span>Navegador GPS en Tiempo Real</span>
                       </span>
                     </div>
-                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5">
-                      Ubicación Marcada por Usuario: <span className="text-[#0A4191] dark:text-blue-400">{selectedMapIncident.title}</span>
+                    <h3 className="text-sm font-extrabold text-[#0A4191] mt-0.5">
+                      Ubicación Marcada por Usuario: <span className="text-[#0A4191]">{selectedMapIncident.title}</span>
                     </h3>
                   </div>
                 </div>
@@ -471,18 +472,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           )}
 
           {/* Active Incidents Main Data Table */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+          <div className="bg-white rounded-2xl border-2 border-blue-200 shadow-sm overflow-hidden">
+            <div className="p-4 border-b border-blue-200 flex justify-between items-center bg-blue-50/50">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                <h3 className="text-sm font-bold text-[#0A4191] flex items-center space-x-2">
                   <Activity className="w-4 h-4 text-amber-500" />
                   <span>Listado de Trámites Activos Pendientes ({filteredActiveIncidents.length})</span>
                 </h3>
-                <p className="text-[11px] text-slate-500 mt-0.5">
+                <p className="text-[11px] text-slate-600 mt-0.5">
                   Las incidencias marcadas como "Resuelto" se archivan automáticamente en el Panel de Atendidos.
                 </p>
               </div>
-              <span className="text-xs text-slate-500 font-mono font-bold bg-white dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
+              <span className="text-xs text-[#0A4191] font-mono font-bold bg-white px-2.5 py-1 rounded-lg border border-blue-200">
                 {filteredActiveIncidents.length} de {activeIncidentsList.length} activas
               </span>
             </div>
@@ -490,7 +491,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-700 uppercase tracking-wider text-[10px]">
+                  <tr className="bg-blue-100/70 text-[#0A4191] font-bold border-b-2 border-blue-200 uppercase tracking-wider text-[10px]">
                     <th className="py-3 px-4">Código / Fecha</th>
                     <th className="py-3 px-4">Incidencia / Sector</th>
                     <th className="py-3 px-4">Ubicación Exacta Mapa</th>
@@ -501,7 +502,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     <th className="py-3 px-4 text-right">Gestión / Acción</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-800 dark:text-slate-200">
+                <tbody className="divide-y divide-blue-100 text-slate-800">
                   {filteredActiveIncidents.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="text-center py-12 text-slate-500 space-y-2">
@@ -663,16 +664,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           </div>
 
           {/* Search & Filters for Archived Panel */}
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+          <div className="bg-white p-4 rounded-2xl border-2 border-blue-200 shadow-sm space-y-3">
             <div className="flex flex-col md:flex-row gap-3">
               <div className="flex-1 relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <Search className="w-4 h-4 text-[#0A4191] absolute left-3 top-3" />
                 <input
                   type="text"
                   placeholder="Buscar en incidencias archivadas por código, título o ciudadano..."
                   value={archivedSearchTerm}
                   onChange={(e) => setArchivedSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full pl-9 pr-4 py-2 rounded-xl border border-blue-200 bg-blue-50/40 text-xs text-[#0A4191] font-semibold outline-none focus:ring-2 focus:ring-[#0A4191]"
                 />
               </div>
 
@@ -680,7 +681,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <select
                   value={archivedSectorFilter}
                   onChange={(e) => setArchivedSectorFilter(e.target.value)}
-                  className="w-full p-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white outline-none"
+                  className="w-full p-2 rounded-xl border border-blue-200 bg-blue-50/40 text-xs text-[#0A4191] font-semibold outline-none"
                 >
                   <option value="todos">Todos los Sectores Archivados</option>
                   <option value="Logroño Centro (Cabecera)">Logroño Centro</option>
@@ -996,6 +997,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   GUARDAR Y NOTIFICAR AL CIUDADANO
                 </button>
               </div>
+            </div>
+
+            {/* Real-time Technical Chat Channel with Citizen */}
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+              <h4 className="font-extrabold text-slate-900 dark:text-white uppercase tracking-wider text-xs mb-2">
+                Canal de Chat en Tiempo Real con el Ciudadano
+              </h4>
+              <ReportIncidentChat
+                incident={selectedIncident}
+                currentUser={{
+                  id: 'admin-1',
+                  name: assignedOperator || 'Técnico GAD Logroño',
+                  email: 'tecnico@logrono.gob.ec',
+                  role: 'tecnico',
+                  provider: 'password'
+                }}
+              />
             </div>
 
           </div>

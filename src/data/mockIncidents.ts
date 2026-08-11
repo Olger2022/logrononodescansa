@@ -33,7 +33,22 @@ export const INITIAL_INCIDENTS: Incident[] = [
       recommendation: 'Reemplazar fotocélula y foco LED 100W.',
       urgencyExplanation: 'Falta de luz nocturna en sector residencial.'
     },
-    comments: [],
+    comments: [
+      {
+        id: 'msg-init-1',
+        author: 'María Shakaim',
+        role: 'ciudadano',
+        text: 'Buenas tardes, ¿cuándo podrían acudir a revisar la fotocélula del poste?',
+        timestamp: '2024-05-24T10:15:00Z'
+      },
+      {
+        id: 'msg-init-2',
+        author: 'Téc. Javier Uyunkar',
+        role: 'tecnico_gad',
+        text: 'Estimada María, la unidad eléctrica programó la inspección técnica para el turno nocturno de hoy.',
+        timestamp: '2024-05-24T14:10:00Z'
+      }
+    ],
     history: [
       { status: 'reportado', updatedBy: 'María Shakaim', timestamp: '2024-05-24T10:00:00Z' },
       { status: 'en_proceso', updatedBy: 'Servicios Municipales', timestamp: '2024-05-24T14:00:00Z' }
@@ -73,7 +88,22 @@ export const INITIAL_INCIDENTS: Incident[] = [
       recommendation: 'Cuadrilla de bacheo frío para sellado inmediato.',
       urgencyExplanation: 'Peligro para vehículos y transeúntes.'
     },
-    comments: [],
+    comments: [
+      {
+        id: 'msg-init-3',
+        author: 'María Shakaim',
+        role: 'ciudadano',
+        text: '¿Cuánto tiempo tomará la reparación del bache en la Av. Intercultural?',
+        timestamp: '2024-05-20T09:30:00Z'
+      },
+      {
+        id: 'msg-init-4',
+        author: 'Ing. Carlos Tiwiram',
+        role: 'tecnico_gad',
+        text: 'Saludos cordiales. La cuadrilla de Obras Públicas se desplaza hoy con asfalto en frío. Tiempo estimado: 48 horas.',
+        timestamp: '2024-05-20T11:20:00Z'
+      }
+    ],
     history: [
       { status: 'reportado', updatedBy: 'María Shakaim', timestamp: '2024-05-20T09:00:00Z' },
       { status: 'en_proceso', updatedBy: 'Obras Públicas', timestamp: '2024-05-20T11:00:00Z' }

@@ -43,46 +43,46 @@ export const Header: React.FC<HeaderProps> = ({
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   return (
-    <header className="bg-emerald-950 text-white shadow-lg border-b border-emerald-800 sticky top-0 z-40">
+    <header className="bg-white text-[#0A4191] shadow-md border-b-2 border-[#0A4191] sticky top-0 z-40">
       {/* Top Banner: GAD Municipal Info */}
-      <div className="bg-emerald-900/80 px-4 py-1.5 border-b border-emerald-800/60 text-xs text-emerald-100 flex flex-wrap justify-between items-center gap-2">
+      <div className="bg-blue-50 px-4 py-1.5 border-b border-blue-200 text-xs text-[#0A4191] flex flex-wrap justify-between items-center gap-2">
         <div className="flex items-center space-x-2">
-          <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span className="font-semibold tracking-wide">GOBIERNO AUTÓNOMO DESCENTRALIZADO MUNICIPAL DEL CANTÓN LOGROÑO</span>
-          <span className="hidden sm:inline text-emerald-400">|</span>
-          <span className="hidden sm:inline text-emerald-200">Morona Santiago, Ecuador</span>
+          <span className="inline-block w-2 h-2 rounded-full bg-[#0A4191] animate-pulse"></span>
+          <span className="font-bold tracking-wide">GOBIERNO AUTÓNOMO DESCENTRALIZADO MUNICIPAL DEL CANTÓN LOGROÑO</span>
+          <span className="hidden sm:inline text-blue-400">|</span>
+          <span className="hidden sm:inline text-slate-600">Morona Santiago, Ecuador</span>
         </div>
 
         <div className="flex items-center space-x-4">
           {/* Offline/Online Status Badge */}
-          <div className="flex items-center space-x-1.5 bg-emerald-950/70 px-2.5 py-0.5 rounded-full border border-emerald-700/50" title={isOnline ? "Red Conectada" : `Modo Offline (${offlineCount} en cola)`}>
+          <div className="flex items-center space-x-1.5 bg-white px-2.5 py-0.5 rounded-full border border-blue-300 shadow-2xs" title={isOnline ? "Red Conectada" : `Modo Offline (${offlineCount} en cola)`}>
             {isOnline ? (
               <>
-                <Wifi className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-[11px] font-medium text-emerald-200 hidden sm:inline">Red Conectada</span>
+                <Wifi className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-[11px] font-bold text-slate-700 hidden sm:inline">Red Conectada</span>
               </>
             ) : (
               <>
-                <WifiOff className="w-3.5 h-3.5 text-amber-400" />
-                <span className="text-[11px] font-medium text-amber-300 hidden sm:inline">Offline ({offlineCount})</span>
-                <span className="text-[10px] font-medium text-amber-300 sm:hidden">({offlineCount})</span>
+                <WifiOff className="w-3.5 h-3.5 text-amber-600" />
+                <span className="text-[11px] font-bold text-amber-700 hidden sm:inline">Offline ({offlineCount})</span>
+                <span className="text-[10px] font-bold text-amber-700 sm:hidden">({offlineCount})</span>
               </>
             )}
           </div>
 
           {/* User Profile Badge & Logout */}
           {currentUser && (
-            <div className="flex items-center space-x-2 bg-emerald-950/90 px-2.5 py-0.5 rounded-full border border-emerald-600/60 text-[11px]">
-              <UserCheck className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-              <span className="font-semibold text-emerald-100 hidden sm:inline max-w-[120px] truncate">{currentUser.name}</span>
+            <div className="flex items-center space-x-2 bg-white px-2.5 py-0.5 rounded-full border border-blue-300 shadow-2xs text-[11px]">
+              <UserCheck className="w-3.5 h-3.5 text-[#0A4191] flex-shrink-0" />
+              <span className="font-bold text-[#0A4191] hidden sm:inline max-w-[120px] truncate">{currentUser.name}</span>
               {onLogout && (
                 <button
                   type="button"
                   onClick={() => setShowLogoutModal(true)}
-                  className="ml-1 text-red-300 hover:text-red-200 flex items-center space-x-1 hover:underline cursor-pointer"
+                  className="ml-1 text-red-600 hover:text-red-700 flex items-center space-x-1 font-bold hover:underline cursor-pointer"
                   title="Cerrar sesión e ir al módulo de Login"
                 >
-                  <LogOut className="w-3.5 h-3.5 text-red-400" />
+                  <LogOut className="w-3.5 h-3.5 text-red-600" />
                   <span className="text-[10px] hidden md:inline">Salir</span>
                 </button>
               )}
@@ -93,14 +93,14 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={() => setLang(lang === 'es' ? 'shuar' : 'es')}
             id="btn-language-toggle"
-            className="flex items-center space-x-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 px-2.5 py-0.5 rounded-full border border-amber-500/40 transition-colors cursor-pointer"
+            className="flex items-center space-x-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 px-2.5 py-0.5 rounded-full border border-amber-300 transition-colors cursor-pointer"
             title="Cambiar idioma intercultural (Español / Shuar Chicham)"
           >
-            <Languages className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-            <span className="text-[11px] font-bold tracking-wider hidden sm:inline">
+            <Languages className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
+            <span className="text-[11px] font-extrabold tracking-wider hidden sm:inline">
               {lang === 'es' ? 'ESPAÑOL' : 'SHUAR CHICHAM'}
             </span>
-            <span className="text-[11px] font-bold tracking-wider sm:hidden">
+            <span className="text-[11px] font-extrabold tracking-wider sm:hidden">
               {lang === 'es' ? 'ES' : 'SH'}
             </span>
           </button>
@@ -110,7 +110,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Confirmation Dialog Modal for Logout */}
       {showLogoutModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4 text-slate-900 dark:text-slate-100 relative">
+          <div className="bg-white border-2 border-[#0A4191] rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4 text-slate-900 relative">
             <button
               type="button"
               onClick={() => setShowLogoutModal(false)}
@@ -155,24 +155,24 @@ export const Header: React.FC<HeaderProps> = ({
       )}
 
       {/* Main Header Row */}
-      <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-3 bg-white">
         {/* Brand Logo & Title */}
         <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setActiveTab('citizen_app')}>
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 via-teal-600 to-amber-500 p-0.5 shadow-md flex items-center justify-center">
-            <div className="w-full h-full bg-emerald-950 rounded-[10px] flex items-center justify-center">
-              <Building2 className="w-6 h-6 text-emerald-400" />
+          <div className="w-11 h-11 rounded-xl bg-[#0A4191] p-0.5 shadow-md flex items-center justify-center">
+            <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
+              <Building2 className="w-6 h-6 text-[#0A4191]" />
             </div>
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h1 className="text-xl font-extrabold tracking-tight text-white font-serif">
+              <h1 className="text-xl font-extrabold tracking-tight text-[#0A4191]">
                 Logroño Conecta
               </h1>
-              <span className="bg-emerald-500/30 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-400/40 uppercase">
+              <span className="bg-blue-100 text-[#0A4191] text-[10px] font-bold px-2 py-0.5 rounded border border-blue-300 uppercase">
                 2026 GAD Digital
               </span>
             </div>
-            <p className="text-xs text-emerald-200/90 font-medium">
+            <p className="text-xs text-slate-600 font-medium">
               {lang === 'shuar'
                 ? SHUAR_DICTIONARY.welcome.shuar
                 : 'Participación Ciudadana y Gestión Inteligente de Incidencias'}
@@ -181,15 +181,15 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Navigation Tabs */}
-        <nav className="flex items-center space-x-1 sm:space-x-2 bg-emerald-900/60 p-1 rounded-xl border border-emerald-800/80 overflow-x-auto max-w-full">
+        <nav className="flex items-center space-x-1 sm:space-x-2 bg-blue-50/80 p-1 rounded-xl border border-[#0A4191] overflow-x-auto max-w-full">
           <button
             id="nav-tab-citizen-app"
             onClick={() => setActiveTab('citizen_app')}
             title="App Ciudadana (PWA)"
-            className={`flex items-center space-x-2 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+            className={`flex items-center space-x-2 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'citizen_app'
-                ? 'bg-emerald-600 text-white shadow-md'
-                : 'text-emerald-200 hover:bg-emerald-800/60 hover:text-white'
+                ? 'bg-[#0A4191] text-white shadow-md'
+                : 'text-[#0A4191] hover:bg-blue-200/70'
             }`}
           >
             <Smartphone className="w-4 h-4 flex-shrink-0" />
@@ -200,10 +200,10 @@ export const Header: React.FC<HeaderProps> = ({
             id="nav-tab-admin-dashboard"
             onClick={() => setActiveTab('admin_dashboard')}
             title="Panel Municipal GAD"
-            className={`flex items-center space-x-2 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+            className={`flex items-center space-x-2 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'admin_dashboard'
-                ? 'bg-emerald-600 text-white shadow-md'
-                : 'text-emerald-200 hover:bg-emerald-800/60 hover:text-white'
+                ? 'bg-[#0A4191] text-white shadow-md'
+                : 'text-[#0A4191] hover:bg-blue-200/70'
             }`}
           >
             <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
@@ -214,13 +214,13 @@ export const Header: React.FC<HeaderProps> = ({
             id="nav-tab-tech-docs"
             onClick={() => setActiveTab('tech_docs')}
             title="Documentación Técnica (15 Fases)"
-            className={`flex items-center space-x-2 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+            className={`flex items-center space-x-2 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'tech_docs'
-                ? 'bg-emerald-600 text-white shadow-md'
-                : 'text-emerald-200 hover:bg-emerald-800/60 hover:text-white'
+                ? 'bg-[#0A4191] text-white shadow-md'
+                : 'text-[#0A4191] hover:bg-blue-200/70'
             }`}
           >
-            <BookOpenCheck className="w-4 h-4 text-amber-300 flex-shrink-0" />
+            <BookOpenCheck className="w-4 h-4 text-amber-600 flex-shrink-0" />
             <span className="hidden md:inline">Docs (15 Fases)</span>
           </button>
 
@@ -228,7 +228,7 @@ export const Header: React.FC<HeaderProps> = ({
             id="nav-tab-logrobot-ai"
             onClick={openLogroBot}
             title="Asistente LogroBot IA"
-            className="flex items-center space-x-1.5 sm:space-x-2 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 hover:from-amber-400 hover:to-amber-500 transition-all shadow-md font-bold cursor-pointer"
+            className="flex items-center space-x-1.5 sm:space-x-2 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 transition-all shadow-md cursor-pointer border border-amber-500"
           >
             <Bot className="w-4 h-4 text-slate-950 flex-shrink-0" />
             <span className="hidden sm:inline">LogroBot IA</span>

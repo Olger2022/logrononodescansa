@@ -189,27 +189,27 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between relative overflow-hidden font-sans selection:bg-amber-400 selection:text-slate-950">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between relative overflow-hidden font-sans selection:bg-blue-100 selection:text-[#0A4191]">
       
       {/* Dynamic Background Effects */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-emerald-600/20 via-teal-700/10 to-transparent blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -top-20 -right-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-blue-600/20 via-indigo-700/10 to-transparent blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-20 -right-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Top Municipal Branding Header */}
-      <header className="relative z-10 border-b border-emerald-900/60 bg-emerald-950/80 backdrop-blur-md px-4 py-3">
+      <header className="relative z-10 border-b-2 border-[#0A4191] bg-white text-[#0A4191] px-4 py-3 shadow-xs">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 via-teal-500 to-amber-400 p-0.5 shadow-lg flex items-center justify-center">
-              <div className="w-full h-full bg-emerald-950 rounded-[10px] flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-emerald-400" />
+            <div className="w-10 h-10 rounded-xl bg-[#0A4191] p-0.5 shadow-md flex items-center justify-center">
+              <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
+                <Building2 className="w-5 h-5 text-[#0A4191]" />
               </div>
             </div>
             <div>
-              <h2 className="text-sm font-extrabold tracking-tight text-white font-serif">
+              <h2 className="text-sm font-extrabold tracking-tight text-[#0A4191] font-serif">
                 GAD MUNICIPAL DEL CANTÓN LOGROÑO
               </h2>
-              <p className="text-[11px] text-emerald-300/80 font-medium">
+              <p className="text-[11px] text-slate-600 font-medium">
                 Morona Santiago • Ecuador • Plataforma Digital Ciudadana 2026
               </p>
             </div>
@@ -219,15 +219,15 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
               <button
                 type="button"
                 onClick={onBackToSplash}
-                className="p-1.5 rounded-lg bg-emerald-900/60 hover:bg-emerald-800 text-emerald-300 transition-colors flex items-center space-x-1 text-xs cursor-pointer"
+                className="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#0A4191] border border-blue-300 transition-colors flex items-center space-x-1 text-xs font-bold cursor-pointer"
                 title="Volver a la pantalla de bienvenida"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span className="hidden sm:inline">Bienvenida</span>
               </button>
             )}
-            <div className="hidden sm:flex items-center space-x-2 bg-emerald-900/40 border border-emerald-700/40 px-3 py-1 rounded-full text-[11px] text-emerald-300">
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+            <div className="hidden sm:flex items-center space-x-2 bg-blue-50 border border-blue-300 px-3 py-1 rounded-full text-[11px] font-bold text-[#0A4191]">
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
               <span>Acceso Seguro Encriptado SSL 256-bit</span>
             </div>
           </div>
@@ -236,40 +236,40 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
 
       {/* Center Auth Card */}
       <main className="relative z-10 flex-1 flex items-center justify-center p-4 py-8">
-        <div className="w-full max-w-md bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-3xl shadow-2xl overflow-hidden">
+        <div className="w-full max-w-md bg-white border-2 border-[#0A4191] rounded-3xl shadow-2xl overflow-hidden">
           
           {/* Card Title & Municipal Logotype Emblem */}
-          <div className="bg-gradient-to-b from-emerald-950 to-slate-900 p-6 border-b border-slate-800 text-center relative">
+          <div className="bg-blue-50 p-6 border-b-2 border-[#0A4191] text-center relative text-[#0A4191]">
             {/* Municipal Logotype Emblem */}
-            <div className="mx-auto w-16 h-16 mb-3 rounded-2xl bg-slate-950 border border-emerald-500/30 p-2 shadow-inner flex items-center justify-center relative group">
-              <div className="absolute inset-0 bg-emerald-500/10 rounded-2xl animate-pulse" />
+            <div className="mx-auto w-16 h-16 mb-3 rounded-2xl bg-white border-2 border-[#0A4191] p-2 shadow-xs flex items-center justify-center relative group">
+              <div className="absolute inset-0 bg-blue-400/10 rounded-2xl animate-pulse" />
               {/* Official Custom Emblem SVG */}
-              <svg viewBox="0 0 100 100" className="w-full h-full text-emerald-400">
+              <svg viewBox="0 0 100 100" className="w-full h-full text-[#0A4191]">
                 <path fill="currentColor" opacity="0.15" d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" />
                 <path fill="none" stroke="currentColor" strokeWidth="4" d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" />
                 <circle cx="50" cy="50" r="22" fill="none" stroke="#F59E0B" strokeWidth="3" />
-                <path fill="#10B981" d="M35 60 L50 35 L65 60 Z" />
-                <path fill="#34D399" d="M45 60 L55 45 L65 60 Z" />
+                <path fill="#3B82F6" d="M35 60 L50 35 L65 60 Z" />
+                <path fill="#60A5FA" d="M45 60 L55 45 L65 60 Z" />
                 <path stroke="#F59E0B" strokeWidth="3" strokeLinecap="round" d="M30 70 Q50 78 70 70" />
               </svg>
             </div>
 
-            <h1 className="text-2xl font-black text-white font-serif tracking-tight">
+            <h1 className="text-2xl font-black text-[#0A4191] tracking-tight font-sans">
               Logroño Conecta
             </h1>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-slate-600 mt-1 font-medium">
               Sistema de Participación Ciudadana y Gestión Municipal
             </p>
 
             {/* Navigation Tabs (Login, Register, Recovery) */}
-            <div className="grid grid-cols-3 gap-1 bg-slate-950/80 p-1.5 rounded-xl border border-slate-800 mt-5">
+            <div className="grid grid-cols-3 gap-1 bg-white p-1.5 rounded-xl border-2 border-[#0A4191] mt-5">
               <button
                 type="button"
                 onClick={() => { setMode('login'); setLoginError(''); }}
                 className={`py-2 px-1 text-xs font-bold rounded-lg transition-all flex items-center justify-center space-x-1 cursor-pointer ${
                   mode === 'login'
-                    ? 'bg-emerald-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                    ? 'bg-[#0A4191] text-white shadow-md'
+                    : 'text-[#0A4191] hover:bg-blue-100'
                 }`}
               >
                 <LogIn className="w-3.5 h-3.5" />
@@ -281,8 +281,8 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
                 onClick={() => { setMode('register'); setRegError(''); }}
                 className={`py-2 px-1 text-xs font-bold rounded-lg transition-all flex items-center justify-center space-x-1 cursor-pointer ${
                   mode === 'register'
-                    ? 'bg-emerald-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                    ? 'bg-[#0A4191] text-white shadow-md'
+                    : 'text-[#0A4191] hover:bg-blue-100'
                 }`}
               >
                 <UserPlus className="w-3.5 h-3.5" />
@@ -294,8 +294,8 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
                 onClick={() => { setMode('recover'); setRecoverError(''); setRecoverySuccessMessage(''); }}
                 className={`py-2 px-1 text-xs font-bold rounded-lg transition-all flex items-center justify-center space-x-1 cursor-pointer ${
                   mode === 'recover'
-                    ? 'bg-emerald-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                    ? 'bg-[#0A4191] text-white shadow-md'
+                    : 'text-[#0A4191] hover:bg-blue-100'
                 }`}
               >
                 <KeyRound className="w-3.5 h-3.5" />
@@ -338,12 +338,7 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
                   <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
                 </button>
 
-                <div className="relative flex items-center justify-center my-3">
-                  <div className="border-t border-slate-800 w-full" />
-                  <span className="bg-slate-900 px-3 text-[11px] text-slate-400 font-bold uppercase tracking-wider">
-                    o con credenciales GAD
-                  </span>
-                </div>
+
               </>
             )}
 
@@ -351,18 +346,18 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
             {mode === 'login' && (
               <form onSubmit={handleLoginSubmit} className="space-y-4">
                 {loginError && (
-                  <div className="bg-red-950/80 border border-red-500/60 p-3 rounded-xl flex items-center space-x-2 text-xs text-red-200">
-                    <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                  <div className="bg-red-50 border border-red-300 p-3 rounded-xl flex items-center space-x-2 text-xs text-red-700 font-medium">
+                    <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
                     <span>{loginError}</span>
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
+                  <label className="block text-xs font-bold text-[#0A4191] mb-1">
                     Correo Electrónico o Usuario GAD *
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                       <Mail className="w-4 h-4" />
                     </div>
                     <input
@@ -371,26 +366,26 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       placeholder="ejemplo@logrono.gob.ec"
-                      className="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 text-white rounded-xl pl-9 pr-3 py-2.5 text-xs outline-none transition-all focus:ring-1 focus:ring-emerald-500"
+                      className="w-full bg-blue-50/40 border border-blue-200 focus:border-[#0A4191] focus:bg-white text-slate-900 font-medium rounded-xl pl-9 pr-3 py-2.5 text-xs outline-none transition-all focus:ring-1 focus:ring-[#0A4191]"
                     />
                   </div>
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-bold text-slate-300">
+                    <label className="block text-xs font-bold text-[#0A4191]">
                       Contraseña *
                     </label>
                     <button
                       type="button"
                       onClick={() => setMode('recover')}
-                      className="text-[11px] text-emerald-400 hover:text-emerald-300 font-semibold"
+                      className="text-[11px] text-blue-600 hover:text-blue-800 font-bold"
                     >
                       ¿Olvidó su clave?
                     </button>
                   </div>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                       <Lock className="w-4 h-4" />
                     </div>
                     <input
@@ -399,12 +394,12 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 text-white rounded-xl pl-9 pr-10 py-2.5 text-xs outline-none transition-all focus:ring-1 focus:ring-emerald-500"
+                      className="w-full bg-blue-50/40 border border-blue-200 focus:border-[#0A4191] focus:bg-white text-slate-900 font-medium rounded-xl pl-9 pr-10 py-2.5 text-xs outline-none transition-all focus:ring-1 focus:ring-[#0A4191]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -415,38 +410,38 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:shadow-emerald-900/40 transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 mt-2"
+                  className="w-full bg-[#0A4191] hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 mt-2"
                 >
-                  <div className="w-6 h-6 rounded-lg bg-emerald-950/60 flex items-center justify-center text-emerald-300">
+                  <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-white">
                     <LogIn className="w-3.5 h-3.5" />
                   </div>
                   <span>{isLoading ? 'Autenticando...' : 'Iniciar Sesión'}</span>
                 </button>
 
                 {/* Quick Autofill Presets for Testing */}
-                <div className="pt-3 border-t border-slate-800">
-                  <p className="text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-wider text-center">
+                <div className="pt-3 border-t border-blue-200">
+                  <p className="text-[10px] font-extrabold text-[#0A4191] mb-2 uppercase tracking-wider text-center">
                     Cuentas de prueba rápida:
                   </p>
                   <div className="grid grid-cols-3 gap-1.5">
                     <button
                       type="button"
                       onClick={() => autofillDemo('ciudadano')}
-                      className="p-1.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg text-[10px] font-medium text-slate-300 text-center transition-colors cursor-pointer"
+                      className="p-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-300 rounded-lg text-[10px] font-bold text-[#0A4191] text-center transition-colors cursor-pointer"
                     >
                       👤 Ciudadano
                     </button>
                     <button
                       type="button"
                       onClick={() => autofillDemo('admin')}
-                      className="p-1.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg text-[10px] font-medium text-amber-300 text-center transition-colors cursor-pointer"
+                      className="p-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-300 rounded-lg text-[10px] font-bold text-[#0A4191] text-center transition-colors cursor-pointer"
                     >
                       🛡️ Admin GAD
                     </button>
                     <button
                       type="button"
                       onClick={() => autofillDemo('tecnico')}
-                      className="p-1.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg text-[10px] font-medium text-emerald-300 text-center transition-colors cursor-pointer"
+                      className="p-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-300 rounded-lg text-[10px] font-bold text-[#0A4191] text-center transition-colors cursor-pointer"
                     >
                       🔧 Técnico
                     </button>
@@ -459,18 +454,18 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
             {mode === 'register' && (
               <form onSubmit={handleRegisterSubmit} className="space-y-3">
                 {regError && (
-                  <div className="bg-red-950/80 border border-red-500/60 p-2.5 rounded-xl flex items-center space-x-2 text-xs text-red-200">
-                    <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                  <div className="bg-red-50 border border-red-300 p-2.5 rounded-xl flex items-center space-x-2 text-xs text-red-700 font-medium">
+                    <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
                     <span>{regError}</span>
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                  <label className="block text-[11px] font-bold text-[#0A4191] mb-1">
                     Nombres y Apellidos *
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                       <User className="w-3.5 h-3.5" />
                     </div>
                     <input
@@ -479,18 +474,18 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
                       value={regName}
                       onChange={(e) => setRegName(e.target.value)}
                       placeholder="Ej. Juan Shakaim Antuash"
-                      className="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 text-white rounded-xl pl-9 pr-3 py-2 text-xs outline-none transition-all"
+                      className="w-full bg-blue-50/40 border border-blue-200 focus:border-[#0A4191] focus:bg-white text-slate-900 font-medium rounded-xl pl-9 pr-3 py-2 text-xs outline-none transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                    <label className="block text-[11px] font-bold text-[#0A4191] mb-1">
                       Cédula / RUC *
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-500">
+                      <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
                         <CreditCard className="w-3.5 h-3.5" />
                       </div>
                       <input
@@ -499,17 +494,17 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
                         value={regCedula}
                         onChange={(e) => setRegCedula(e.target.value)}
                         placeholder="1400XXXXXX"
-                        className="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 text-white rounded-xl pl-8 pr-2 py-2 text-xs outline-none transition-all"
+                        className="w-full bg-blue-50/40 border border-blue-200 focus:border-[#0A4191] focus:bg-white text-slate-900 font-medium rounded-xl pl-8 pr-2 py-2 text-xs outline-none transition-all"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                    <label className="block text-[11px] font-bold text-[#0A4191] mb-1">
                       Teléfono Móvil
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-500">
+                      <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
                         <Phone className="w-3.5 h-3.5" />
                       </div>
                       <input
@@ -517,18 +512,18 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
                         value={regPhone}
                         onChange={(e) => setRegPhone(e.target.value)}
                         placeholder="099XXXXXXX"
-                        className="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 text-white rounded-xl pl-8 pr-2 py-2 text-xs outline-none transition-all"
+                        className="w-full bg-blue-50/40 border border-blue-200 focus:border-[#0A4191] focus:bg-white text-slate-900 font-medium rounded-xl pl-8 pr-2 py-2 text-xs outline-none transition-all"
                       />
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                  <label className="block text-[11px] font-bold text-[#0A4191] mb-1">
                     Correo Electrónico *
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                       <Mail className="w-3.5 h-3.5" />
                     </div>
                     <input
@@ -537,23 +532,23 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
                       value={regEmail}
                       onChange={(e) => setRegEmail(e.target.value)}
                       placeholder="correo@ejemplo.com"
-                      className="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 text-white rounded-xl pl-9 pr-3 py-2 text-xs outline-none transition-all"
+                      className="w-full bg-blue-50/40 border border-blue-200 focus:border-[#0A4191] focus:bg-white text-slate-900 font-medium rounded-xl pl-9 pr-3 py-2 text-xs outline-none transition-all"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                  <label className="block text-[11px] font-bold text-[#0A4191] mb-1">
                     Sector o Parroquia de Residencia *
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-                      <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#0A4191]">
+                      <MapPin className="w-3.5 h-3.5" />
                     </div>
                     <select
                       value={regSector}
                       onChange={(e) => setRegSector(e.target.value as LogronoSector)}
-                      className="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 text-white rounded-xl pl-9 pr-3 py-2 text-xs outline-none transition-all"
+                      className="w-full bg-blue-50/40 border border-blue-200 focus:border-[#0A4191] focus:bg-white text-slate-900 font-semibold rounded-xl pl-9 pr-3 py-2 text-xs outline-none transition-all"
                     >
                       {LOGRONO_SECTORS.map((sec) => (
                         <option key={sec} value={sec}>{sec}</option>
@@ -564,7 +559,7 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                    <label className="block text-[11px] font-bold text-[#0A4191] mb-1">
                       Contraseña *
                     </label>
                     <input
@@ -573,11 +568,11 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
                       value={regPassword}
                       onChange={(e) => setRegPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 text-white rounded-xl px-3 py-2 text-xs outline-none transition-all"
+                      className="w-full bg-blue-50/40 border border-blue-200 focus:border-[#0A4191] focus:bg-white text-slate-900 font-medium rounded-xl px-3 py-2 text-xs outline-none transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                    <label className="block text-[11px] font-bold text-[#0A4191] mb-1">
                       Confirmar Clave *
                     </label>
                     <input
@@ -586,7 +581,7 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
                       value={regConfirmPassword}
                       onChange={(e) => setRegConfirmPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 text-white rounded-xl px-3 py-2 text-xs outline-none transition-all"
+                      className="w-full bg-blue-50/40 border border-blue-200 focus:border-[#0A4191] focus:bg-white text-slate-900 font-medium rounded-xl px-3 py-2 text-xs outline-none transition-all"
                     />
                   </div>
                 </div>
@@ -595,9 +590,9 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 mt-3"
+                  className="w-full bg-[#0A4191] hover:bg-blue-800 text-white font-bold py-2.5 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50 mt-3"
                 >
-                  <div className="w-5 h-5 rounded-md bg-emerald-950/60 flex items-center justify-center text-emerald-300">
+                  <div className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center text-white">
                     <UserPlus className="w-3.5 h-3.5" />
                   </div>
                   <span>{isLoading ? 'Creando Cuenta...' : 'Crear Cuenta Ciudadana'}</span>
@@ -608,33 +603,33 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
             {/* MODE 3: PASSWORD & USERNAME RECOVERY MODULE */}
             {mode === 'recover' && (
               <form onSubmit={handleRecoverySubmit} className="space-y-4">
-                <div className="bg-slate-950 border border-slate-800 p-3 rounded-xl text-xs text-slate-300 flex items-start space-x-2">
-                  <HelpCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                <div className="bg-blue-50 border border-blue-200 p-3 rounded-xl text-xs text-[#0A4191] flex items-start space-x-2 font-medium">
+                  <HelpCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
                   <p>
                     Ingrese su correo electrónico registrado o su número de cédula. Le enviaremos un código de seguridad para restablecer su contraseña.
                   </p>
                 </div>
 
                 {recoverError && (
-                  <div className="bg-red-950/80 border border-red-500/60 p-3 rounded-xl flex items-center space-x-2 text-xs text-red-200">
-                    <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                  <div className="bg-red-50 border border-red-300 p-3 rounded-xl flex items-center space-x-2 text-xs text-red-700 font-medium">
+                    <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
                     <span>{recoverError}</span>
                   </div>
                 )}
 
                 {recoverySuccessMessage && (
-                  <div className="bg-emerald-950/90 border border-emerald-500/60 p-3 rounded-xl space-y-2">
-                    <div className="flex items-center space-x-2 text-xs text-emerald-300 font-bold">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <div className="bg-emerald-50 border border-emerald-300 p-3 rounded-xl space-y-2">
+                    <div className="flex items-center space-x-2 text-xs text-emerald-800 font-bold">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                       <span>Instrucciones Enviadas</span>
                     </div>
-                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                    <p className="text-[11px] text-slate-700 leading-relaxed font-medium">
                       {recoverySuccessMessage}
                     </p>
                     <button
                       type="button"
                       onClick={() => setMode('login')}
-                      className="mt-2 w-full bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-bold py-1.5 rounded-lg transition-colors cursor-pointer"
+                      className="mt-2 w-full bg-[#0A4191] hover:bg-blue-800 text-white text-xs font-bold py-1.5 rounded-lg transition-colors cursor-pointer"
                     >
                       Volver al Inicio de Sesión
                     </button>
@@ -644,11 +639,11 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
                 {!recoverySuccessMessage && (
                   <>
                     <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-1">
+                      <label className="block text-xs font-bold text-[#0A4191] mb-1">
                         Correo Electrónico o Cédula de Identidad *
                       </label>
                       <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                           <Mail className="w-4 h-4" />
                         </div>
                         <input
@@ -657,7 +652,7 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
                           value={recoverIdentifier}
                           onChange={(e) => setRecoverIdentifier(e.target.value)}
                           placeholder="ejemplo@logrono.gob.ec o 1400XXXXXX"
-                          className="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 text-white rounded-xl pl-9 pr-3 py-2.5 text-xs outline-none transition-all"
+                          className="w-full bg-blue-50/40 border border-blue-200 focus:border-[#0A4191] focus:bg-white text-slate-900 font-medium rounded-xl pl-9 pr-3 py-2.5 text-xs outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -666,9 +661,9 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold py-3 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50"
+                      className="w-full bg-[#0A4191] hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50"
                     >
-                      <div className="w-6 h-6 rounded-lg bg-amber-950/40 flex items-center justify-center text-slate-950">
+                      <div className="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-white">
                         <KeyRound className="w-3.5 h-3.5" />
                       </div>
                       <span>{isLoading ? 'Procesando Solicitud...' : 'Enviar Enlace de Recuperación'}</span>
@@ -681,7 +676,7 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
           </div>
 
           {/* Footer Card Info */}
-          <div className="bg-slate-950/80 p-3 border-t border-slate-800 text-center text-[11px] text-slate-400">
+          <div className="bg-blue-50/80 p-3 border-t-2 border-[#0A4191] text-center text-[11px] text-[#0A4191] font-semibold">
             <span>¿Necesita asistencia presencial? Visite el Despacho GAD Cantón Logroño.</span>
           </div>
 
@@ -689,11 +684,11 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-emerald-900/60 bg-emerald-950/90 text-center py-3 px-4 text-xs text-emerald-300/80">
+      <footer className="relative z-10 border-t-2 border-[#0A4191] bg-white text-center py-3 px-4 text-xs text-[#0A4191] font-bold">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>© 2026 GAD Municipal de Logroño • Morona Santiago, Ecuador</span>
-          <div className="flex items-center space-x-2 text-[11px]">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <div className="flex items-center space-x-2 text-[11px] text-[#0A4191]">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
             <span>Plataforma con Interoperabilidad Intercultural Shuar</span>
           </div>
         </div>

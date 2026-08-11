@@ -122,7 +122,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-amber-400 selection:text-slate-950">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-blue-100 selection:text-[#0A4191]">
       
       {/* Top Header */}
       <Header
@@ -170,12 +170,12 @@ export default function App() {
       />
 
       {/* Footer */}
-      <footer className="bg-emerald-950 text-emerald-200 text-xs py-4 px-4 border-t border-emerald-800 text-center">
+      <footer className="bg-white text-[#0A4191] text-xs py-4 px-4 border-t-2 border-[#0A4191] text-center font-bold">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>
             © 2026 GAD Municipal del Cantón Logroño - Morona Santiago, Ecuador. Todos los derechos reservados.
           </span>
-          <div className="flex items-center space-x-3 text-[11px] text-emerald-400">
+          <div className="flex items-center space-x-3 text-[11px] text-[#0A4191]">
             <span>WCAG 2.2 AA Compliance</span>
             <span>•</span>
             <span>Shuar Chicham Intercultural</span>

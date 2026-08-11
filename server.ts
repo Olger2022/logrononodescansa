@@ -1,12 +1,147 @@
 import express from 'express';
 import path from 'path';
+import http from 'http';
+import { WebSocketServer, WebSocket } from 'ws';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 
 const app = express();
 const PORT = 3000;
 
+// Create HTTP server to wrap Express and WebSocket server
+const server = http.createServer(app);
+
+// WebSocket server setup on /ws
+const wss = new WebSocketServer({ server, path: '/ws' });
+
 app.use(express.json({ limit: '15mb' }));
+
+interface ChatMessage {
+  id: string;
+  author: string;
+  role: 'ciudadano' | 'tecnico_gad' | 'sistema';
+  text: string;
+  timestamp: string;
+}
+
+// In-memory store for incident chat messages
+const incidentMessagesStore: Record<string, ChatMessage[]> = {};
+
+// Helper to broadcast WS messages to clients viewing a specific incident
+function broadcastToIncidentClients(incidentId: string, data: any) {
+  const payload = JSON.stringify(data);
+  wss.clients.forEach((client: any) => {
+    if (client.readyState === WebSocket.OPEN && client.subscribedIncidentId === incidentId) {
+      client.send(payload);
+    }
+  });
+}
+
+wss.on('connection', (ws: WebSocket & { subscribedIncidentId?: string }) => {
+  ws.on('message', async (raw) => {
+    try {
+      const data = JSON.parse(raw.toString());
+      if (data.type === 'join_incident') {
+        ws.subscribedIncidentId = data.incidentId;
+        const messages = incidentMessagesStore[data.incidentId] || [];
+        ws.send(JSON.stringify({ type: 'incident_messages', incidentId: data.incidentId, messages }));
+      } else if (data.type === 'send_message') {
+        const { incidentId, incidentTitle, assignedDepartment, assignedOperator, author, role, text } = data;
+        if (!incidentId || !text) return;
+
+        const newMessage: ChatMessage = {
+          id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+          author: author || 'Ciudadano',
+          role: role || 'ciudadano',
+          text,
+          timestamp: new Date().toISOString()
+        };
+
+        if (!incidentMessagesStore[incidentId]) {
+          incidentMessagesStore[incidentId] = [];
+        }
+        incidentMessagesStore[incidentId].push(newMessage);
+
+        // Broadcast to all clients viewing this incident
+        broadcastToIncidentClients(incidentId, {
+          type: 'new_message',
+          incidentId,
+          message: newMessage
+        });
+
+        // If sent by citizen, generate real-time reply from assigned technical department
+        if (role === 'ciudadano') {
+          const techOperator = assignedOperator || 'Técnico de Guardia GAD';
+          const dept = assignedDepartment || 'Dirección Técnica Municipal';
+
+          // Broadcast typing indicator
+          broadcastToIncidentClients(incidentId, {
+            type: 'typing_status',
+            incidentId,
+            isTyping: true,
+            author: `${techOperator} (${dept})`
+          });
+
+          // Simulate brief technical review delay
+          setTimeout(async () => {
+            let replyText = '';
+            const ai = getGeminiClient();
+
+            if (ai) {
+              try {
+                const prompt = `Eres ${techOperator}, profesional técnico del departamento "${dept}" del GAD Municipal del Cantón Logroño (Morona Santiago, Ecuador).
+El ciudadano te hace la siguiente pregunta breve sobre su reporte "${incidentTitle || 'Incidencia Municipal'}":
+"${text}"
+
+Responde en 1 o 2 oraciones concisas, profesionales y amables, indicando el estado del trabajo, el despliegue de cuadrillas o la aclaración requerida en el cantón Logroño.`;
+
+                const resp = await ai.models.generateContent({
+                  model: 'gemini-3.6-flash',
+                  contents: prompt
+                });
+                replyText = resp.text?.trim() || '';
+              } catch (e) {
+                console.error('Error generating technician chat response:', e);
+              }
+            }
+
+            if (!replyText) {
+              replyText = `Saludos ${author || 'ciudadano'}. Recibida su consulta. La cuadrilla de la ${dept} está coordinando la atención en territorio. Le informaremos novedades por esta vía.`;
+            }
+
+            const techMessage: ChatMessage = {
+              id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+              author: techOperator,
+              role: 'tecnico_gad',
+              text: replyText,
+              timestamp: new Date().toISOString()
+            };
+
+            if (!incidentMessagesStore[incidentId]) {
+              incidentMessagesStore[incidentId] = [];
+            }
+            incidentMessagesStore[incidentId].push(techMessage);
+
+            // Remove typing indicator & send new message
+            broadcastToIncidentClients(incidentId, {
+              type: 'typing_status',
+              incidentId,
+              isTyping: false
+            });
+
+            broadcastToIncidentClients(incidentId, {
+              type: 'new_message',
+              incidentId,
+              message: techMessage
+            });
+          }, 1400);
+        }
+      }
+    } catch (err) {
+      console.error('WS error parsing message:', err);
+    }
+  });
+});
 
 // Server-side Gemini Client Lazy Initialization Helper
 function getGeminiClient(): GoogleGenAI | null {
@@ -31,6 +166,40 @@ app.get('/api/health', (req, res) => {
     province: 'Morona Santiago, Ecuador',
     timestamp: new Date().toISOString()
   });
+});
+
+// Real-time Chat API Endpoints
+app.get('/api/incidents/:id/messages', (req, res) => {
+  const incidentId = req.params.id;
+  const messages = incidentMessagesStore[incidentId] || [];
+  res.json({ success: true, messages });
+});
+
+app.post('/api/incidents/:id/messages', (req, res) => {
+  const incidentId = req.params.id;
+  const { author, role, text } = req.body;
+  if (!text) return res.status(400).json({ success: false, error: 'Texto requerido' });
+
+  const newMessage: ChatMessage = {
+    id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    author: author || 'Usuario',
+    role: role || 'ciudadano',
+    text,
+    timestamp: new Date().toISOString()
+  };
+
+  if (!incidentMessagesStore[incidentId]) {
+    incidentMessagesStore[incidentId] = [];
+  }
+  incidentMessagesStore[incidentId].push(newMessage);
+
+  broadcastToIncidentClients(incidentId, {
+    type: 'new_message',
+    incidentId,
+    message: newMessage
+  });
+
+  res.json({ success: true, message: newMessage });
 });
 
 // Endpoint: Auto-classify incident using Gemini Multimodal AI
@@ -212,8 +381,8 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[LOGROÑO CONECTA] Server active at http://0.0.0.0:${PORT}`);
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`[LOGROÑO CONECTA] Server active with WebSockets at http://0.0.0.0:${PORT}`);
   });
 }
 

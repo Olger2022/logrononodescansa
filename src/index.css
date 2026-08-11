@@ -1,2 +1,18 @@
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
+
+@keyframes dash-trace {
+  from {
+    stroke-dashoffset: 120;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animated-canton-border {
+  animation: dash-trace 12s linear infinite;
+  stroke: #0A4191 !important;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

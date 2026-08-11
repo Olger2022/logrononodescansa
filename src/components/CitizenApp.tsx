@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Incident, IncidentCategory, LogronoSector, LanguageMode, AIAnalysisResult, UserProfile, AgendaEvent } from '../types';
 import { SHUAR_DICTIONARY } from '../data/shuarDictionary';
 import { LogronoGoogleMap } from './LogronoGoogleMap';
+import { ReportIncidentChat } from './ReportIncidentChat';
 import { validateName, validateEcuadorianCedula, validatePhone, validateEmail } from '../utils/validation';
 import { 
   PlusCircle, 
@@ -63,6 +64,7 @@ import {
   ListFilter,
   HardHat,
   Megaphone,
+  MessageSquare,
   Edit3,
   ArrowUpDown,
   ArrowUp,
@@ -975,6 +977,27 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                     </div>
                   )}
                 </div>
+
+                {/* Real-time Technical Chat Section */}
+                <div className="pt-2">
+                  <div className="mb-2 flex items-center justify-between">
+                    <h3 className="font-extrabold text-slate-900 dark:text-white text-xs flex items-center space-x-1.5">
+                      <MessageSquare className="w-4 h-4 text-[#0A4191] dark:text-blue-400" />
+                      <span>Consulta en Tiempo Real al Técnico</span>
+                    </h3>
+                  </div>
+                  <ReportIncidentChat
+                    incident={selectedIncident}
+                    currentUser={currentUser}
+                    onNewComment={(incId, newComment) => {
+                      setSelectedIncident((prev) =>
+                        prev && prev.id === incId
+                          ? { ...prev, comments: [...(prev.comments || []), newComment] }
+                          : prev
+                      );
+                    }}
+                  />
+                </div>
               </div>
             ) : (
               <>
@@ -993,48 +1016,73 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   </p>
                 </div>
 
-                {/* Primary Action Button: "Reportar incidencia" */}
+                {/* Primary Action Button: "Registrar Incidencia" - White background with Dark Blue Outlines & Text */}
                 <button
                   type="button"
                   onClick={() => {
                     setReportStep('category');
                     setCitizenTab('reportar');
                   }}
-                  className="w-full bg-[#159A44] hover:bg-[#128239] active:bg-[#0f6f30] text-white font-black py-4 px-6 rounded-2xl shadow-lg hover:shadow-emerald-600/30 transition-all cursor-pointer flex items-center justify-center space-x-2 text-base tracking-wide border border-emerald-500/30 group"
+                  className="w-full relative overflow-hidden bg-white text-[#0A4191] p-3 sm:p-3.5 rounded-2xl shadow-md hover:shadow-lg border-2 border-[#0A4191] transition-all duration-300 cursor-pointer group text-left hover:scale-[1.005] active:scale-[0.99]"
                 >
-                  <PlusCircle className="w-5 h-5 text-amber-300 group-hover:scale-110 transition-transform" />
-                  <span>Reportar incidencia</span>
+                  <div className="flex items-center justify-between gap-3 relative z-10">
+                    <div className="flex items-center space-x-3">
+                      {/* Square Icon Container with White Background & Large Icon */}
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border-2 border-[#0A4191] flex items-center justify-center text-[#0A4191] group-hover:bg-[#0A4191] group-hover:text-white transition-all duration-300 shadow-xs shrink-0">
+                        <PlusCircle className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5]" />
+                      </div>
+
+                      <div className="space-y-0.5">
+                        <div className="flex items-center space-x-2">
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-blue-100 text-[#0A4191] border border-blue-300 font-mono shadow-2xs flex items-center space-x-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping inline-block" />
+                            <span>GAD Logroño • En Línea</span>
+                          </span>
+                        </div>
+                        <h3 className="text-sm sm:text-base font-black tracking-tight text-[#0A4191] leading-tight font-sans uppercase">
+                          Registrar Nueva Incidencia
+                        </h3>
+                        <p className="text-[10px] sm:text-[11px] font-medium text-slate-600 line-clamp-1">
+                          Notifica baches, alumbrado, agua potable o residuos en tiempo real
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white border-2 border-[#0A4191] group-hover:bg-[#0A4191] group-hover:text-white text-[#0A4191] flex items-center justify-center transition-all duration-300 shrink-0 shadow-2xs">
+                      <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform stroke-[2.5]" />
+                    </div>
+                  </div>
                 </button>
 
                 {/* Shuar Culture Audio Assist Banner */}
-                <div className="bg-emerald-950/90 text-emerald-100 p-2.5 rounded-xl border border-emerald-700/60 flex items-center justify-between text-xs">
+                <div className="bg-white text-[#0A4191] p-2.5 rounded-2xl border-2 border-[#0A4191] flex items-center justify-between text-xs shadow-xs">
                   <div className="flex items-center space-x-2">
-                    <Sparkles className="w-4 h-4 text-amber-400" />
-                    <span className="font-semibold">Shuar Chicham Audio-Guía</span>
+                    <Sparkles className="w-4 h-4 text-amber-600" />
+                    <span className="font-extrabold text-[11px] sm:text-xs text-[#0A4191]">Shuar Chicham Audio-Guía</span>
                   </div>
                   <button
                     type="button"
                     onClick={playShuarAudio}
-                    className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-2.5 py-1 rounded-lg text-[10px] flex items-center space-x-1 cursor-pointer"
+                    className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-3 py-1 rounded-xl text-[10px] sm:text-xs flex items-center space-x-1 cursor-pointer transition-colors border-2 border-amber-500 shadow-2xs"
                   >
                     <Volume2 className="w-3.5 h-3.5" />
                     <span>{isPlayingAudio ? 'Escuchando...' : 'Escuchar'}</span>
                   </button>
                 </div>
 
-                {/* 6 ACTION CARDS GROUPED IN 3 COLUMNS */}
-                <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5">
+                {/* 6 ACTION CARDS WITH WHITE SQUARE CONTAINERS & LARGE ICONS */}
+                <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
                   
                   {/* Card 1: Mis reportes */}
                   <button
                     type="button"
                     onClick={() => setCitizenTab('mis_reportes')}
-                    className="bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:border-blue-500/60 transition-all duration-200 cursor-pointer group"
+                    className="bg-white border-2 border-[#0A4191] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
                   >
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/70 text-[#0A4191] dark:text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-xs">
-                      <FileText className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 shadow-xs shrink-0 group-hover:bg-[#0A4191] group-hover:text-white transition-all duration-300">
+                      <FileText className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-[#0A4191] group-hover:text-white" />
                     </div>
-                    <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 line-clamp-1">
+                    <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
                       Mis reportes
                     </span>
                   </button>
@@ -1046,12 +1094,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       setSelectedIncident(null);
                       setCitizenTab('noticias');
                     }}
-                    className="bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:border-blue-500/60 transition-all duration-200 cursor-pointer group"
+                    className="bg-white border-2 border-[#0A4191] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
                   >
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/70 text-[#0A4191] dark:text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-xs">
-                      <Newspaper className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 shadow-xs shrink-0 group-hover:bg-[#0A4191] group-hover:text-white transition-all duration-300">
+                      <Newspaper className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-[#0A4191] group-hover:text-white" />
                     </div>
-                    <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 line-clamp-1">
+                    <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
                       Noticias
                     </span>
                   </button>
@@ -1063,12 +1111,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       setSelectedIncident(null);
                       setCitizenTab('agenda');
                     }}
-                    className="bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:border-red-500/60 transition-all duration-200 cursor-pointer group"
+                    className="bg-white border-2 border-[#0A4191] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
                   >
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-red-50 dark:bg-red-950/70 text-red-600 dark:text-red-400 flex items-center justify-center mb-2 group-hover:scale-110 group-hover:bg-red-600 group-hover:text-white transition-all shadow-xs">
-                      <Calendar className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 shadow-xs shrink-0 group-hover:bg-[#0A4191] group-hover:text-white transition-all duration-300">
+                      <Calendar className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-red-600 group-hover:text-white" />
                     </div>
-                    <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 line-clamp-1">
+                    <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
                       Agenda
                     </span>
                   </button>
@@ -1077,12 +1125,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowEmergencyModal(true)}
-                    className="bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:border-red-500/60 transition-all duration-200 cursor-pointer group"
+                    className="bg-white border-2 border-[#0A4191] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
                   >
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-red-50 dark:bg-red-950/70 text-red-600 dark:text-red-400 flex items-center justify-center mb-2 group-hover:scale-110 group-hover:bg-red-600 group-hover:text-white transition-all shadow-xs">
-                      <Siren className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 shadow-xs shrink-0 group-hover:bg-[#0A4191] group-hover:text-white transition-all duration-300">
+                      <Siren className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-red-600 group-hover:text-white" />
                     </div>
-                    <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 line-clamp-1">
+                    <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
                       Emergencias
                     </span>
                   </button>
@@ -1091,12 +1139,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   <button
                     type="button"
                     onClick={() => setCitizenTab('directorio')}
-                    className="bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:border-emerald-500/60 transition-all duration-200 cursor-pointer group"
+                    className="bg-white border-2 border-[#0A4191] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
                   >
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 text-[#159A44] dark:text-emerald-400 flex items-center justify-center mb-2 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-xs">
-                      <PhoneCall className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 shadow-xs shrink-0 group-hover:bg-[#0A4191] group-hover:text-white transition-all duration-300">
+                      <PhoneCall className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-emerald-600 group-hover:text-white" />
                     </div>
-                    <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 line-clamp-1">
+                    <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
                       Directorio
                     </span>
                   </button>
@@ -1105,12 +1153,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   <button
                     type="button"
                     onClick={() => setCitizenTab('pqrs')}
-                    className="bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:border-emerald-500/60 transition-all duration-200 cursor-pointer group"
+                    className="bg-white border-2 border-[#0A4191] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
                   >
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 text-[#159A44] dark:text-emerald-400 flex items-center justify-center mb-2 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-xs">
-                      <FileCheck className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 shadow-xs shrink-0 group-hover:bg-[#0A4191] group-hover:text-white transition-all duration-300">
+                      <FileCheck className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-emerald-600 group-hover:text-white" />
                     </div>
-                    <span className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-100 line-clamp-1">
+                    <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
                       Trámites
                     </span>
                   </button>
@@ -1120,28 +1168,28 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                 {/* Map Quick Access Banner */}
                 <div 
                   onClick={() => setCitizenTab('mapa')}
-                  className="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-3.5 rounded-2xl border border-slate-700 flex items-center justify-between cursor-pointer hover:border-emerald-500 transition-all shadow-sm"
+                  className="bg-white text-[#0A4191] p-3.5 rounded-2xl border-2 border-[#0A4191] flex items-center justify-between cursor-pointer hover:bg-blue-50/60 transition-all shadow-xs"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-9 h-9 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center">
-                      <Map className="w-5 h-5" />
+                    <div className="w-12 h-12 rounded-2xl bg-white border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center shrink-0 shadow-xs">
+                      <Map className="w-6 h-6 stroke-[2.5] text-[#0A4191]" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-xs text-white">Mapa Georreferenciado</h4>
-                      <p className="text-[10px] text-slate-300">Ver marcadores de Logroño, Yaupi y Shimpis</p>
+                      <h4 className="font-bold text-xs text-[#0A4191]">Mapa Georreferenciado</h4>
+                      <p className="text-[10px] text-slate-600 font-medium">Ver marcadores de Logroño, Yaupi y Shimpis</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-emerald-400" />
+                  <ChevronRight className="w-4 h-4 text-[#0A4191] stroke-[2.5]" />
                 </div>
 
                 {/* Cantonal Alert Box */}
-                <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 p-3 rounded-2xl flex items-start space-x-2 text-xs">
+                <div className="bg-amber-50 border border-amber-300 p-3 rounded-2xl flex items-start space-x-2 text-xs">
                   <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-bold text-amber-900 dark:text-amber-300 block text-[11px]">
+                    <span className="font-bold text-amber-900 block text-[11px]">
                       Aviso de Prevención Cantonal
                     </span>
-                    <p className="text-slate-600 dark:text-slate-300 text-[10px] mt-0.5">
+                    <p className="text-slate-700 text-[10px] mt-0.5 font-medium">
                       Vía Logroño - Yaupi habilitada con precaución por cuadrillas del GAD Municipal.
                     </p>
                   </div>
@@ -1150,25 +1198,32 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
               </div>
             )}
 
-            {/* TAB 2: REPORTAR INCIDENCIA */}
+            {/* TAB 2: REPORTAR INCIDENCIA - CUSTOMIZED MUNICIPAL BACKGROUND CANVAS */}
             {citizenTab === 'reportar' && (
-              <div className="space-y-4 text-xs">
+              <div className="relative overflow-hidden bg-white p-4 sm:p-6 rounded-3xl border-2 border-[#0A4191] shadow-lg space-y-5 text-xs">
+                {/* Decorative Subtle Background Glow Elements */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-400/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
 
-                {/* STEP 1: CATEGORY SELECTION (MATCHES MOCKUP 08 EXACTLY) */}
+                {/* STEP 1: CATEGORY SELECTION */}
                 {reportStep === 'category' && (
-                  <div className="space-y-4">
-                    {/* Header Title & Subtitle */}
-                    <div className="text-center space-y-1 pt-1 pb-2">
-                      <h2 className="text-xl font-black text-slate-900 dark:text-white font-serif tracking-tight">
-                        Reportar incidencia
+                  <div className="space-y-4 relative z-10">
+                    {/* Municipal Branding Header Title & Subtitle */}
+                    <div className="text-center space-y-1.5 pt-1 pb-2">
+                      <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-blue-50 border-2 border-[#0A4191] text-[#0A4191] text-[10px] font-black uppercase tracking-wider mb-1 shadow-2xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#0A4191] animate-pulse" />
+                        <span>GAD Municipal Logroño • Portal de Reportes</span>
+                      </div>
+                      <h2 className="text-xl sm:text-2xl font-black text-[#0A4191] font-serif tracking-tight">
+                        Reportar Incidencia
                       </h2>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                        Selecciona la categoría
+                      <p className="text-xs text-[#0A4191] font-bold max-w-sm mx-auto">
+                        Selecciona el servicio municipal o la categoría para iniciar tu trámite
                       </p>
                     </div>
 
-                    {/* 2-Column Grid of Categories matching Mockup 08 */}
-                    <div className="grid grid-cols-2 gap-3.5 pt-1">
+                    {/* Grid of Categories - Square Well-Defined Containers with Large Icons */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-1">
                       
                       {/* 1. Alumbrado Público */}
                       <button
@@ -1181,12 +1236,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           setReportStep('wizard');
                           setReportWizardStep(1);
                         }}
-                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-amber-400 transition-all cursor-pointer group aspect-[4/3.2]"
+                        className="bg-white border-2 border-[#0A4191] rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
                       >
-                        <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
-                          <Lightbulb className="w-7 h-7 stroke-[2.2]" />
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-blue-50 border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 group-hover:scale-105 group-hover:bg-[#0A4191] transition-all duration-300 shadow-2xs shrink-0">
+                          <Lightbulb className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-amber-500 group-hover:text-amber-300" />
                         </div>
-                        <span className="text-xs font-black text-slate-800 dark:text-slate-200">
+                        <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
                           Alumbrado Público
                         </span>
                       </button>
@@ -1202,12 +1257,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           setReportStep('wizard');
                           setReportWizardStep(1);
                         }}
-                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-blue-400 transition-all cursor-pointer group aspect-[4/3.2]"
+                        className="bg-white border-2 border-[#0A4191] rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
                       >
-                        <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-500 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
-                          <Droplets className="w-7 h-7 stroke-[2.2]" />
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-blue-50 border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 group-hover:scale-105 group-hover:bg-[#0A4191] transition-all duration-300 shadow-2xs shrink-0">
+                          <Droplets className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-blue-600 group-hover:text-blue-200" />
                         </div>
-                        <span className="text-xs font-black text-slate-800 dark:text-slate-200">
+                        <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
                           Agua Potable
                         </span>
                       </button>
@@ -1223,17 +1278,17 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           setReportStep('wizard');
                           setReportWizardStep(1);
                         }}
-                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-blue-500 transition-all cursor-pointer group aspect-[4/3.2]"
+                        className="bg-white border-2 border-[#0A4191] rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
                       >
-                        <div className="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
-                          <Waves className="w-7 h-7 stroke-[2.2]" />
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-blue-50 border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 group-hover:scale-105 group-hover:bg-[#0A4191] transition-all duration-300 shadow-2xs shrink-0">
+                          <Waves className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-sky-600 group-hover:text-sky-200" />
                         </div>
-                        <span className="text-xs font-black text-slate-800 dark:text-slate-200">
+                        <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
                           Alcantarillado
                         </span>
                       </button>
 
-                      {/* 4. Calles */}
+                      {/* 4. Calles y Aceras */}
                       <button
                         type="button"
                         onClick={() => {
@@ -1244,17 +1299,17 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           setReportStep('wizard');
                           setReportWizardStep(1);
                         }}
-                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-slate-500 transition-all cursor-pointer group aspect-[4/3.2]"
+                        className="bg-white border-2 border-[#0A4191] rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
                       >
-                        <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
-                          <Milestone className="w-7 h-7 stroke-[2.2]" />
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-blue-50 border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 group-hover:scale-105 group-hover:bg-[#0A4191] transition-all duration-300 shadow-2xs shrink-0">
+                          <Milestone className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-[#0A4191] group-hover:text-white" />
                         </div>
-                        <span className="text-xs font-black text-slate-800 dark:text-slate-200">
-                          Calles
+                        <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
+                          Calles y Aceras
                         </span>
                       </button>
 
-                      {/* 5. Basura */}
+                      {/* 5. Basura / Residuos */}
                       <button
                         type="button"
                         onClick={() => {
@@ -1265,13 +1320,13 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           setReportStep('wizard');
                           setReportWizardStep(1);
                         }}
-                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-emerald-400 transition-all cursor-pointer group aspect-[4/3.2]"
+                        className="bg-white border-2 border-[#0A4191] rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
                       >
-                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-[#159A44] flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
-                          <Trash2 className="w-7 h-7 stroke-[2.2]" />
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-blue-50 border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 group-hover:scale-105 group-hover:bg-[#0A4191] transition-all duration-300 shadow-2xs shrink-0">
+                          <Trash2 className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-emerald-600 group-hover:text-emerald-200" />
                         </div>
-                        <span className="text-xs font-black text-slate-800 dark:text-slate-200">
-                          Basura
+                        <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
+                          Gestión de Residuos
                         </span>
                       </button>
 
@@ -1286,12 +1341,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           setReportStep('wizard');
                           setReportWizardStep(1);
                         }}
-                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-emerald-500 transition-all cursor-pointer group aspect-[4/3.2]"
+                        className="bg-white border-2 border-[#0A4191] rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
                       >
-                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
-                          <Trees className="w-7 h-7 stroke-[2.2]" />
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-blue-50 border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 group-hover:scale-105 group-hover:bg-[#0A4191] transition-all duration-300 shadow-2xs shrink-0">
+                          <Trees className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-emerald-600 group-hover:text-emerald-200" />
                         </div>
-                        <span className="text-xs font-black text-slate-800 dark:text-slate-200 line-clamp-1">
+                        <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
                           Parques y Áreas Verdes
                         </span>
                       </button>
@@ -1307,12 +1362,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           setReportStep('wizard');
                           setReportWizardStep(1);
                         }}
-                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-purple-400 transition-all cursor-pointer group aspect-[4/3.2]"
+                        className="bg-white border-2 border-[#0A4191] rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
                       >
-                        <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
-                          <ShieldAlert className="w-7 h-7 stroke-[2.2]" />
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-blue-50 border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 group-hover:scale-105 group-hover:bg-[#0A4191] transition-all duration-300 shadow-2xs shrink-0">
+                          <ShieldAlert className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-purple-600 group-hover:text-purple-200" />
                         </div>
-                        <span className="text-xs font-black text-slate-800 dark:text-slate-200 line-clamp-1">
+                        <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
                           Fauna y Limpieza
                         </span>
                       </button>
@@ -1328,12 +1383,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           setReportStep('wizard');
                           setReportWizardStep(1);
                         }}
-                        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md hover:border-teal-400 transition-all cursor-pointer group aspect-[4/3.2]"
+                        className="bg-white border-2 border-[#0A4191] rounded-2xl p-3.5 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
                       >
-                        <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform">
-                          <Building2 className="w-7 h-7 stroke-[2.2]" />
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-blue-50 border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 group-hover:scale-105 group-hover:bg-[#0A4191] transition-all duration-300 shadow-2xs shrink-0">
+                          <Building2 className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-teal-600 group-hover:text-teal-200" />
                         </div>
-                        <span className="text-xs font-black text-slate-800 dark:text-slate-200 line-clamp-1">
+                        <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
                           Comunitaria Shuar
                         </span>
                       </button>
@@ -1342,9 +1397,9 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   </div>
                 )}
 
-                {/* 4-STEP WIZARD (MATCHES MOCKUPS 09, 10, 11, 12 EXACTLY) */}
+                {/* 4-STEP WIZARD */}
                 {reportStep === 'wizard' && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 relative z-10">
 
                     {/* Stepper Header for Steps 1, 2, 3 */}
                     {reportWizardStep < 4 && (
@@ -1360,19 +1415,19 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                                 setReportWizardStep((prev) => (prev - 1) as any);
                               }
                             }}
-                            className="p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer"
+                            className="p-1.5 text-[#0A4191] hover:bg-blue-50 rounded-full cursor-pointer"
                             title="Regresar / Cancelar"
                           >
                             <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
                           </button>
                           
                           <div className="flex-1 px-2">
-                            <h2 className="text-base font-black text-slate-900 dark:text-white font-serif tracking-tight">
+                            <h2 className="text-base font-black text-[#0A4191] font-serif tracking-tight">
                               {reportWizardStep === 1 && (category || 'Alumbrado Público')}
                               {reportWizardStep === 2 && 'Ubicación del problema'}
                               {reportWizardStep === 3 && 'Confirmar información'}
                             </h2>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                            <p className="text-[11px] text-[#0A4191] font-bold">
                               {reportWizardStep === 1 && 'Cuéntanos más sobre el problema'}
                               {reportWizardStep === 2 && 'Confirma o ajusta la ubicación'}
                               {reportWizardStep === 3 && 'Revisa los datos antes de enviar'}
@@ -1382,7 +1437,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           <button
                             type="button"
                             onClick={() => handleTriggerCancelTramite('wizard')}
-                            className="text-[11px] font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 px-2.5 py-1 rounded-lg cursor-pointer transition-colors"
+                            className="text-[11px] font-bold text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-lg cursor-pointer transition-colors border border-red-200"
                             title="Cancelar trámite o reporte"
                           >
                             Cancelar
@@ -1397,12 +1452,12 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                             return (
                               <div
                                 key={stepNum}
-                                className={`w-7 h-7 rounded-full flex items-center justify-center font-black text-xs transition-all ${
+                                className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs transition-all ${
                                   isActive
                                     ? 'bg-[#0A4191] text-white shadow-md scale-105'
                                     : isCompleted
-                                    ? 'bg-blue-100 text-[#0A4191] border border-blue-300 dark:bg-slate-700 dark:text-blue-300'
-                                    : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'
+                                    ? 'bg-blue-100 text-[#0A4191] border-2 border-[#0A4191]'
+                                    : 'bg-slate-100 text-slate-400 border border-slate-300'
                                 }`}
                               >
                                 {stepNum}
@@ -1418,7 +1473,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       <div className="space-y-4 pt-1">
                         {/* Textarea Section */}
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                          <label className="block text-xs font-bold text-[#0A4191]">
                             Descripción del problema
                           </label>
                           <div className="relative">
@@ -1428,9 +1483,9 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                               placeholder="Describa los detalles de la incidencia..."
                               value={description}
                               onChange={(e) => setDescription(e.target.value)}
-                              className="w-full p-3 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#159A44] shadow-sm resize-none"
+                              className="w-full p-3 text-xs rounded-xl border border-blue-200 bg-blue-50/40 text-slate-800 placeholder-slate-400 outline-none focus:ring-2 focus:ring-[#0A4191] focus:bg-white shadow-xs resize-none"
                             />
-                            <div className="text-[10px] text-slate-400 text-right mt-1 font-mono">
+                            <div className="text-[10px] text-slate-500 text-right mt-1 font-mono">
                               Caracteres: {description.length}/300
                             </div>
                           </div>
@@ -1438,27 +1493,27 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
                         {/* Attach Photo Section */}
                         <div className="space-y-2">
-                          <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                          <label className="block text-xs font-bold text-[#0A4191]">
                             Adjuntar fotografía
                           </label>
 
                           <div className="grid grid-cols-2 gap-3">
                             {/* Left Photo Preview Box */}
-                            <div className="relative h-28 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-sm group">
+                            <div className="relative h-28 rounded-2xl overflow-hidden border-2 border-[#0A4191] bg-blue-50 shadow-sm group">
                               <img
                                 src={photoUrl}
                                 alt="Vista previa de incidencia"
                                 className="w-full h-full object-cover"
                               />
                               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <span className="text-[10px] bg-black/70 text-white px-2 py-0.5 rounded-full font-bold">
+                                <span className="text-[10px] bg-[#0A4191] text-white px-2 py-0.5 rounded-full font-bold">
                                   Vista Previa
                                 </span>
                               </div>
                             </div>
 
                             {/* Right Camera Upload Box */}
-                            <label className="h-28 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 flex flex-col items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer transition-all shadow-sm">
+                            <label className="h-28 rounded-2xl border-2 border-dashed border-[#0A4191] bg-blue-50/50 hover:bg-blue-100/60 flex flex-col items-center justify-center text-[#0A4191] cursor-pointer transition-all shadow-sm">
                               <input
                                 type="file"
                                 accept="image/*"
@@ -1476,10 +1531,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                                   }
                                 }}
                               />
-                              <div className="w-10 h-10 rounded-full bg-slate-200/80 dark:bg-slate-700 flex items-center justify-center mb-1 text-slate-600 dark:text-slate-300">
-                                <Camera className="w-5 h-5 stroke-[2]" />
+                              <div className="w-10 h-10 rounded-full bg-blue-100 border border-[#0A4191] flex items-center justify-center mb-1 text-[#0A4191]">
+                                <Camera className="w-5 h-5 stroke-[2.5]" />
                               </div>
-                              <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">
+                              <span className="text-[10px] font-bold text-[#0A4191]">
                                 Tomar / Subir Foto
                               </span>
                             </label>
@@ -1487,16 +1542,16 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                         </div>
 
                         {/* Gemini AI Auto-Classify Trigger */}
-                        <div className="bg-slate-900 text-white p-3 rounded-2xl border border-slate-800 flex items-center justify-between">
+                        <div className="bg-blue-50 text-[#0A4191] p-3 rounded-2xl border-2 border-[#0A4191] flex items-center justify-between">
                           <div className="flex items-center space-x-2">
-                            <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
-                            <span className="text-[11px] font-bold text-amber-300">Visión IA Gemini</span>
+                            <Sparkles className="w-4 h-4 text-amber-500 animate-spin" />
+                            <span className="text-[11px] font-bold text-[#0A4191]">Visión IA Gemini</span>
                           </div>
                           <button
                             type="button"
                             onClick={handleAnalyzeWithAI}
                             disabled={isAnalyzingAI}
-                            className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-[10px] px-2.5 py-1 rounded-lg cursor-pointer"
+                            className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-[10px] px-2.5 py-1 rounded-lg cursor-pointer border border-amber-500"
                           >
                             {isAnalyzingAI ? 'Analizando...' : 'Clasificar con IA'}
                           </button>
@@ -1509,8 +1564,8 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           disabled={!description.trim()}
                           className={`w-full py-3.5 rounded-2xl font-bold text-sm shadow-md transition-all cursor-pointer ${
                             description.trim()
-                              ? 'bg-[#159A44] hover:bg-emerald-700 text-white'
-                              : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                              ? 'bg-[#0A4191] hover:bg-blue-800 text-white'
+                              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                           }`}
                         >
                           Siguiente
@@ -1522,7 +1577,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                     {reportWizardStep === 2 && (
                       <div className="space-y-4 pt-1">
                         {/* Interactive Map Component */}
-                        <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <div className="relative rounded-2xl overflow-hidden border-2 border-[#0A4191] shadow-sm">
                           <LogronoGoogleMap
                             centerLat={reportLat}
                             centerLng={reportLng}
@@ -1542,13 +1597,13 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
                         {/* Sector Selector */}
                         <div className="space-y-1">
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                          <label className="block text-xs font-bold text-[#0A4191]">
                             Parroquia / Sector de Logroño
                           </label>
                           <select
                             value={sector}
                             onChange={(e) => setSector(e.target.value as LogronoSector)}
-                            className="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-semibold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#159A44]"
+                            className="w-full p-2.5 text-xs rounded-xl border border-blue-200 bg-blue-50/40 font-semibold text-[#0A4191] outline-none focus:ring-2 focus:ring-[#0A4191] focus:bg-white"
                           >
                             <option value="Logroño Centro (Cabecera)">Logroño Centro (Cabecera)</option>
                             <option value="Parroquia Yaupi">Parroquia Yaupi</option>
@@ -1560,7 +1615,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
                         {/* Address Field */}
                         <div className="space-y-1">
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                          <label className="block text-xs font-bold text-[#0A4191]">
                             Dirección aproximada / Referencia
                           </label>
                           <input
@@ -1568,11 +1623,11 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
                             placeholder="Calle 24 de Mayo y Sucre"
-                            className="w-full p-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#159A44]"
+                            className="w-full p-2.5 text-xs rounded-xl border border-blue-200 bg-blue-50/40 font-semibold text-[#0A4191] outline-none focus:ring-2 focus:ring-[#0A4191] focus:bg-white"
                           />
-                          <div className="text-[10px] text-slate-500 font-mono flex items-center justify-between pt-0.5">
+                          <div className="text-[10px] text-[#0A4191] font-mono flex items-center justify-between pt-0.5">
                             <span>Coordenadas GPS:</span>
-                            <span className="font-bold text-[#0A4191] dark:text-blue-400">{reportLat.toFixed(5)}, {reportLng.toFixed(5)}</span>
+                            <span className="font-bold text-[#0A4191]">{reportLat.toFixed(5)}, {reportLng.toFixed(5)}</span>
                           </div>
                         </div>
 
@@ -1581,14 +1636,14 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           <button
                             type="button"
                             onClick={() => setReportWizardStep(1)}
-                            className="py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"
+                            className="py-3 rounded-2xl border-2 border-[#0A4191] bg-white text-[#0A4191] font-bold text-xs cursor-pointer hover:bg-blue-50"
                           >
                             Atrás
                           </button>
                           <button
                             type="button"
                             onClick={() => setReportWizardStep(3)}
-                            className="py-3 rounded-2xl bg-[#159A44] hover:bg-emerald-700 text-white font-bold text-xs shadow-md cursor-pointer"
+                            className="py-3 rounded-2xl bg-[#0A4191] hover:bg-blue-800 text-white font-bold text-xs shadow-md cursor-pointer"
                           >
                             Siguiente
                           </button>
@@ -1596,58 +1651,58 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       </div>
                     )}
 
-                    {/* STEP 3: 11. CONFIRMACIÓN */}
+                    {/* STEP 3: CONFIRMACIÓN */}
                     {reportWizardStep === 3 && (
                       <div className="space-y-4 pt-1">
                         {/* Summary Card */}
-                        <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-3">
+                        <div className="bg-white p-4 rounded-2xl border-2 border-[#0A4191] shadow-sm space-y-3">
                           <div>
-                            <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">
+                            <span className="text-[10px] font-bold uppercase text-[#0A4191]/70 block tracking-wider">
                               Categoría
                             </span>
-                            <p className="text-sm font-black text-slate-900 dark:text-white mt-0.5">
+                            <p className="text-sm font-black text-[#0A4191] mt-0.5">
                               {category}
                             </p>
                           </div>
 
-                          <div className="border-t border-slate-100 dark:border-slate-700/60 pt-2.5">
-                            <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">
+                          <div className="border-t border-blue-100 pt-2.5">
+                            <span className="text-[10px] font-bold uppercase text-[#0A4191]/70 block tracking-wider">
                               Descripción
                             </span>
-                            <p className="text-xs text-slate-700 dark:text-slate-300 mt-0.5 leading-relaxed">
+                            <p className="text-xs text-[#0A4191] font-semibold mt-0.5 leading-relaxed">
                               {description}
                             </p>
                           </div>
 
-                          <div className="border-t border-slate-100 dark:border-slate-700/60 pt-2.5">
-                            <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider">
+                          <div className="border-t border-blue-100 pt-2.5">
+                            <span className="text-[10px] font-bold uppercase text-[#0A4191]/70 block tracking-wider">
                               Ubicación
                             </span>
-                            <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-0.5">
+                            <p className="text-xs font-bold text-[#0A4191] mt-0.5">
                               {address}
                             </p>
                           </div>
 
-                          <div className="border-t border-slate-100 dark:border-slate-700/60 pt-2.5">
-                            <span className="text-[10px] font-bold uppercase text-slate-400 block tracking-wider mb-1.5">
+                          <div className="border-t border-blue-100 pt-2.5">
+                            <span className="text-[10px] font-bold uppercase text-[#0A4191]/70 block tracking-wider mb-1.5">
                               Foto
                             </span>
-                            <div className="w-20 h-20 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+                            <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-[#0A4191]">
                               <img src={photoUrl} alt="Foto reporte" className="w-full h-full object-cover" />
                             </div>
                           </div>
                         </div>
 
                         {/* Citizen Information & Form Validation Card */}
-                        <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-3">
-                          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+                        <div className="bg-white p-4 rounded-2xl border-2 border-[#0A4191] shadow-sm space-y-3">
+                          <div className="flex items-center justify-between border-b border-blue-100 pb-2">
                             <div className="flex items-center space-x-2">
-                              <UserCheck className="w-4 h-4 text-[#0A4191] dark:text-blue-400" />
-                              <span className="text-xs font-extrabold text-slate-900 dark:text-white">
+                              <UserCheck className="w-4 h-4 text-[#0A4191]" />
+                              <span className="text-xs font-extrabold text-[#0A4191]">
                                 Datos del Ciudadano Solicitante
                               </span>
                             </div>
-                            <span className="text-[10px] font-bold text-[#0A4191] bg-blue-50 dark:bg-blue-950/60 dark:text-blue-300 px-2 py-0.5 rounded-full border border-blue-100 dark:border-blue-900">
+                            <span className="text-[10px] font-bold text-[#0A4191] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
                               Validación en Vivo
                             </span>
                           </div>
@@ -1655,11 +1710,11 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           {/* Field 1: Nombre y Apellido */}
                           <div className="space-y-1">
                             <div className="flex justify-between items-center">
-                              <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                              <label className="text-[11px] font-bold text-[#0A4191]">
                                 Nombres y Apellidos *
                               </label>
                               {validateName(citizenName).isValid ? (
-                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center space-x-1">
+                                <span className="text-[10px] font-bold text-emerald-600 flex items-center space-x-1">
                                   <CheckCircle2 className="w-3 h-3" />
                                   <span>Nombre Válido</span>
                                 </span>
@@ -1675,10 +1730,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                                 setReportValidationError(null);
                               }}
                               placeholder="Ej: María Fernanda Shakaim"
-                              className={`w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-900 font-semibold text-slate-900 dark:text-white outline-none focus:ring-2 ${
+                              className={`w-full p-2.5 text-xs rounded-xl border bg-blue-50/30 font-semibold text-[#0A4191] outline-none focus:ring-2 ${
                                 validateName(citizenName).isValid
-                                  ? 'border-slate-200 dark:border-slate-700 focus:ring-emerald-500'
-                                  : 'border-red-300 dark:border-red-700 focus:ring-red-500'
+                                  ? 'border-blue-200 focus:ring-emerald-500'
+                                  : 'border-red-300 focus:ring-red-500'
                               }`}
                             />
                             {!validateName(citizenName).isValid && citizenName && (
@@ -1691,11 +1746,11 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           {/* Field 2: Cédula de Ciudadanía */}
                           <div className="space-y-1">
                             <div className="flex justify-between items-center">
-                              <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                              <label className="text-[11px] font-bold text-[#0A4191]">
                                 Cédula de Ciudadanía (Ecuador) *
                               </label>
                               {validateEcuadorianCedula(citizenCedula).isValid ? (
-                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center space-x-1">
+                                <span className="text-[10px] font-bold text-emerald-600 flex items-center space-x-1">
                                   <ShieldCheck className="w-3 h-3" />
                                   <span>Cédula Válida</span>
                                 </span>
@@ -1712,10 +1767,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                                 setReportValidationError(null);
                               }}
                               placeholder="1710034065"
-                              className={`w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-900 font-semibold text-slate-900 dark:text-white outline-none focus:ring-2 ${
+                              className={`w-full p-2.5 text-xs rounded-xl border bg-blue-50/30 font-semibold text-[#0A4191] outline-none focus:ring-2 ${
                                 validateEcuadorianCedula(citizenCedula).isValid
-                                  ? 'border-slate-200 dark:border-slate-700 focus:ring-emerald-500'
-                                  : 'border-red-300 dark:border-red-700 focus:ring-red-500'
+                                  ? 'border-blue-200 focus:ring-emerald-500'
+                                  : 'border-red-300 focus:ring-red-500'
                               }`}
                             />
                             {!validateEcuadorianCedula(citizenCedula).isValid && citizenCedula && (
@@ -1728,11 +1783,11 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           {/* Field 3: Teléfono de Contacto */}
                           <div className="space-y-1">
                             <div className="flex justify-between items-center">
-                              <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                              <label className="text-[11px] font-bold text-[#0A4191]">
                                 Teléfono de Contacto (Celular / Fijo) *
                               </label>
                               {validatePhone(citizenPhone).isValid ? (
-                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center space-x-1">
+                                <span className="text-[10px] font-bold text-emerald-600 flex items-center space-x-1">
                                   <CheckCircle2 className="w-3 h-3" />
                                   <span>Teléfono Válido</span>
                                 </span>
@@ -1749,10 +1804,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                                 setReportValidationError(null);
                               }}
                               placeholder="0984712039"
-                              className={`w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-900 font-semibold text-slate-900 dark:text-white outline-none focus:ring-2 ${
+                              className={`w-full p-2.5 text-xs rounded-xl border bg-blue-50/30 font-semibold text-[#0A4191] outline-none focus:ring-2 ${
                                 validatePhone(citizenPhone).isValid
-                                  ? 'border-slate-200 dark:border-slate-700 focus:ring-emerald-500'
-                                  : 'border-red-300 dark:border-red-700 focus:ring-red-500'
+                                  ? 'border-blue-200 focus:ring-emerald-500'
+                                  : 'border-red-300 focus:ring-red-500'
                               }`}
                             />
                             {!validatePhone(citizenPhone).isValid && citizenPhone && (
@@ -3264,29 +3319,37 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5">
-              <a href="tel:911" className="bg-red-50 border border-red-200 p-3 rounded-2xl text-center block hover:bg-red-100">
-                <Ambulance className="w-6 h-6 text-red-600 mx-auto mb-1" />
-                <span className="font-black text-red-700 block text-xs">ECU 911</span>
-                <span className="text-[10px] text-slate-500">Nacional</span>
+            <div className="grid grid-cols-2 gap-3">
+              <a href="tel:911" className="aspect-square bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800/80 p-3 rounded-2xl flex flex-col items-center justify-center text-center hover:bg-red-100 dark:hover:bg-red-900/60 transition-all shadow-xs hover:shadow-md cursor-pointer group">
+                <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/80 flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform">
+                  <Ambulance className="w-6 h-6 text-red-600 dark:text-red-400" />
+                </div>
+                <span className="font-black text-red-700 dark:text-red-300 block text-xs">ECU 911</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400">Nacional</span>
               </a>
 
-              <a href="tel:102" className="bg-amber-50 border border-amber-200 p-3 rounded-2xl text-center block hover:bg-amber-100">
-                <Flame className="w-6 h-6 text-amber-600 mx-auto mb-1" />
-                <span className="font-black text-amber-800 block text-xs">Bomberos Logroño</span>
-                <span className="text-[10px] text-slate-500">Línea 102</span>
+              <a href="tel:102" className="aspect-square bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/80 p-3 rounded-2xl flex flex-col items-center justify-center text-center hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-all shadow-xs hover:shadow-md cursor-pointer group">
+                <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/80 flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform">
+                  <Flame className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                </div>
+                <span className="font-black text-amber-800 dark:text-amber-300 block text-xs">Bomberos Logroño</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400">Línea 102</span>
               </a>
 
-              <a href="tel:101" className="bg-blue-50 border border-blue-200 p-3 rounded-2xl text-center block hover:bg-blue-100">
-                <ShieldCheck className="w-6 h-6 text-blue-600 mx-auto mb-1" />
-                <span className="font-black text-blue-800 block text-xs">Policía Cantonal</span>
-                <span className="text-[10px] text-slate-500">Línea 101</span>
+              <a href="tel:101" className="aspect-square bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800/80 p-3 rounded-2xl flex flex-col items-center justify-center text-center hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-all shadow-xs hover:shadow-md cursor-pointer group">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/80 flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform">
+                  <ShieldCheck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <span className="font-black text-blue-800 dark:text-blue-300 block text-xs">Policía Cantonal</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400">Línea 101</span>
               </a>
 
-              <a href="tel:072700100" className="bg-emerald-50 border border-emerald-200 p-3 rounded-2xl text-center block hover:bg-emerald-100">
-                <UserCheck className="w-6 h-6 text-[#159A44] mx-auto mb-1" />
-                <span className="font-black text-emerald-800 block text-xs">Despacho GAD</span>
-                <span className="text-[10px] text-slate-500">(07) 2700-100</span>
+              <a href="tel:072700100" className="aspect-square bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 p-3 rounded-2xl flex flex-col items-center justify-center text-center hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-all shadow-xs hover:shadow-md cursor-pointer group">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/80 flex items-center justify-center mb-1.5 group-hover:scale-110 transition-transform">
+                  <UserCheck className="w-6 h-6 text-[#159A44] dark:text-emerald-400" />
+                </div>
+                <span className="font-black text-emerald-800 dark:text-emerald-300 block text-xs">Despacho GAD</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400">(07) 2700-100</span>
               </a>
             </div>
 
@@ -4197,6 +4260,27 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Real-time Technical Chat inside Modal 6 */}
+            <div className="pt-2">
+              <div className="mb-2 flex items-center justify-between">
+                <h3 className="font-extrabold text-slate-900 dark:text-white text-xs flex items-center space-x-1.5">
+                  <MessageSquare className="w-4 h-4 text-[#0A4191] dark:text-blue-400" />
+                  <span>Consulta en Tiempo Real al Técnico</span>
+                </h3>
+              </div>
+              <ReportIncidentChat
+                incident={selectedIncident}
+                currentUser={currentUser}
+                onNewComment={(incId, newComment) => {
+                  setSelectedIncident((prev) =>
+                    prev && prev.id === incId
+                      ? { ...prev, comments: [...(prev.comments || []), newComment] }
+                      : prev
+                  );
+                }}
+              />
             </div>
 
             <button
