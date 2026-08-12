@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ActiveTab, LanguageMode, UserProfile } from '../types';
 import { SHUAR_DICTIONARY } from '../data/shuarDictionary';
+import { BreadcrumbNav, BreadcrumbStep } from './BreadcrumbNav';
 import { 
   Building2, 
   Smartphone, 
@@ -27,6 +28,11 @@ interface HeaderProps {
   openLogroBot: () => void;
   currentUser?: UserProfile | null;
   onLogout?: () => void;
+  breadcrumbHistory?: BreadcrumbStep[];
+  breadcrumbIndex?: number;
+  onNavigateToStep?: (index: number) => void;
+  onGoBack?: () => void;
+  onResetToHome?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -38,7 +44,12 @@ export const Header: React.FC<HeaderProps> = ({
   offlineCount,
   openLogroBot,
   currentUser,
-  onLogout
+  onLogout,
+  breadcrumbHistory,
+  breadcrumbIndex = 0,
+  onNavigateToStep,
+  onGoBack,
+  onResetToHome
 }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -236,6 +247,18 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </nav>
       </div>
+
+      {/* Interactive Breadcrumb Navigation History Bar */}
+      {breadcrumbHistory && breadcrumbHistory.length > 0 && onNavigateToStep && onGoBack && onResetToHome && (
+        <BreadcrumbNav
+          history={breadcrumbHistory}
+          currentIndex={breadcrumbIndex}
+          onNavigateToStep={onNavigateToStep}
+          onGoBack={onGoBack}
+          onResetToHome={onResetToHome}
+          lang={lang}
+        />
+      )}
     </header>
   );
 };

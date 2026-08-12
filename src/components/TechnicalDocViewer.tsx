@@ -12,8 +12,21 @@ import {
   FileCheck
 } from 'lucide-react';
 
-export const TechnicalDocViewer: React.FC = () => {
-  const [selectedPhaseId, setSelectedPhaseId] = useState<number>(1);
+interface TechnicalDocViewerProps {
+  selectedPhaseId?: number;
+  onSelectPhaseId?: (phaseId: number) => void;
+}
+
+export const TechnicalDocViewer: React.FC<TechnicalDocViewerProps> = ({
+  selectedPhaseId: propSelectedPhaseId,
+  onSelectPhaseId
+}) => {
+  const [internalPhaseId, setInternalPhaseId] = useState<number>(1);
+  const selectedPhaseId = propSelectedPhaseId !== undefined ? propSelectedPhaseId : internalPhaseId;
+  const setSelectedPhaseId = (id: number) => {
+    setInternalPhaseId(id);
+    if (onSelectPhaseId) onSelectPhaseId(id);
+  };
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const activePhase = TECHNICAL_PHASES.find((p) => p.id === selectedPhaseId) || TECHNICAL_PHASES[0];

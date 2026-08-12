@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Incident, IncidentCategory, LogronoSector, LanguageMode, AIAnalysisResult, UserProfile, AgendaEvent } from '../types';
 import { SHUAR_DICTIONARY } from '../data/shuarDictionary';
 import { LogronoGoogleMap } from './LogronoGoogleMap';
+import { WelcomeTouristMap } from './WelcomeTouristMap';
 import { ReportIncidentChat } from './ReportIncidentChat';
 import { validateName, validateEcuadorianCedula, validatePhone, validateEmail } from '../utils/validation';
 import { 
@@ -68,7 +69,33 @@ import {
   Edit3,
   ArrowUpDown,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  TrendingUp,
+  Users,
+  PieChart,
+  Smile,
+  Activity,
+  BarChart3,
+  MousePointerClick,
+  Eye,
+  ThumbsUp,
+  Star,
+  Award,
+  Zap,
+  Receipt,
+  CreditCard,
+  Car,
+  FileSpreadsheet,
+  Phone,
+  Landmark,
+  Droplet,
+  ShoppingCart,
+  ExternalLink,
+  Search,
+  Briefcase,
+  Building,
+  Download,
+  BookOpen
 } from 'lucide-react';
 
 export interface NewsItem {
@@ -125,6 +152,8 @@ export const MOCK_NEWS: NewsItem[] = [
   }
 ];
 
+export type CitizenSubTab = 'inicio' | 'reportar' | 'mis_reportes' | 'noticias' | 'agenda' | 'perfil' | 'configuracion' | 'mapa' | 'pqrs' | 'directorio';
+
 interface CitizenAppProps {
   incidents: Incident[];
   onAddIncident: (newInc: Incident) => void;
@@ -132,6 +161,10 @@ interface CitizenAppProps {
   isOnline: boolean;
   currentUser?: UserProfile | null;
   onLogout?: () => void;
+  activeSubTab?: CitizenSubTab;
+  onSubTabChange?: (tab: CitizenSubTab) => void;
+  selectedNewsItem?: NewsItem | null;
+  onSelectNewsItem?: (news: NewsItem | null) => void;
 }
 
 export const CitizenApp: React.FC<CitizenAppProps> = ({
@@ -140,15 +173,50 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
   lang,
   isOnline,
   currentUser,
-  onLogout
+  onLogout,
+  activeSubTab,
+  onSubTabChange,
+  selectedNewsItem,
+  onSelectNewsItem
 }) => {
-  const [citizenTab, setCitizenTab] = useState<'inicio' | 'reportar' | 'mis_reportes' | 'noticias' | 'agenda' | 'perfil' | 'configuracion' | 'mapa' | 'pqrs' | 'directorio'>('inicio');
+  const [internalTab, setInternalTab] = useState<CitizenSubTab>('inicio');
+  const citizenTab = activeSubTab !== undefined ? activeSubTab : internalTab;
+  const setCitizenTab = (tab: CitizenSubTab) => {
+    setInternalTab(tab);
+    if (onSubTabChange) onSubTabChange(tab);
+  };
+
+  const [internalNews, setInternalNews] = useState<NewsItem | null>(null);
+  const selectedNews = selectedNewsItem !== undefined ? selectedNewsItem : internalNews;
+  const setSelectedNews = (news: NewsItem | null) => {
+    setInternalNews(news);
+    if (onSelectNewsItem) onSelectNewsItem(news);
+  };
+
+  const [mapSubTab, setMapSubTab] = useState<'turismo' | 'incidentes'>('turismo');
   const [reportStep, setReportStep] = useState<'category' | 'wizard'>('category');
   const [reportWizardStep, setReportWizardStep] = useState<1 | 2 | 3 | 4>(1);
   const [misReportesFilter, setMisReportesFilter] = useState<'todos' | 'en_proceso' | 'solucionados'>('todos');
   const [misReportesSortBy, setMisReportesSortBy] = useState<'fecha_desc' | 'fecha_asc' | 'prioridad_desc' | 'prioridad_asc'>('fecha_desc');
   const [noticiasFilter, setNoticiasFilter] = useState<'todos' | 'comunicados' | 'obras' | 'eventos'>('todos');
-  const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
+  
+  // Municipal Services Online Container State
+  const [activeMunicipalTool, setActiveMunicipalTool] = useState<'no_adeudar' | 'deudas_tributarias' | 'deuda_ant' | 'quipux' | 'directorio' | 'registro_propiedad' | 'agua_potable' | 'compras_publicas' | null>(null);
+  const [toolQueryCedula, setToolQueryCedula] = useState<string>(currentUser?.id || '1400284912');
+  const [toolQueryResult, setToolQueryResult] = useState<any | null>(null);
+  const [directorySearchTerm, setDirectorySearchTerm] = useState<string>('');
+  const [toolLoading, setToolLoading] = useState<boolean>(false);
+  const [certificateNotice, setCertificateNotice] = useState<string | null>(null);
+
+  // Calculated Incident Resolution & Satisfaction Stats
+  const totalIncidentsCount = Math.max(incidents.length, 1);
+  const resolvedIncidentsCount = incidents.filter(i => i.status === 'resuelto').length;
+  const inProgressIncidentsCount = incidents.filter(i => i.status === 'en_proceso' || i.status === 'reportado' || i.status === 'asignado').length;
+  const resolvedPercentageNum = incidents.length > 0 
+    ? Math.min(100, Math.max(0, parseFloat(((resolvedIncidentsCount / totalIncidentsCount) * 100).toFixed(1))))
+    : 88.5;
+  const satisfactionPercentageNum = 96.4;
+
   const SPANISH_MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
   const [currentCalendarYear, setCurrentCalendarYear] = useState<number>(new Date().getFullYear());
@@ -1165,21 +1233,322 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
                 </div>
 
-                {/* Map Quick Access Banner */}
-                <div 
-                  onClick={() => setCitizenTab('mapa')}
-                  className="bg-white text-[#0A4191] p-3.5 rounded-2xl border-2 border-[#0A4191] flex items-center justify-between cursor-pointer hover:bg-blue-50/60 transition-all shadow-xs"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 rounded-2xl bg-white border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center shrink-0 shadow-xs">
-                      <Map className="w-6 h-6 stroke-[2.5] text-[#0A4191]" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-xs text-[#0A4191]">Mapa Georreferenciado</h4>
-                      <p className="text-[10px] text-slate-600 font-medium">Ver marcadores de Logroño, Yaupi y Shimpis</p>
+                {/* Contenedor: Indicadores de Eficiencia y Satisfacción Cantonal */}
+                <div className="bg-white dark:bg-slate-900 border-2 border-[#0A4191] rounded-3xl p-3 sm:p-4 space-y-3 shadow-md">
+                  <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-10 h-10 rounded-xl bg-[#0A4191] text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <BarChart3 className="w-5 h-5 stroke-[2.5]" />
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-sm text-[#0A4191] dark:text-blue-400 leading-tight">
+                          Indicadores de Eficiencia y Satisfacción Cantonal
+                        </h4>
+                        <p className="text-[10px] text-slate-500 font-bold">
+                          Estadísticas de Trámites, Incidencias y Nivel de Servicio GAD Logroño
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-[#0A4191] stroke-[2.5]" />
+
+                  {/* SECCIÓN DE GRÁFICOS PORCENTUALES: INCIDENCIAS RESUELTAS & SATISFACCIÓN CIUDADANA */}
+                  <div className="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-3 sm:p-4 border border-blue-200 dark:border-slate-700 shadow-2xs space-y-3">
+                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
+                      <div className="flex items-center space-x-2">
+                        <BarChart3 className="w-4 h-4 text-[#0A4191] dark:text-blue-400" />
+                        <span className="font-extrabold text-xs text-[#0A4191] dark:text-blue-300 uppercase tracking-wide">
+                          Indicadores de Eficiencia Cantonal y Satisfacción
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-500 bg-white dark:bg-slate-900 px-2.5 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">
+                        GAD Logroño 2026
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                      {/* DONUT CHART 1: INCIDENCIAS RESUELTAS */}
+                      <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-blue-100 dark:border-slate-800 flex items-center space-x-3.5 shadow-2xs">
+                        <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
+                          <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 80 80">
+                            {/* Track Circle */}
+                            <circle
+                              cx="40"
+                              cy="40"
+                              r="32"
+                              className="stroke-slate-100 dark:stroke-slate-800"
+                              strokeWidth="7"
+                              fill="transparent"
+                            />
+                            {/* Progress Circle */}
+                            <circle
+                              cx="40"
+                              cy="40"
+                              r="32"
+                              className="stroke-[#0A4191] dark:stroke-blue-500 transition-all duration-1000 ease-out"
+                              strokeWidth="7"
+                              strokeDasharray="201.06"
+                              strokeDashoffset={201.06 - (201.06 * resolvedPercentageNum) / 100}
+                              strokeLinecap="round"
+                              fill="transparent"
+                            />
+                          </svg>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <span className="text-sm font-black text-[#0A4191] dark:text-blue-300 leading-none">
+                              {resolvedPercentageNum}%
+                            </span>
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600 mt-0.5" />
+                          </div>
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <h5 className="font-extrabold text-xs text-[#0A4191] dark:text-blue-300 leading-snug">
+                            Incidencias Resueltas
+                          </h5>
+                          <p className="text-[10px] text-slate-500 font-medium mt-0.5">
+                            Porcentaje de trámites y alertas solucionadas exitosamente por el GAD.
+                          </p>
+                          <div className="mt-2 flex items-center justify-between text-[10px] font-bold border-t border-slate-100 dark:border-slate-800 pt-1 text-slate-700 dark:text-slate-300">
+                            <span>Resueltas: <strong className="text-emerald-600">{resolvedIncidentsCount}</strong></span>
+                            <span>En Proceso: <strong className="text-amber-600">{inProgressIncidentsCount}</strong></span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* DONUT CHART 2: SATISFACCIÓN CIUDADANA */}
+                      <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-blue-100 dark:border-slate-800 flex items-center space-x-3.5 shadow-2xs">
+                        <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
+                          <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 80 80">
+                            {/* Track Circle */}
+                            <circle
+                              cx="40"
+                              cy="40"
+                              r="32"
+                              className="stroke-slate-100 dark:stroke-slate-800"
+                              strokeWidth="7"
+                              fill="transparent"
+                            />
+                            {/* Progress Circle */}
+                            <circle
+                              cx="40"
+                              cy="40"
+                              r="32"
+                              className="stroke-emerald-600 dark:stroke-emerald-400 transition-all duration-1000 ease-out"
+                              strokeWidth="7"
+                              strokeDasharray="201.06"
+                              strokeDashoffset={201.06 - (201.06 * satisfactionPercentageNum) / 100}
+                              strokeLinecap="round"
+                              fill="transparent"
+                            />
+                          </svg>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <span className="text-sm font-black text-emerald-700 dark:text-emerald-400 leading-none">
+                              {satisfactionPercentageNum}%
+                            </span>
+                            <Star className="w-3 h-3 text-amber-500 fill-amber-400 mt-0.5" />
+                          </div>
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <h5 className="font-extrabold text-xs text-[#0A4191] dark:text-blue-300 leading-snug">
+                            Satisfacción Ciudadana
+                          </h5>
+                          <p className="text-[10px] text-slate-500 font-medium mt-0.5">
+                            Conformidad y valoración positiva en la resolución de servicios municipales.
+                          </p>
+                          <div className="mt-2 flex items-center justify-between text-[10px] font-bold border-t border-slate-100 dark:border-slate-800 pt-1 text-slate-700 dark:text-slate-300">
+                            <span>Valoración: <strong className="text-amber-600">4.9 / 5.0 ★</strong></span>
+                            <span>Encuestas: <strong className="text-[#0A4191]">1,420</strong></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CONTENEDOR: CONTADOR DE VISITAS Y CONTROL DE USO DE LA APP CIUDADANA */}
+                <div className="bg-white dark:bg-slate-900 border-2 border-[#0A4191] rounded-3xl p-4 sm:p-5 space-y-4 shadow-md relative overflow-hidden">
+                  
+                  {/* Toast notification feedback */}
+                  {visitToast && (
+                    <div className="absolute top-2 right-2 bg-emerald-600 text-white text-[11px] font-extrabold px-3 py-1.5 rounded-xl shadow-lg flex items-center space-x-1.5 animate-in fade-in slide-in-from-top-2 duration-200 z-20">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>{visitToast}</span>
+                    </div>
+                  )}
+
+                  {/* Header Row */}
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0A4191] to-[#083373] text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <Activity className="w-5 h-5 stroke-[2.5]" />
+                      </div>
+                      <div>
+                        <h4 className="font-black text-sm text-[#0A4191] dark:text-blue-400 leading-tight">
+                          Contador de Visitas y Control de Uso de la App
+                        </h4>
+                        <p className="text-[10px] text-slate-500 font-bold">
+                          Monitoreo de Tráfico Ciudadano & Accesos Digitales Cantón Logroño
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Period Selector Filter Buttons */}
+                    <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 self-stretch sm:self-auto justify-center">
+                      {(['hoy', 'semana', 'mes', 'año'] as const).map((period) => (
+                        <button
+                          key={period}
+                          type="button"
+                          onClick={() => setVisitPeriod(period)}
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold capitalize transition-all cursor-pointer ${
+                            visitPeriod === period
+                              ? 'bg-[#0A4191] text-white shadow-2xs'
+                              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
+                          }`}
+                        >
+                          {period}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 3 Main Stat Counter Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    
+                    {/* Stat Card 1: Total App Visits */}
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50/50 dark:from-slate-800 dark:to-slate-800/80 p-3.5 rounded-2xl border border-blue-200 dark:border-slate-700 flex flex-col justify-between space-y-2">
+                      <div className="flex justify-between items-start">
+                        <span className="text-[11px] font-bold text-[#0A4191] dark:text-blue-300">
+                          Visitas Acumuladas
+                        </span>
+                        <Eye className="w-4 h-4 text-[#0A4191]" />
+                      </div>
+
+                      <div>
+                        <span className="text-2xl font-black text-[#0A4191] dark:text-white font-mono tracking-tight block">
+                          {(visitPeriod === 'hoy' ? todayVisits : visitPeriod === 'semana' ? todayVisits * 6 : visitPeriod === 'mes' ? appVisits : appVisits * 4).toLocaleString('es-EC')}
+                        </span>
+                        <span className="text-[10px] text-slate-500 font-medium">
+                          {visitPeriod === 'hoy' ? 'Accesos registrados hoy' : 'Accesos en el período seleccionado'}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleRegisterVisit}
+                        className="mt-1 w-full py-1.5 bg-[#0A4191] hover:bg-[#072e68] text-white rounded-xl text-[10px] font-extrabold flex items-center justify-center space-x-1 cursor-pointer transition-all shadow-2xs"
+                      >
+                        <MousePointerClick className="w-3.5 h-3.5" />
+                        <span>Registrar Interacción / Visita</span>
+                      </button>
+                    </div>
+
+                    {/* Stat Card 2: Active Citizens Connected */}
+                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50/50 dark:from-slate-800 dark:to-slate-800/80 p-3.5 rounded-2xl border border-emerald-200 dark:border-slate-700 flex flex-col justify-between space-y-2">
+                      <div className="flex justify-between items-start">
+                        <span className="text-[11px] font-bold text-emerald-900 dark:text-emerald-300">
+                          Usuarios Conectados Hoy
+                        </span>
+                        <Users className="w-4 h-4 text-emerald-600" />
+                      </div>
+
+                      <div>
+                        <span className="text-2xl font-black text-emerald-800 dark:text-emerald-300 font-mono tracking-tight block">
+                          {(visitPeriod === 'hoy' ? 142 : visitPeriod === 'semana' ? 890 : visitPeriod === 'mes' ? 3410 : 12850).toLocaleString('es-EC')}
+                        </span>
+                        <div className="flex items-center space-x-1.5 mt-0.5">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
+                          <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold">
+                            Actividad en vivo detectada
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="text-[10px] text-slate-600 dark:text-slate-400 font-semibold border-t border-emerald-200/60 pt-1">
+                        Pico de tráfico: <strong className="text-slate-900 dark:text-white">10:00 - 12:00</strong>
+                      </div>
+                    </div>
+
+                    {/* Stat Card 3: Top Preferred Module */}
+                    <div className="bg-gradient-to-br from-amber-50 to-orange-50/50 dark:from-slate-800 dark:to-slate-800/80 p-3.5 rounded-2xl border border-amber-200 dark:border-slate-700 flex flex-col justify-between space-y-2">
+                      <div className="flex justify-between items-start">
+                        <span className="text-[11px] font-bold text-amber-900 dark:text-amber-300">
+                          Módulo Más Utilizado
+                        </span>
+                        <PieChart className="w-4 h-4 text-amber-600" />
+                      </div>
+
+                      <div>
+                        <span className="text-2xl font-black text-amber-900 dark:text-amber-300 font-mono tracking-tight block">
+                          42.5%
+                        </span>
+                        <span className="text-[10px] text-slate-600 dark:text-slate-400 font-bold block">
+                          Reporte de Incidencias & Alertas GPS
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[10px] text-amber-800 dark:text-amber-400 font-bold border-t border-amber-200/60 pt-1">
+                        <span className="flex items-center space-x-1">
+                          <TrendingUp className="w-3 h-3 text-emerald-600" />
+                          <span>+14.2% este mes</span>
+                        </span>
+                        <span>Módulo #1</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* App Modules Usage Breakdown Bars */}
+                  <div className="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2.5">
+                    <span className="font-extrabold text-xs text-[#0A4191] dark:text-blue-300 block">
+                      Distribución Porcentual del Uso del App Ciudadana
+                    </span>
+
+                    <div className="space-y-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                      {/* Bar 1 */}
+                      <div>
+                        <div className="flex justify-between mb-0.5">
+                          <span>1. Reporte de Incidencias y Servicios</span>
+                          <span className="font-mono text-[#0A4191]">42.5%</span>
+                        </div>
+                        <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                          <div className="h-full bg-[#0A4191] rounded-full transition-all duration-500" style={{ width: '42.5%' }} />
+                        </div>
+                      </div>
+
+                      {/* Bar 2 */}
+                      <div>
+                        <div className="flex justify-between mb-0.5">
+                          <span>2. Mapa Georreferenciado y Rutas Turísticas</span>
+                          <span className="font-mono text-emerald-600">28.0%</span>
+                        </div>
+                        <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                          <div className="h-full bg-emerald-600 rounded-full transition-all duration-500" style={{ width: '28.0%' }} />
+                        </div>
+                      </div>
+
+                      {/* Bar 3 */}
+                      <div>
+                        <div className="flex justify-between mb-0.5">
+                          <span>3. Trámites Municipal y PQRS</span>
+                          <span className="font-mono text-amber-600">18.5%</span>
+                        </div>
+                        <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                          <div className="h-full bg-amber-500 rounded-full transition-all duration-500" style={{ width: '18.5%' }} />
+                        </div>
+                      </div>
+
+                      {/* Bar 4 */}
+                      <div>
+                        <div className="flex justify-between mb-0.5">
+                          <span>4. Noticias, Agenda y Directorio Cantonal</span>
+                          <span className="font-mono text-purple-600">11.0%</span>
+                        </div>
+                        <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                          <div className="h-full bg-purple-600 rounded-full transition-all duration-500" style={{ width: '11.0%' }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
 
                 {/* Cantonal Alert Box */}
@@ -1954,39 +2323,39 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       type="button"
                       onClick={() => setMisReportesFilter('todos')}
                       title="Ver todos los reportes"
-                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center space-x-1.5 border ${
+                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center space-x-1.5 border-2 border-[#0A4191] text-[#0A4191] ${
                         misReportesFilter === 'todos'
-                          ? 'bg-[#0A4191] text-white border-[#0A4191] shadow-xs'
-                          : 'bg-white text-[#0A4191] border-[#0A4191] hover:bg-blue-50'
+                          ? 'bg-blue-100 font-black shadow-xs'
+                          : 'bg-white font-extrabold hover:bg-blue-50'
                       }`}
                     >
-                      <ListFilter className="w-3.5 h-3.5 flex-shrink-0" />
+                      <ListFilter className="w-3.5 h-3.5 flex-shrink-0 text-[#0A4191]" />
                       <span className="hidden xs:inline">Todos</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setMisReportesFilter('en_proceso')}
                       title="Ver reportes en proceso"
-                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center space-x-1.5 border ${
+                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center space-x-1.5 border-2 border-[#0A4191] text-[#0A4191] ${
                         misReportesFilter === 'en_proceso'
-                          ? 'bg-[#0A4191] text-white border-[#0A4191] shadow-xs'
-                          : 'bg-white text-[#0A4191] border-[#0A4191] hover:bg-blue-50'
+                          ? 'bg-blue-100 font-black shadow-xs'
+                          : 'bg-white font-extrabold hover:bg-blue-50'
                       }`}
                     >
-                      <Clock className="w-3.5 h-3.5 flex-shrink-0 text-amber-500" />
+                      <Clock className="w-3.5 h-3.5 flex-shrink-0 text-[#0A4191]" />
                       <span className="hidden xs:inline">En proceso</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setMisReportesFilter('solucionados')}
                       title="Ver reportes solucionados"
-                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center space-x-1.5 border ${
+                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center space-x-1.5 border-2 border-[#0A4191] text-[#0A4191] ${
                         misReportesFilter === 'solucionados'
-                          ? 'bg-[#0A4191] text-white border-[#0A4191] shadow-xs'
-                          : 'bg-white text-[#0A4191] border-[#0A4191] hover:bg-blue-50'
+                          ? 'bg-blue-100 font-black shadow-xs'
+                          : 'bg-white font-extrabold hover:bg-blue-50'
                       }`}
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-emerald-500" />
+                      <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-[#0A4191]" />
                       <span className="hidden xs:inline">Solucionados</span>
                     </button>
                   </div>
@@ -2037,6 +2406,26 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                               <span>Fecha</span>
                               {misReportesSortBy === 'fecha_desc' && <ArrowDown className="w-3.5 h-3.5 text-[#0A4191] stroke-[2.5]" />}
                               {misReportesSortBy === 'fecha_asc' && <ArrowUp className="w-3.5 h-3.5 text-[#0A4191] stroke-[2.5]" />}
+                              {!misReportesSortBy.startsWith('fecha') && <ArrowUpDown className="w-3 h-3 text-[#0A4191]/60" />}
+                            </div>
+                          </th>
+
+                          {/* Column Header: Días Transcurridos */}
+                          <th
+                            className="py-3 px-3.5 border-r border-[#0A4191]/40 cursor-pointer select-none hover:bg-blue-100 transition-colors"
+                            onClick={() => {
+                              if (misReportesSortBy === 'fecha_asc') {
+                                setMisReportesSortBy('fecha_desc');
+                              } else {
+                                setMisReportesSortBy('fecha_asc');
+                              }
+                            }}
+                            title="Haz clic para ordenar por días transcurridos"
+                          >
+                            <div className="flex items-center space-x-1 text-[#0A4191]">
+                              <span>Días Transcurridos</span>
+                              {misReportesSortBy === 'fecha_asc' && <ArrowDown className="w-3.5 h-3.5 text-[#0A4191] stroke-[2.5]" />}
+                              {misReportesSortBy === 'fecha_desc' && <ArrowUp className="w-3.5 h-3.5 text-[#0A4191] stroke-[2.5]" />}
                               {!misReportesSortBy.startsWith('fecha') && <ArrowUpDown className="w-3 h-3 text-[#0A4191]/60" />}
                             </div>
                           </th>
@@ -2112,17 +2501,50 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                               }
                             })();
 
-                            // Priority styling badge
+                            // Days elapsed calculation
+                            const daysElapsed = (() => {
+                              try {
+                                const created = new Date(inc.createdAt);
+                                if (isNaN(created.getTime())) return 0;
+                                const now = new Date();
+                                const diffTime = Math.max(0, now.getTime() - created.getTime());
+                                return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                              } catch {
+                                return 0;
+                              }
+                            })();
+
+                            // Priority styling badge with accessibility icons
                             const priorityBadge = (() => {
                               switch (inc.priority) {
                                 case 'critica':
-                                  return <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-red-100 text-red-800 border border-red-300">Crítica</span>;
+                                  return (
+                                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold inline-flex items-center space-x-1 bg-red-100 text-red-900 border border-red-300 shadow-2xs" title="Prioridad Crítica">
+                                      <Flame className="w-3.5 h-3.5 flex-shrink-0 text-red-600 fill-red-500 animate-pulse" />
+                                      <span>Crítica</span>
+                                    </span>
+                                  );
                                 case 'alta':
-                                  return <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-100 text-amber-800 border border-amber-300">Alta</span>;
+                                  return (
+                                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold inline-flex items-center space-x-1 bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs" title="Prioridad Alta">
+                                      <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 text-amber-700" />
+                                      <span>Alta</span>
+                                    </span>
+                                  );
                                 case 'media':
-                                  return <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-100 text-[#0A4191] border border-blue-300">Media</span>;
+                                  return (
+                                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold inline-flex items-center space-x-1 bg-blue-100 text-[#0A4191] border border-blue-300 shadow-2xs" title="Prioridad Media">
+                                      <Clock className="w-3.5 h-3.5 flex-shrink-0 text-[#0A4191]" />
+                                      <span>Media</span>
+                                    </span>
+                                  );
                                 default:
-                                  return <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-slate-100 text-slate-800 border border-slate-300">Baja</span>;
+                                  return (
+                                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold inline-flex items-center space-x-1 bg-slate-100 text-slate-800 border border-slate-300 shadow-2xs" title="Prioridad Baja">
+                                      <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-slate-600" />
+                                      <span>Baja</span>
+                                    </span>
+                                  );
                               }
                             })();
 
@@ -2162,6 +2584,24 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                                   {dateFormatted}
                                 </td>
 
+                                {/* Days Elapsed Column */}
+                                <td className="py-3 px-3.5 font-bold text-[11px] text-[#0A4191] whitespace-nowrap border-r border-[#0A4191]/30">
+                                  <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black inline-flex items-center space-x-1 border ${
+                                    daysElapsed === 0
+                                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                                      : daysElapsed <= 3
+                                      ? 'bg-blue-50 text-[#0A4191] border-blue-300'
+                                      : daysElapsed <= 7
+                                      ? 'bg-amber-50 text-amber-800 border-amber-300'
+                                      : 'bg-red-50 text-red-800 border-red-300'
+                                  }`}>
+                                    <Clock className="w-3 h-3 flex-shrink-0" />
+                                    <span>
+                                      {daysElapsed === 0 ? 'Hoy (0 días)' : daysElapsed === 1 ? '1 día' : `${daysElapsed} días`}
+                                    </span>
+                                  </span>
+                                </td>
+
                                 {/* Priority Column */}
                                 <td className="py-3 px-3.5 whitespace-nowrap border-r border-[#0A4191]/30">
                                   {priorityBadge}
@@ -2188,7 +2628,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                                       e.stopPropagation();
                                       setSelectedIncident(inc);
                                     }}
-                                    className="px-2.5 py-1 text-[11px] font-black bg-[#0A4191] hover:bg-blue-900 text-white rounded-lg transition-all cursor-pointer shadow-2xs border border-[#0A4191]"
+                                    className="px-2.5 py-1 text-[11px] font-black bg-white hover:bg-blue-50 text-[#0A4191] rounded-lg transition-all cursor-pointer shadow-2xs border-2 border-[#0A4191]"
                                   >
                                     Ver Detalle
                                   </button>
@@ -2207,7 +2647,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           return true;
                         }).length === 0 && (
                           <tr>
-                            <td colSpan={7} className="text-center py-8 text-xs font-black text-[#0A4191] bg-white">
+                            <td colSpan={8} className="text-center py-8 text-xs font-black text-[#0A4191] bg-white">
                               No hay reportes registrados en esta categoría.
                             </td>
                           </tr>
@@ -2222,20 +2662,53 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
             {/* TAB 4: MAPA */}
             {citizenTab === 'mapa' && (
               <div className="space-y-3 text-xs">
-                <div className="border-b border-slate-200 dark:border-slate-800 pb-2 flex justify-between items-center">
+                <div className="border-b border-slate-200 dark:border-slate-800 pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                   <div>
                     <h3 className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center space-x-1.5">
-                      <MapPin className="w-4 h-4 text-[#159A44]" />
-                      <span>Mapa Cantonal Logroño</span>
+                      <MapPin className="w-4 h-4 text-[#0A4191]" />
+                      <span>Mapa Georreferenciado Cantonal de Logroño</span>
                     </h3>
-                    <p className="text-[11px] text-slate-500">Google Maps WGS84 GPS</p>
+                    <p className="text-[11px] text-slate-500 font-medium">Delimitación Territorial, Atractivos Turísticos y Coordenadas GPS</p>
+                  </div>
+
+                  {/* Subtab Toggle Buttons */}
+                  <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center space-x-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setMapSubTab('turismo')}
+                      className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center space-x-1.5 ${
+                        mapSubTab === 'turismo'
+                          ? 'bg-[#0A4191] text-white shadow-sm'
+                          : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
+                      }`}
+                    >
+                      <span>🗺️ Turismo & Rutas GPS</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setMapSubTab('incidentes')}
+                      className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center space-x-1.5 ${
+                        mapSubTab === 'incidentes'
+                          ? 'bg-[#0A4191] text-white shadow-sm'
+                          : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
+                      }`}
+                    >
+                      <span>🚨 Incidentes & Alertas</span>
+                    </button>
                   </div>
                 </div>
 
-                <LogronoGoogleMap
-                  incidents={incidents}
-                  onSelectIncident={(inc) => setSelectedIncident(inc)}
-                />
+                {mapSubTab === 'turismo' ? (
+                  <div className="w-full h-[680px] max-w-full rounded-2xl overflow-hidden border-2 border-[#0A4191] shadow-lg">
+                    <WelcomeTouristMap className="w-full h-[680px]" />
+                  </div>
+                ) : (
+                  <LogronoGoogleMap
+                    incidents={incidents}
+                    onSelectIncident={(inc) => setSelectedIncident(inc)}
+                  />
+                )}
               </div>
             )}
 
@@ -2457,23 +2930,23 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
             {/* TAB 8: AGENDA MUNICIPAL (COMPLETE INTERACTIVE IMPLEMENTATION) */}
             {citizenTab === 'agenda' && (
-              <div className="space-y-4 text-xs animate-in fade-in duration-200 pb-2">
+              <div className="bg-white border-2 border-[#0A4191] rounded-2xl p-4 sm:p-5 shadow-sm space-y-4 text-xs text-[#0A4191] animate-in fade-in duration-200 pb-2">
                 {/* Header Row: Back Arrow + Centered Title "Agenda Municipal" + Action Buttons */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1 pb-1">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1 pb-1 border-b-2 border-[#0A4191]/20 pb-3">
                   <div className="flex items-center space-x-2">
                     <button
                       type="button"
                       onClick={() => setCitizenTab('inicio')}
-                      className="p-1.5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
+                      className="p-1.5 text-[#0A4191] hover:bg-blue-50 rounded-full cursor-pointer transition-colors"
                       title="Volver a Inicio"
                     >
                       <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
                     </button>
                     <div>
-                      <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                      <h2 className="text-base font-black text-[#0A4191] tracking-tight font-serif">
                         Agenda Municipal
                       </h2>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                      <p className="text-[11px] text-[#0A4191]/80 font-extrabold">
                         Logroño • Morona Santiago
                       </p>
                     </div>
@@ -2485,17 +2958,17 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       type="button"
                       onClick={handleSyncAgenda}
                       disabled={isSyncingAgenda}
-                      className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl font-extrabold text-[11px] flex items-center space-x-1.5 transition-all cursor-pointer active:scale-95 disabled:opacity-60"
+                      className="px-3 py-1.5 bg-white hover:bg-blue-50 text-[#0A4191] border-2 border-[#0A4191] rounded-xl font-black text-[11px] flex items-center space-x-1.5 transition-all cursor-pointer active:scale-95 disabled:opacity-60 shadow-2xs"
                       title="Sincronizar información de la agenda con el servidor"
                     >
-                      <RefreshCw className={`w-3.5 h-3.5 text-[#0A4191] dark:text-blue-400 ${isSyncingAgenda ? 'animate-spin' : ''}`} />
+                      <RefreshCw className={`w-3.5 h-3.5 text-[#0A4191] ${isSyncingAgenda ? 'animate-spin' : ''}`} />
                       <span>{isSyncingAgenda ? 'Sincronizando...' : 'Sincronizar'}</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => handleOpenCreateAgenda()}
-                      className="px-3 py-1.5 bg-[#0A4191] hover:bg-blue-900 text-white rounded-xl font-extrabold text-[11px] flex items-center space-x-1.5 shadow-sm transition-all cursor-pointer active:scale-95"
+                      className="px-3 py-1.5 bg-white hover:bg-blue-50 text-[#0A4191] border-2 border-[#0A4191] rounded-xl font-black text-[11px] flex items-center space-x-1.5 shadow-xs transition-all cursor-pointer active:scale-95"
                       title="Crear nueva agenda o evento municipal"
                     >
                       <Plus className="w-4 h-4 stroke-[3]" />
@@ -2506,15 +2979,15 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
                 {/* Toast Notification Banner */}
                 {agendaSyncToast && (
-                  <div className="bg-blue-50 dark:bg-blue-950/80 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 p-2.5 rounded-2xl flex items-center space-x-2 text-xs font-bold animate-in slide-in-from-top-2 shadow-xs">
-                    <RefreshCw className={`w-4 h-4 text-[#0A4191] dark:text-blue-400 flex-shrink-0 ${isSyncingAgenda ? 'animate-spin' : ''}`} />
+                  <div className="bg-blue-50 border-2 border-[#0A4191] text-[#0A4191] p-2.5 rounded-2xl flex items-center space-x-2 text-xs font-black animate-in slide-in-from-top-2 shadow-xs">
+                    <RefreshCw className={`w-4 h-4 text-[#0A4191] flex-shrink-0 ${isSyncingAgenda ? 'animate-spin' : ''}`} />
                     <span className="flex-1">{agendaSyncToast}</span>
                   </div>
                 )}
 
                 {agendaToast && (
-                  <div className="bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 p-2.5 rounded-2xl flex items-center space-x-2 text-xs font-bold animate-in slide-in-from-top-2 shadow-xs">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  <div className="bg-emerald-50 border-2 border-emerald-600 text-emerald-900 p-2.5 rounded-2xl flex items-center space-x-2 text-xs font-black animate-in slide-in-from-top-2 shadow-xs">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-700 flex-shrink-0" />
                     <span className="flex-1">{agendaToast}</span>
                   </div>
                 )}
@@ -2543,27 +3016,28 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
                   return (
                     <div className="space-y-4">
-                      <div className="bg-white dark:bg-slate-900 rounded-3xl p-3.5 border border-slate-100 dark:border-slate-800 shadow-2xs space-y-3">
+                      {/* Calendar Box with White Background & Dark Blue Border */}
+                      <div className="bg-white rounded-3xl p-4 sm:p-5 border-2 border-[#0A4191] shadow-sm space-y-4">
                         {/* Month Header: < Agosto 2026 > + Today jump button */}
-                        <div className="flex items-center justify-between px-2 pt-1">
+                        <div className="flex items-center justify-between px-1 sm:px-3 pt-1">
                           <button
                             type="button"
                             onClick={handlePrevCalendarMonth}
-                            className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+                            className="p-2 text-[#0A4191] hover:bg-blue-100 rounded-2xl transition-colors cursor-pointer border border-[#0A4191]/30 active:scale-95"
                             title="Mes anterior"
                           >
-                            <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
+                            <ChevronLeft className="w-6 h-6 stroke-[3]" />
                           </button>
 
-                          <div className="flex items-center space-x-2">
-                            <span className="font-black text-sm text-slate-900 dark:text-white tracking-tight">
+                          <div className="flex items-center space-x-3">
+                            <span className="font-black text-base sm:text-xl text-[#0A4191] tracking-tight font-serif">
                               {currentMonthName} {currentCalendarYear}
                             </span>
 
                             <button
                               type="button"
                               onClick={handleJumpCalendarToToday}
-                              className="px-2 py-0.5 bg-blue-50 dark:bg-blue-950 text-[#0A4191] dark:text-blue-300 font-extrabold text-[10px] rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900 transition-all cursor-pointer"
+                              className="px-3 py-1 bg-white text-[#0A4191] font-black text-xs sm:text-sm rounded-xl border-2 border-[#0A4191] hover:bg-blue-50 transition-all cursor-pointer shadow-xs active:scale-95"
                               title="Ir al día de hoy"
                             >
                               Hoy
@@ -2573,29 +3047,29 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           <button
                             type="button"
                             onClick={handleNextCalendarMonth}
-                            className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+                            className="p-2 text-[#0A4191] hover:bg-blue-100 rounded-2xl transition-colors cursor-pointer border border-[#0A4191]/30 active:scale-95"
                             title="Mes siguiente"
                           >
-                            <ChevronRight className="w-5 h-5 stroke-[2.5]" />
+                            <ChevronRight className="w-6 h-6 stroke-[3]" />
                           </button>
                         </div>
 
-                        {/* Days of week header: Lu  Ma  Mi  Ju  Vi  Sá  Do */}
-                        <div className="grid grid-cols-7 text-center font-extrabold text-slate-400 dark:text-slate-500 text-[11px] py-1">
-                          <span>Lu</span>
-                          <span>Ma</span>
-                          <span>Mi</span>
-                          <span>Ju</span>
-                          <span>Vi</span>
-                          <span>Sá</span>
-                          <span>Do</span>
+                        {/* Days of week header: Lun  Mar  Mié  Jue  Vie  Sáb  Dom */}
+                        <div className="grid grid-cols-7 text-center font-black text-[#0A4191] text-xs sm:text-sm py-2 bg-blue-50/80 rounded-2xl border border-[#0A4191]/30">
+                          <span>Lun</span>
+                          <span>Mar</span>
+                          <span>Mié</span>
+                          <span>Jue</span>
+                          <span>Vie</span>
+                          <span>Sáb</span>
+                          <span>Dom</span>
                         </div>
 
                         {/* Days of month grid */}
-                        <div className="grid grid-cols-7 gap-y-2 gap-x-1 text-center items-center">
+                        <div className="grid grid-cols-7 gap-y-2.5 gap-x-1.5 text-center items-center pt-1">
                           {/* Previous Month Padding */}
                           {prevPaddingDays.map((pDay) => (
-                            <span key={`prev-p-${pDay}`} className="text-[11px] font-medium text-slate-300 dark:text-slate-700 py-1 select-none">
+                            <span key={`prev-p-${pDay}`} className="text-xs sm:text-sm font-extrabold text-[#0A4191]/30 py-2 select-none">
                               {pDay}
                             </span>
                           ))}
@@ -2613,21 +3087,20 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                                 key={`month-day-${d}`}
                                 type="button"
                                 onClick={() => setSelectedAgendaDay(d)}
-                                className={`relative py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex flex-col items-center justify-center ${
+                                className={`relative py-1 rounded-2xl text-sm sm:text-base transition-all cursor-pointer flex flex-col items-center justify-center mx-auto ${
                                   isSelected
-                                    ? 'w-8 h-8 rounded-xl bg-[#0A4191] text-white font-black shadow-md mx-auto'
+                                    ? 'w-10 h-10 sm:w-12 sm:h-12 bg-[#0A4191] text-white font-black shadow-md ring-2 ring-blue-300'
                                     : isToday
-                                    ? 'w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 mx-auto font-black'
-                                    : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                    ? 'w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 text-[#0A4191] border-2 border-[#0A4191] font-black'
+                                    : 'w-10 h-10 sm:w-12 sm:h-12 text-[#0A4191] font-black hover:bg-blue-100/70 border border-[#0A4191]/15'
                                 }`}
                               >
-                                <span>{d}</span>
-                                {/* Dot indicator for days with scheduled events */}
-                                {hasEvents && !isSelected && (
-                                  <span className="w-1.5 h-1.5 rounded-full bg-[#159A44] absolute bottom-0.5" />
-                                )}
-                                {hasEvents && isSelected && (
-                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 absolute bottom-0.5" />
+                                <span className="leading-none">{d}</span>
+                                {/* Indicator for days with scheduled events */}
+                                {hasEvents && (
+                                  <span className={`w-2 h-2 rounded-full absolute bottom-1.5 ${
+                                    isSelected ? 'bg-amber-300' : 'bg-[#0A4191]'
+                                  }`} />
                                 )}
                               </button>
                             );
@@ -2635,20 +3108,36 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
                           {/* Next Month Padding */}
                           {nextPaddingDays.map((nDay) => (
-                            <span key={`next-p-${nDay}`} className="text-[11px] font-medium text-slate-300 dark:text-slate-700 py-1 select-none">
+                            <span key={`next-p-${nDay}`} className="text-xs sm:text-sm font-extrabold text-[#0A4191]/30 py-2 select-none">
                               {nDay}
                             </span>
                           ))}
+                        </div>
+
+                        {/* Visual Legend for User Clarity */}
+                        <div className="pt-2 border-t border-[#0A4191]/20 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-[11px] sm:text-xs font-black text-[#0A4191]">
+                          <div className="flex items-center space-x-1.5">
+                            <span className="w-3.5 h-3.5 rounded-lg bg-[#0A4191] inline-block shadow-2xs" />
+                            <span>Día Seleccionado</span>
+                          </div>
+                          <div className="flex items-center space-x-1.5">
+                            <span className="w-3.5 h-3.5 rounded-lg bg-amber-100 border-2 border-[#0A4191] inline-block" />
+                            <span>Hoy</span>
+                          </div>
+                          <div className="flex items-center space-x-1.5">
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#0A4191] inline-block" />
+                            <span>Evento Programado</span>
+                          </div>
                         </div>
                       </div>
 
                       {/* Section Subtitle: Eventos del X de [mes] [año] */}
                       <div className="pt-1 space-y-3">
                         <div className="flex items-center justify-between">
-                          <h3 className="font-black text-slate-900 dark:text-white text-xs tracking-tight flex items-center space-x-1.5">
-                            <Calendar className="w-4 h-4 text-[#0A4191] dark:text-blue-400" />
+                          <h3 className="font-black text-[#0A4191] text-xs tracking-tight flex items-center space-x-1.5">
+                            <Calendar className="w-4 h-4 text-[#0A4191]" />
                             <span>Eventos del {selectedAgendaDay} de {currentMonthName.toLowerCase()} de {currentCalendarYear}</span>
-                            <span className="text-[10px] font-normal text-slate-500 font-mono">
+                            <span className="text-[10px] font-bold text-[#0A4191]/70 font-mono">
                               ({dayEvents.length})
                             </span>
                           </h3>
@@ -2656,9 +3145,9 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           <button
                             type="button"
                             onClick={() => handleOpenCreateAgenda(selectedAgendaDay)}
-                            className="text-[11px] font-bold text-[#0A4191] dark:text-blue-400 hover:underline flex items-center space-x-1 cursor-pointer"
+                            className="text-[11px] font-black text-[#0A4191] hover:underline flex items-center space-x-1 cursor-pointer"
                           >
-                            <Plus className="w-3.5 h-3.5" />
+                            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                             <span>Agregar a esta fecha</span>
                           </button>
                         </div>
@@ -2669,19 +3158,19 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                             dayEvents.map((ev) => {
                           const categoryColor =
                             ev.category === 'Minga'
-                              ? 'bg-cyan-500 text-white'
+                              ? 'bg-blue-50 text-[#0A4191] border border-[#0A4191]'
                               : ev.category === 'Cabildo'
                               ? 'bg-[#0A4191] text-white'
                               : ev.category === 'Cultura'
-                              ? 'bg-purple-600 text-white'
+                              ? 'bg-purple-100 text-[#0A4191] border border-[#0A4191]'
                               : ev.category === 'Deportes'
-                              ? 'bg-emerald-600 text-white'
-                              : 'bg-amber-500 text-white';
+                              ? 'bg-emerald-100 text-[#0A4191] border border-[#0A4191]'
+                              : 'bg-amber-100 text-[#0A4191] border border-[#0A4191]';
 
                           return (
                             <div
                               key={ev.id}
-                              className="bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl p-3.5 shadow-sm hover:shadow-md transition-all space-y-2.5 relative overflow-hidden"
+                              className="bg-white border-2 border-[#0A4191] rounded-2xl p-3.5 shadow-2xs hover:shadow-md transition-all space-y-2.5 relative overflow-hidden text-[#0A4191]"
                             >
                               {/* Top Bar: Category Badge + Time + Action Buttons */}
                               <div className="flex items-center justify-between">
@@ -2689,8 +3178,8 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                                   <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${categoryColor}`}>
                                     {ev.category || 'General'}
                                   </span>
-                                  <span className="text-[11px] font-mono font-bold text-slate-600 dark:text-slate-300 flex items-center space-x-1">
-                                    <Clock className="w-3 h-3 text-slate-400" />
+                                  <span className="text-[11px] font-mono font-bold text-[#0A4191] flex items-center space-x-1">
+                                    <Clock className="w-3 h-3 text-[#0A4191]" />
                                     <span>{ev.time}</span>
                                   </span>
                                 </div>
@@ -2700,20 +3189,20 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                                   <button
                                     type="button"
                                     onClick={() => handleOpenEditAgenda(ev)}
-                                    className="p-1.5 text-slate-600 dark:text-slate-300 hover:text-[#0A4191] dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer flex items-center space-x-1 font-bold text-[11px]"
+                                    className="p-1.5 text-[#0A4191] bg-white border border-[#0A4191] hover:bg-blue-50 rounded-lg transition-colors cursor-pointer flex items-center space-x-1 font-black text-[11px]"
                                     title="Editar esta agenda"
                                   >
-                                    <Edit3 className="w-3.5 h-3.5" />
+                                    <Edit3 className="w-3.5 h-3.5 stroke-[2.5]" />
                                     <span className="hidden xs:inline">Editar</span>
                                   </button>
 
                                   <button
                                     type="button"
                                     onClick={() => handleDeleteAgendaEvent(ev.id, ev.title)}
-                                    className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer flex items-center space-x-1 font-bold text-[11px]"
+                                    className="p-1.5 text-red-600 bg-white border border-red-300 hover:bg-red-50 rounded-lg transition-colors cursor-pointer flex items-center space-x-1 font-black text-[11px]"
                                     title="Eliminar esta agenda"
                                   >
-                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <Trash2 className="w-3.5 h-3.5 stroke-[2.5]" />
                                     <span className="hidden xs:inline">Eliminar</span>
                                   </button>
                                 </div>
@@ -2721,36 +3210,36 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
                               {/* Title & Description */}
                               <div>
-                                <h4 className="font-extrabold text-slate-900 dark:text-white text-xs leading-snug">
+                                <h4 className="font-black text-[#0A4191] text-xs leading-snug">
                                   {ev.title}
                                 </h4>
                                 {ev.description && (
-                                  <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                                  <p className="text-[11px] text-[#0A4191]/90 mt-1 leading-relaxed font-semibold">
                                     {ev.description}
                                   </p>
                                 )}
                               </div>
 
                               {/* Location */}
-                              <div className="pt-1 border-t border-slate-100 dark:border-slate-700/60 flex items-center space-x-1.5 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                                <MapPin className="w-3.5 h-3.5 text-red-500 flex-shrink-0" />
+                              <div className="pt-1 border-t border-[#0A4191]/20 flex items-center space-x-1.5 text-[11px] text-[#0A4191] font-bold">
+                                <MapPin className="w-3.5 h-3.5 text-[#0A4191] flex-shrink-0" />
                                 <span className="truncate">{ev.location}</span>
                               </div>
                             </div>
                           );
                         })
                     ) : (
-                      <div className="bg-[#F8FAFC] dark:bg-slate-800/90 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-5 text-center space-y-2">
-                        <p className="font-extrabold text-slate-800 dark:text-slate-200 text-xs">
+                      <div className="bg-white border-2 border-[#0A4191] rounded-2xl p-5 text-center space-y-2 text-[#0A4191]">
+                        <p className="font-black text-[#0A4191] text-xs">
                           No hay agendas programadas para el {selectedAgendaDay} de {currentMonthName.toLowerCase()} de {currentCalendarYear}
                         </p>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
+                        <p className="text-[11px] text-[#0A4191]/80 max-w-xs mx-auto font-bold">
                           Puedes crear una nueva agenda municipal para esta fecha usando el botón a continuación.
                         </p>
                         <button
                           type="button"
                           onClick={() => handleOpenCreateAgenda(selectedAgendaDay)}
-                          className="px-3.5 py-2 bg-[#0A4191] hover:bg-blue-900 text-white rounded-xl font-extrabold text-xs inline-flex items-center space-x-1.5 transition-all cursor-pointer shadow-sm active:scale-95 mt-1"
+                          className="px-3.5 py-2 bg-white border-2 border-[#0A4191] hover:bg-blue-50 text-[#0A4191] rounded-xl font-black text-xs inline-flex items-center space-x-1.5 transition-all cursor-pointer shadow-xs active:scale-95 mt-1"
                         >
                           <Plus className="w-4 h-4 stroke-[3]" />
                           <span>Crear agenda para esta fecha</span>
@@ -3168,73 +3657,73 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
       {/* 2. AGENDA MODAL (MATCHES MOCKUP 16. AGENDA EXACTLY) */}
       {showAgendaModal && (
         <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-5 border-2 border-[#0A4191] shadow-2xl space-y-4 text-xs text-[#0A4191]">
             {/* Header Row: Back Arrow + Centered Title "Agenda Municipal" */}
-            <div className="relative text-center pt-1 pb-1">
+            <div className="relative text-center pt-1 pb-1 border-b border-[#0A4191]/20 pb-2">
               <button
                 type="button"
                 onClick={() => setShowAgendaModal(false)}
-                className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
+                className="absolute left-0 top-0.5 p-1 text-[#0A4191] hover:bg-blue-50 rounded-full cursor-pointer transition-colors"
               >
                 <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
               </button>
-              <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+              <h2 className="text-base font-black text-[#0A4191] tracking-tight font-serif">
                 Agenda Municipal
               </h2>
             </div>
 
             {/* Calendar View Container */}
-            <div className="bg-[#F8FAFC] dark:bg-slate-800/80 rounded-3xl p-3 border border-slate-100 dark:border-slate-700/60 space-y-2.5">
+            <div className="bg-white rounded-3xl p-3.5 border-2 border-[#0A4191] space-y-3">
               {/* Month Header: < Mayo 2024 > */}
               <div className="flex items-center justify-between px-2 pt-1">
                 <button
                   type="button"
-                  className="p-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 text-[#0A4191] hover:bg-blue-100 rounded-xl transition-colors cursor-pointer border border-[#0A4191]/30"
                 >
-                  <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
+                  <ChevronLeft className="w-5 h-5 stroke-[3]" />
                 </button>
-                <span className="font-black text-sm text-slate-900 dark:text-white tracking-tight">
+                <span className="font-black text-base text-[#0A4191] tracking-tight font-serif">
                   Mayo 2024
                 </span>
                 <button
                   type="button"
-                  className="p-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 text-[#0A4191] hover:bg-blue-100 rounded-xl transition-colors cursor-pointer border border-[#0A4191]/30"
                 >
-                  <ChevronRight className="w-5 h-5 stroke-[2.5]" />
+                  <ChevronRight className="w-5 h-5 stroke-[3]" />
                 </button>
               </div>
 
-              {/* Days of week header: L  M  M  J  V  S  D */}
-              <div className="grid grid-cols-7 text-center font-extrabold text-slate-400 dark:text-slate-500 text-[11px] py-1">
-                <span>L</span>
-                <span>M</span>
-                <span>M</span>
-                <span>J</span>
-                <span>V</span>
-                <span>S</span>
-                <span>D</span>
+              {/* Days of week header: Lun  Mar  Mié  Jue  Vie  Sáb  Dom */}
+              <div className="grid grid-cols-7 text-center font-black text-[#0A4191] text-xs py-1.5 bg-blue-50/80 rounded-xl border border-[#0A4191]/30">
+                <span>Lun</span>
+                <span>Mar</span>
+                <span>Mié</span>
+                <span>Jue</span>
+                <span>Vie</span>
+                <span>Sáb</span>
+                <span>Dom</span>
               </div>
 
               {/* Days of month grid */}
-              <div className="grid grid-cols-7 gap-y-1.5 gap-x-1 text-center items-center">
-                <span className="text-[11px] font-medium text-slate-300 dark:text-slate-600 py-1">29</span>
-                <span className="text-[11px] font-medium text-slate-300 dark:text-slate-600 py-1">30</span>
+              <div className="grid grid-cols-7 gap-y-2 gap-x-1 text-center items-center">
+                <span className="text-xs font-bold text-[#0A4191]/30 py-1">29</span>
+                <span className="text-xs font-bold text-[#0A4191]/30 py-1">30</span>
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31].map((d) => (
                   <button
                     key={`modal-day-${d}`}
                     type="button"
                     onClick={() => setSelectedAgendaDay(d)}
-                    className={`py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    className={`py-1 rounded-xl text-sm font-black transition-all cursor-pointer mx-auto flex items-center justify-center ${
                       selectedAgendaDay === d
-                        ? 'w-7 h-7 rounded-xl bg-[#0A4191] text-white flex items-center justify-center font-black shadow-md mx-auto'
-                        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
+                        ? 'w-9 h-9 bg-[#0A4191] text-white shadow-md ring-2 ring-blue-300'
+                        : 'w-9 h-9 text-[#0A4191] hover:bg-blue-100/70 border border-[#0A4191]/15'
                     }`}
                   >
                     {d}
                   </button>
                 ))}
-                <span className="text-[11px] font-medium text-slate-300 dark:text-slate-600 py-1">1</span>
-                <span className="text-[11px] font-medium text-slate-300 dark:text-slate-600 py-1">2</span>
+                <span className="text-xs font-bold text-[#0A4191]/30 py-1">1</span>
+                <span className="text-xs font-bold text-[#0A4191]/30 py-1">2</span>
               </div>
             </div>
 
@@ -4397,27 +4886,27 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
       {/* MODAL 3: CREAR NUEVA AGENDA MUNICIPAL */}
       {showCreateAgendaModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4 text-slate-900 dark:text-slate-100 relative text-left max-h-[90vh] overflow-y-auto text-xs">
+          <div className="bg-white border-2 border-[#0A4191] rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4 text-[#0A4191] relative text-left max-h-[90vh] overflow-y-auto text-xs">
             <button
               type="button"
               onClick={() => setShowCreateAgendaModal(false)}
-              className="absolute top-3.5 right-3.5 p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full cursor-pointer transition-colors"
+              className="absolute top-3.5 right-3.5 p-1.5 text-[#0A4191] hover:bg-blue-50 rounded-full cursor-pointer transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center space-x-3 text-[#0A4191] dark:text-blue-400 pr-6">
-              <div className="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-950/80 flex items-center justify-center flex-shrink-0">
-                <Calendar className="w-5 h-5 stroke-[2.2]" />
+            <div className="flex items-center space-x-3 text-[#0A4191] pr-6">
+              <div className="w-10 h-10 rounded-2xl bg-blue-50 border-2 border-[#0A4191] flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-5 h-5 stroke-[2.2] text-[#0A4191]" />
               </div>
               <div>
-                <h3 className="font-extrabold text-base leading-tight">Nueva Agenda Municipal</h3>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Agregar evento al calendario del cantón</p>
+                <h3 className="font-black text-base leading-tight text-[#0A4191] font-serif">Nueva Agenda Municipal</h3>
+                <p className="text-[11px] text-[#0A4191]/80 font-bold">Agregar evento al calendario del cantón</p>
               </div>
             </div>
 
             {agendaFormError && (
-              <div className="p-2.5 bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-xl text-xs font-bold flex items-center space-x-2">
+              <div className="p-2.5 bg-red-50 border-2 border-red-500 text-red-700 rounded-xl text-xs font-bold flex items-center space-x-2">
                 <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
                 <span>{agendaFormError}</span>
               </div>
@@ -4425,7 +4914,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
             <form onSubmit={handleSaveCreateAgenda} className="space-y-3">
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-[11px] font-black text-[#0A4191] mb-1">
                   Título de la Agenda / Evento *
                 </label>
                 <input
@@ -4433,20 +4922,20 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   value={agendaFormTitle}
                   onChange={(e) => setAgendaFormTitle(e.target.value)}
                   placeholder="Ej: Minga de Limpieza en Sector Río Upano"
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-[11px] font-black text-[#0A4191] mb-1">
                     Día de Mayo *
                   </label>
                   <select
                     value={agendaFormDay}
                     onChange={(e) => setAgendaFormDay(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
                   >
                     {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
                       <option key={`opt-day-${d}`} value={d}>
@@ -4457,7 +4946,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-[11px] font-black text-[#0A4191] mb-1">
                     Horario *
                   </label>
                   <input
@@ -4465,7 +4954,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                     value={agendaFormTime}
                     onChange={(e) => setAgendaFormTime(e.target.value)}
                     placeholder="Ej: 09:00 AM"
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
                     required
                   />
                 </div>
@@ -4473,13 +4962,13 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-[11px] font-black text-[#0A4191] mb-1">
                     Categoría
                   </label>
                   <select
                     value={agendaFormCategory}
                     onChange={(e) => setAgendaFormCategory(e.target.value as any)}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
                   >
                     <option value="Minga">Minga</option>
                     <option value="Cabildo">Cabildo</option>
@@ -4491,7 +4980,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-[11px] font-black text-[#0A4191] mb-1">
                     Lugar / Ubicación *
                   </label>
                   <input
@@ -4499,14 +4988,14 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                     value={agendaFormLocation}
                     onChange={(e) => setAgendaFormLocation(e.target.value)}
                     placeholder="Ej: Parque Central Logroño"
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-[11px] font-black text-[#0A4191] mb-1">
                   Descripción o Detalles
                 </label>
                 <textarea
@@ -4514,7 +5003,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   value={agendaFormDescription}
                   onChange={(e) => setAgendaFormDescription(e.target.value)}
                   placeholder="Detalles adicionales sobre el evento o convocatoria comunitaria..."
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+                  className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none resize-none"
                 />
               </div>
 
@@ -4522,13 +5011,13 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowCreateAgendaModal(false)}
-                  className="py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                  className="py-2.5 rounded-xl border-2 border-[#0A4191] bg-white hover:bg-blue-50 text-[#0A4191] font-black text-xs transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="py-2.5 rounded-xl bg-[#0A4191] hover:bg-blue-900 text-white font-bold text-xs shadow-md transition-colors cursor-pointer flex items-center justify-center space-x-1"
+                  className="py-2.5 rounded-xl border-2 border-[#0A4191] bg-white hover:bg-blue-50 text-[#0A4191] font-black text-xs shadow-xs transition-colors cursor-pointer flex items-center justify-center space-x-1"
                 >
                   <Plus className="w-4 h-4 stroke-[2.5]" />
                   <span>Guardar Agenda</span>
@@ -4542,30 +5031,30 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
       {/* MODAL 4: EDITAR AGENDA MUNICIPAL */}
       {showEditAgendaModal && editingAgendaEvent && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4 text-slate-900 dark:text-slate-100 relative text-left max-h-[90vh] overflow-y-auto text-xs">
+          <div className="bg-white border-2 border-[#0A4191] rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4 text-[#0A4191] relative text-left max-h-[90vh] overflow-y-auto text-xs">
             <button
               type="button"
               onClick={() => {
                 setShowEditAgendaModal(false);
                 setEditingAgendaEvent(null);
               }}
-              className="absolute top-3.5 right-3.5 p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full cursor-pointer transition-colors"
+              className="absolute top-3.5 right-3.5 p-1.5 text-[#0A4191] hover:bg-blue-50 rounded-full cursor-pointer transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center space-x-3 text-[#0A4191] dark:text-blue-400 pr-6">
-              <div className="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-950/80 flex items-center justify-center flex-shrink-0">
-                <Edit3 className="w-5 h-5 stroke-[2.2]" />
+            <div className="flex items-center space-x-3 text-[#0A4191] pr-6">
+              <div className="w-10 h-10 rounded-2xl bg-blue-50 border-2 border-[#0A4191] flex items-center justify-center flex-shrink-0">
+                <Edit3 className="w-5 h-5 stroke-[2.2] text-[#0A4191]" />
               </div>
               <div>
-                <h3 className="font-extrabold text-base leading-tight">Editar Agenda</h3>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Modificar datos del evento programado</p>
+                <h3 className="font-black text-base leading-tight text-[#0A4191] font-serif">Editar Agenda</h3>
+                <p className="text-[11px] text-[#0A4191]/80 font-bold">Modificar datos del evento programado</p>
               </div>
             </div>
 
             {agendaFormError && (
-              <div className="p-2.5 bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-xl text-xs font-bold flex items-center space-x-2">
+              <div className="p-2.5 bg-red-50 border-2 border-red-500 text-red-700 rounded-xl text-xs font-bold flex items-center space-x-2">
                 <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
                 <span>{agendaFormError}</span>
               </div>
@@ -4573,27 +5062,27 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
             <form onSubmit={handleSaveEditAgenda} className="space-y-3">
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-[11px] font-black text-[#0A4191] mb-1">
                   Título de la Agenda / Evento *
                 </label>
                 <input
                   type="text"
                   value={agendaFormTitle}
                   onChange={(e) => setAgendaFormTitle(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-[11px] font-black text-[#0A4191] mb-1">
                     Día de Mayo *
                   </label>
                   <select
                     value={agendaFormDay}
                     onChange={(e) => setAgendaFormDay(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
                   >
                     {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
                       <option key={`edit-opt-day-${d}`} value={d}>
@@ -4604,14 +5093,14 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-[11px] font-black text-[#0A4191] mb-1">
                     Horario *
                   </label>
                   <input
                     type="text"
                     value={agendaFormTime}
                     onChange={(e) => setAgendaFormTime(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
                     required
                   />
                 </div>
@@ -4619,13 +5108,13 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-[11px] font-black text-[#0A4191] mb-1">
                     Categoría
                   </label>
                   <select
                     value={agendaFormCategory}
                     onChange={(e) => setAgendaFormCategory(e.target.value as any)}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
                   >
                     <option value="Minga">Minga</option>
                     <option value="Cabildo">Cabildo</option>
@@ -4637,28 +5126,28 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-[11px] font-black text-[#0A4191] mb-1">
                     Lugar / Ubicación *
                   </label>
                   <input
                     type="text"
                     value={agendaFormLocation}
                     onChange={(e) => setAgendaFormLocation(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-[11px] font-black text-[#0A4191] mb-1">
                   Descripción o Detalles
                 </label>
                 <textarea
                   rows={2.5}
                   value={agendaFormDescription}
                   onChange={(e) => setAgendaFormDescription(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+                  className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none resize-none"
                 />
               </div>
 
@@ -4669,13 +5158,13 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                     setShowEditAgendaModal(false);
                     setEditingAgendaEvent(null);
                   }}
-                  className="py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                  className="py-2.5 rounded-xl border-2 border-[#0A4191] bg-white hover:bg-blue-50 text-[#0A4191] font-black text-xs transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="py-2.5 rounded-xl bg-[#0A4191] hover:bg-blue-900 text-white font-bold text-xs shadow-md transition-colors cursor-pointer flex items-center justify-center space-x-1"
+                  className="py-2.5 rounded-xl border-2 border-[#0A4191] bg-white hover:bg-blue-50 text-[#0A4191] font-black text-xs shadow-xs transition-colors cursor-pointer flex items-center justify-center space-x-1"
                 >
                   <Check className="w-4 h-4 stroke-[2.5]" />
                   <span>Guardar Cambios</span>

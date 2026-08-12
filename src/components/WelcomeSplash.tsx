@@ -10,8 +10,10 @@ import {
   Activity, 
   CheckCircle2, 
   Volume2,
-  Building2
+  Building2,
+  Compass
 } from 'lucide-react';
+import { WelcomeTouristMap } from './WelcomeTouristMap';
 
 interface WelcomeSplashProps {
   onStart: () => void;
@@ -230,65 +232,57 @@ export const WelcomeSplash: React.FC<WelcomeSplashProps> = ({ onStart }) => {
 
         </div>
 
-        {/* BOTTOM SECTION: Logroño Landscape Photo with Ken Burns Zoom & Action Button */}
-        <div className="relative flex-1 min-h-[310px] overflow-hidden flex flex-col items-center justify-end p-6">
+        {/* BOTTOM SECTION: Interactive Tourist Map of Logroño */}
+        <div className="relative flex-1 min-h-[350px] overflow-hidden flex flex-col justify-between p-3 sm:p-4 bg-slate-900 border-t-2 border-[#0A4191]">
           
-          {/* Animated Ken Burns Landscape Background Photo */}
-          <motion.img 
-            src={logronoLandscape}
-            alt="Palacio Municipal - Cantón Logroño Morona Santiago"
-            referrerPolicy="no-referrer"
-            animate={{ scale: [1, 1.08, 1] }}
-            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute inset-0 w-full h-full object-cover object-center"
-          />
+          {/* MAP TITLE BADGE & LIVE STATUS */}
+          <div className="relative z-20 flex items-center justify-between mb-2 gap-2">
+            <div className="bg-[#0A4191] text-white px-3 py-1.5 rounded-2xl border-2 border-[#0A4191] flex items-center space-x-2 shadow-lg">
+              <Compass className="w-4 h-4 text-amber-400 stroke-[2.5] shrink-0" />
+              <span className="font-black text-xs tracking-tight">Mapa Turístico & Rutas de Logroño</span>
+            </div>
 
-          {/* Gradient Overlay for High Contrast */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-
-          {/* Floating Live Canton Badge */}
-          <div className="absolute top-3 left-4 right-4 flex items-center justify-between pointer-events-none">
-            <span className="bg-slate-900/80 backdrop-blur-md text-white/90 text-[10px] font-bold px-3 py-1 rounded-full border border-white/20 flex items-center space-x-1.5 shadow-md">
-              <Building2 className="w-3 h-3 text-amber-400" />
-              <span>GAD Municipal Cantón Logroño • Morona Santiago</span>
-            </span>
-            <span className="bg-emerald-500/90 backdrop-blur-md text-white text-[10px] font-black px-2.5 py-1 rounded-full border border-emerald-300 shadow-md flex items-center space-x-1">
+            <span className="bg-emerald-500/90 backdrop-blur-md text-white text-[10px] font-black px-2.5 py-1 rounded-full border border-emerald-300 shadow-md flex items-center space-x-1 shrink-0">
               <CheckCircle2 className="w-3 h-3" />
-              <span>Sistema Activo</span>
+              <span className="hidden sm:inline">Logroño Vivo</span>
             </span>
+          </div>
+
+          {/* MEDIA CONTENT DISPLAY */}
+          <div className="relative flex-1 w-full rounded-2xl overflow-hidden my-1">
+            <WelcomeTouristMap onStartApp={onStart} className="w-full h-full min-h-[290px]" />
           </div>
 
           {/* Centered "Comenzar" Dynamic Button Block */}
           <motion.div 
-            initial={{ y: 20, opacity: 0 }}
+            initial={{ y: 15, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-            className="relative z-10 w-full flex flex-col items-center space-y-3 mb-1"
+            transition={{ delay: 0.3, duration: 0.4 }}
+            className="relative z-20 w-full flex flex-col items-center space-y-2 mt-2"
           >
             <button
               type="button"
               onClick={onStart}
-              className="w-full max-w-[260px] bg-[#0A4191] hover:bg-[#072F6B] text-white font-black text-lg py-4 px-8 rounded-2xl shadow-2xl hover:shadow-blue-900/60 transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center space-x-3 tracking-wide border-2 border-white/30 group relative overflow-hidden"
+              className="w-full max-w-[280px] bg-[#0A4191] hover:bg-[#072F6B] text-white font-black text-base py-3.5 px-6 rounded-2xl shadow-xl hover:shadow-blue-900/60 transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center space-x-3 tracking-wide border-2 border-white/30 group relative overflow-hidden"
             >
-              {/* Subtle Animated Button Glow Overlay */}
               <motion.div 
                 animate={{ x: ['-100%', '200%'] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"
               />
 
-              <span className="relative z-10 font-sans uppercase tracking-wider text-base">Comenzar</span>
+              <span className="relative z-10 font-sans uppercase tracking-wider text-sm">Comenzar</span>
               <motion.div
                 animate={{ x: [0, 4, 0] }}
                 transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                className="relative z-10 w-7 h-7 rounded-xl bg-white/20 flex items-center justify-center group-hover:bg-amber-400 group-hover:text-slate-950 transition-colors"
+                className="relative z-10 w-6 h-6 rounded-xl bg-white/20 flex items-center justify-center group-hover:bg-amber-400 group-hover:text-slate-950 transition-colors"
               >
                 <ArrowRight className="w-4 h-4 text-emerald-300 group-hover:text-slate-950 transition-colors stroke-[3]" />
               </motion.div>
             </button>
 
             {/* Official GAD Footer Label */}
-            <div className="flex items-center space-x-2 text-[11px] text-white font-bold bg-slate-900/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 shadow-md">
+            <div className="flex items-center space-x-2 text-[10px] text-white font-bold bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-md">
               <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               <span>GAD Municipal de Logroño 2026</span>
             </div>
