@@ -127,6 +127,8 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
   const cantonLayerGroupRef = useRef<L.LayerGroup | null>(null);
   const patrolMarkerRef = useRef<L.Marker | null>(null);
   const selectedMarkerRef = useRef<L.Marker | null>(null);
+  const userLocationMarkerRef = useRef<L.Marker | null>(null);
+  const userAccuracyCircleRef = useRef<L.Circle | null>(null);
   const routePolylineRef = useRef<L.Polyline | null>(null);
   const gadMarkerRef = useRef<L.Marker | null>(null);
 
@@ -613,14 +615,14 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
     });
   }, [filteredIncidents, onSelectIncident]);
 
-  // Real-time Geolocation Handler (Usar Ubicación Actual)
+  // Real-time Geolocation Handler (Boton 'Ubicarme' mediante API de Geolocalización)
   const handleGetRealTimeLocation = () => {
     setIsLocating(true);
-    setGpsStatusMessage('Obteniendo ubicación GPS en tiempo real...');
+    setGpsStatusMessage('📍 Accediendo a la geolocalización de tu dispositivo...');
 
     if (!navigator.geolocation) {
       setIsLocating(false);
-      setGpsStatusMessage('Navegador no soporta Geolocalización. Se usará el centro de Logroño.');
+      setGpsStatusMessage('⚠️ Tu navegador no soporta la API de Geolocalización. Se usará el centro de Logroño.');
       return;
     }
 
@@ -629,17 +631,62 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
         setIsLocating(false);
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
+        const accuracy = position.coords.accuracy;
 
         setActiveCoords({ lat, lng });
 
-        const { sector, address } = getSectorFromCoords(lat, lng);
-        setGpsStatusMessage(`📍 Ubicación GPS obtenida: ${sector}`);
-
+        // Add or update pulsing user marker and accuracy halo on map
         if (mapInstanceRef.current) {
+          if (userLocationMarkerRef.current) {
+            userLocationMarkerRef.current.remove();
+            userLocationMarkerRef.current = null;
+          }
+          if (userAccuracyCircleRef.current) {
+            userAccuracyCircleRef.current.remove();
+            userAccuracyCircleRef.current = null;
+          }
+
+          const userPinHtml = `
+            <div style="position:relative; width:32px; height:32px; display:flex; align-items:center; justify-content:center;">
+              <div style="position:absolute; width:32px; height:32px; background:rgba(14, 165, 233, 0.4); border-radius:50%; animation:ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+              <div style="width:18px; height:18px; background:#0284c7; border:3px solid #ffffff; border-radius:50%; box-shadow:0 0 12px rgba(2,132,199,0.9); z-index:2;"></div>
+            </div>
+          `;
+
+          const userIcon = L.divIcon({
+            html: userPinHtml,
+            className: 'user-gps-pin-icon',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+          });
+
+          userLocationMarkerRef.current = L.marker([lat, lng], { icon: userIcon })
+            .addTo(mapInstanceRef.current)
+            .bindPopup(`
+              <div style="padding:4px; font-family:sans-serif; text-align:center;">
+                <strong style="color:#0284c7; font-size:12px;">📍 Tu Posición Actual</strong><br/>
+                <span style="font-size:10px; color:#475569;">Precisión GPS: ±${Math.round(accuracy || 10)}m</span>
+              </div>
+            `);
+
+          if (accuracy && accuracy > 0) {
+            userAccuracyCircleRef.current = L.circle([lat, lng], {
+              radius: Math.max(accuracy, 25),
+              color: '#0284c7',
+              fillColor: '#38bdf8',
+              fillOpacity: 0.15,
+              weight: 1.5
+            }).addTo(mapInstanceRef.current);
+          }
+
+          // Centrar suavemente el mapa en las coordenadas actuales
           mapInstanceRef.current.flyTo([lat, lng], 16, {
             duration: 1.2
           });
         }
+
+        const { sector, address } = getSectorFromCoords(lat, lng);
+        setGpsStatusMessage(`🎯 Mapa centrado en tu posición actual: ${sector} (±${Math.round(accuracy || 10)}m)`);
 
         if (onLocationSelect) {
           onLocationSelect(lat, lng, address, sector);
@@ -647,17 +694,26 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
       },
       (error) => {
         setIsLocating(false);
-        console.warn('Geolocation warning:', error);
-        // Fallback to Logroño town center default coordinates smoothly
+        console.warn('Geolocation warning/error:', error);
+
+        let errorMsg = 'No se pudo obtener la posición exacta. Se fijó en Logroño Centro.';
+        if (error.code === error.PERMISSION_DENIED) {
+          errorMsg = 'Permiso de geolocalización denegado en el navegador. Se fijó en Logroño Centro.';
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          errorMsg = 'Señal GPS no disponible. Se fijó en Logroño Centro.';
+        } else if (error.code === error.TIMEOUT) {
+          errorMsg = 'Tiempo de respuesta GPS agotado. Se fijó en Logroño Centro.';
+        }
+
         const defaultLat = -2.6280;
         const defaultLng = -78.1760;
         setActiveCoords({ lat: defaultLat, lng: defaultLng });
 
         const { sector, address } = getSectorFromCoords(defaultLat, defaultLng);
-        setGpsStatusMessage('📍 Fijado en Logroño Centro. Toca el mapa para afinar tu ubicación exactas.');
+        setGpsStatusMessage(`📍 ${errorMsg}`);
 
         if (mapInstanceRef.current) {
-          mapInstanceRef.current.flyTo([defaultLat, defaultLng], 15);
+          mapInstanceRef.current.flyTo([defaultLat, defaultLng], 15, { duration: 1 });
         }
 
         if (onLocationSelect) {
@@ -666,7 +722,7 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
       },
       {
         enableHighAccuracy: true,
-        timeout: 8000,
+        timeout: 10000,
         maximumAge: 0
       }
     );
@@ -910,27 +966,42 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
             </div>
           )}
 
-          {/* Button: Usar mi ubicación actual */}
+          {/* Button: Ubicarme (API Geolocalización del Navegador) */}
           <div className="pointer-events-auto ml-auto">
             <button
               type="button"
               onClick={handleGetRealTimeLocation}
               disabled={isLocating}
-              className="bg-[#0A4191] hover:bg-blue-900 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-xl border border-blue-400/30 flex items-center space-x-2 transition-all cursor-pointer active:scale-95 disabled:opacity-75"
+              className="bg-[#0A4191] hover:bg-blue-900 text-white font-extrabold text-xs px-3.5 py-2 rounded-xl shadow-xl border border-blue-400/40 flex items-center space-x-2 transition-all cursor-pointer active:scale-95 disabled:opacity-75"
+              title="Utilizar la API de geolocalización del navegador para centrar el mapa en tu posición actual"
             >
               {isLocating ? (
                 <>
-                  <Sparkles className="w-4 h-4 text-amber-300 animate-spin" />
+                  <Sparkles className="w-4 h-4 text-amber-300 animate-spin shrink-0" />
                   <span>Obteniendo GPS...</span>
                 </>
               ) : (
                 <>
-                  <LocateFixed className="w-4 h-4 text-emerald-400" />
-                  <span>Usar ubicación actual</span>
+                  <LocateFixed className="w-4 h-4 text-emerald-400 shrink-0 animate-pulse" />
+                  <span>Ubicarme</span>
                 </>
               )}
             </button>
           </div>
+        </div>
+
+        {/* Floating Quick-Access 'Ubicarme' Control Button on Map Canvas */}
+        <div className="absolute bottom-16 right-3 z-10 pointer-events-auto">
+          <button
+            type="button"
+            onClick={handleGetRealTimeLocation}
+            disabled={isLocating}
+            className="bg-white/95 dark:bg-slate-900/95 text-slate-900 dark:text-slate-100 hover:bg-blue-50 dark:hover:bg-slate-800 font-extrabold text-xs px-3 py-2 rounded-xl shadow-2xl border-2 border-[#0A4191]/40 dark:border-blue-500/40 flex items-center space-x-1.5 transition-all cursor-pointer active:scale-95 disabled:opacity-75 backdrop-blur-md"
+            title="Centrar el mapa en tu posición GPS actual"
+          >
+            <LocateFixed className={`w-4 h-4 text-[#0A4191] dark:text-blue-400 shrink-0 ${isLocating ? 'animate-spin text-amber-500' : ''}`} />
+            <span className="font-extrabold">Ubicarme</span>
+          </button>
         </div>
 
         {/* Floating status pill at bottom left */}

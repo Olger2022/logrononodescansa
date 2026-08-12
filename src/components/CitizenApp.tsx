@@ -1930,17 +1930,18 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
             {/* TAB 3: MIS REPORTES (MATCHES MOCKUP 13 EXACTLY) */}
             {citizenTab === 'mis_reportes' && (
-              <div className="space-y-4 text-xs">
+              <div className="bg-white border-2 border-[#0A4191] rounded-2xl p-4 sm:p-5 shadow-sm space-y-4 text-xs text-[#0A4191]">
                 {/* Header Row: Back Arrow + Centered Title */}
                 <div className="relative text-center pt-1 pb-1">
                   <button
                     type="button"
                     onClick={() => setCitizenTab('inicio')}
-                    className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer"
+                    className="absolute left-0 top-0.5 p-1 text-[#0A4191] hover:bg-blue-50 rounded-full cursor-pointer transition-colors"
+                    title="Volver al inicio"
                   >
                     <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
                   </button>
-                  <h2 className="text-base font-black text-slate-900 dark:text-white font-serif tracking-tight">
+                  <h2 className="text-base font-black text-[#0A4191] font-serif tracking-tight">
                     Mis reportes
                   </h2>
                 </div>
@@ -1953,10 +1954,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       type="button"
                       onClick={() => setMisReportesFilter('todos')}
                       title="Ver todos los reportes"
-                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
+                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center space-x-1.5 border ${
                         misReportesFilter === 'todos'
-                          ? 'bg-[#0A4191] text-white shadow-xs'
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
+                          ? 'bg-[#0A4191] text-white border-[#0A4191] shadow-xs'
+                          : 'bg-white text-[#0A4191] border-[#0A4191] hover:bg-blue-50'
                       }`}
                     >
                       <ListFilter className="w-3.5 h-3.5 flex-shrink-0" />
@@ -1966,10 +1967,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       type="button"
                       onClick={() => setMisReportesFilter('en_proceso')}
                       title="Ver reportes en proceso"
-                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
+                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center space-x-1.5 border ${
                         misReportesFilter === 'en_proceso'
-                          ? 'bg-[#0A4191] text-white shadow-xs'
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
+                          ? 'bg-[#0A4191] text-white border-[#0A4191] shadow-xs'
+                          : 'bg-white text-[#0A4191] border-[#0A4191] hover:bg-blue-50'
                       }`}
                     >
                       <Clock className="w-3.5 h-3.5 flex-shrink-0 text-amber-500" />
@@ -1979,10 +1980,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       type="button"
                       onClick={() => setMisReportesFilter('solucionados')}
                       title="Ver reportes solucionados"
-                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center space-x-1.5 ${
+                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center space-x-1.5 border ${
                         misReportesFilter === 'solucionados'
-                          ? 'bg-[#0A4191] text-white shadow-xs'
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
+                          ? 'bg-[#0A4191] text-white border-[#0A4191] shadow-xs'
+                          : 'bg-white text-[#0A4191] border-[#0A4191] hover:bg-blue-50'
                       }`}
                     >
                       <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-emerald-500" />
@@ -1991,16 +1992,16 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   </div>
 
                   {/* Dropdown Selector for Sorting */}
-                  <div className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700/80">
-                    <ArrowUpDown className="w-3.5 h-3.5 text-[#0A4191] dark:text-blue-400 flex-shrink-0" />
-                    <label htmlFor="select-mis-reportes-sort" className="text-[11px] font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                  <div className="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-xl border-2 border-[#0A4191]">
+                    <ArrowUpDown className="w-3.5 h-3.5 text-[#0A4191] flex-shrink-0" />
+                    <label htmlFor="select-mis-reportes-sort" className="text-[11px] font-black text-[#0A4191] whitespace-nowrap">
                       Ordenar:
                     </label>
                     <select
                       id="select-mis-reportes-sort"
                       value={misReportesSortBy}
                       onChange={(e) => setMisReportesSortBy(e.target.value as any)}
-                      className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-xs font-bold rounded-lg px-2 py-1 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-2xs"
+                      className="bg-white text-[#0A4191] text-xs font-extrabold rounded-lg px-2 py-1 border border-[#0A4191] focus:outline-none focus:ring-2 focus:ring-[#0A4191] cursor-pointer shadow-2xs"
                     >
                       <option value="fecha_desc">Fecha (Recientes primero)</option>
                       <option value="fecha_asc">Fecha (Antiguos primero)</option>
@@ -2012,17 +2013,17 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
                 {/* Custom Professional Data Table for Mis Reportes */}
                 <div className="pt-1">
-                  <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-xs bg-white dark:bg-slate-800">
-                    <table className="w-full text-left border-collapse">
+                  <div className="overflow-x-auto rounded-2xl border-2 border-[#0A4191] shadow-xs bg-white">
+                    <table className="w-full text-left border-collapse bg-white">
                       <thead>
-                        <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 text-[11px] font-extrabold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
-                          <th className="py-3 px-3.5">Código</th>
-                          <th className="py-3 px-3.5">Categoría / Asunto</th>
-                          <th className="py-3 px-3.5">Ubicación / Sector</th>
+                        <tr className="bg-blue-50 border-b-2 border-[#0A4191] text-[11px] font-black text-[#0A4191] uppercase tracking-wider">
+                          <th className="py-3 px-3.5 border-r border-[#0A4191]/40">Código</th>
+                          <th className="py-3 px-3.5 border-r border-[#0A4191]/40">Categoría / Asunto</th>
+                          <th className="py-3 px-3.5 border-r border-[#0A4191]/40">Ubicación / Sector</th>
                           
                           {/* Column Header: Fecha (Interactive Sort) */}
                           <th
-                            className="py-3 px-3.5 cursor-pointer select-none hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            className="py-3 px-3.5 border-r border-[#0A4191]/40 cursor-pointer select-none hover:bg-blue-100 transition-colors"
                             onClick={() => {
                               if (misReportesSortBy === 'fecha_desc') {
                                 setMisReportesSortBy('fecha_asc');
@@ -2032,17 +2033,17 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                             }}
                             title="Haz clic para ordenar por fecha de creación"
                           >
-                            <div className="flex items-center space-x-1">
+                            <div className="flex items-center space-x-1 text-[#0A4191]">
                               <span>Fecha</span>
-                              {misReportesSortBy === 'fecha_desc' && <ArrowDown className="w-3.5 h-3.5 text-[#0A4191] dark:text-blue-400 stroke-[2.5]" />}
-                              {misReportesSortBy === 'fecha_asc' && <ArrowUp className="w-3.5 h-3.5 text-[#0A4191] dark:text-blue-400 stroke-[2.5]" />}
-                              {!misReportesSortBy.startsWith('fecha') && <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />}
+                              {misReportesSortBy === 'fecha_desc' && <ArrowDown className="w-3.5 h-3.5 text-[#0A4191] stroke-[2.5]" />}
+                              {misReportesSortBy === 'fecha_asc' && <ArrowUp className="w-3.5 h-3.5 text-[#0A4191] stroke-[2.5]" />}
+                              {!misReportesSortBy.startsWith('fecha') && <ArrowUpDown className="w-3 h-3 text-[#0A4191]/60" />}
                             </div>
                           </th>
 
                           {/* Column Header: Prioridad (Interactive Sort) */}
                           <th
-                            className="py-3 px-3.5 cursor-pointer select-none hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            className="py-3 px-3.5 border-r border-[#0A4191]/40 cursor-pointer select-none hover:bg-blue-100 transition-colors"
                             onClick={() => {
                               if (misReportesSortBy === 'prioridad_desc') {
                                 setMisReportesSortBy('prioridad_asc');
@@ -2052,19 +2053,19 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                             }}
                             title="Haz clic para ordenar por nivel de prioridad"
                           >
-                            <div className="flex items-center space-x-1">
+                            <div className="flex items-center space-x-1 text-[#0A4191]">
                               <span>Prioridad</span>
-                              {misReportesSortBy === 'prioridad_desc' && <ArrowDown className="w-3.5 h-3.5 text-[#0A4191] dark:text-blue-400 stroke-[2.5]" />}
-                              {misReportesSortBy === 'prioridad_asc' && <ArrowUp className="w-3.5 h-3.5 text-[#0A4191] dark:text-blue-400 stroke-[2.5]" />}
-                              {!misReportesSortBy.startsWith('prioridad') && <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />}
+                              {misReportesSortBy === 'prioridad_desc' && <ArrowDown className="w-3.5 h-3.5 text-[#0A4191] stroke-[2.5]" />}
+                              {misReportesSortBy === 'prioridad_asc' && <ArrowUp className="w-3.5 h-3.5 text-[#0A4191] stroke-[2.5]" />}
+                              {!misReportesSortBy.startsWith('prioridad') && <ArrowUpDown className="w-3 h-3 text-[#0A4191]/60" />}
                             </div>
                           </th>
 
-                          <th className="py-3 px-3.5">Estado</th>
+                          <th className="py-3 px-3.5 border-r border-[#0A4191]/40">Estado</th>
                           <th className="py-3 px-3.5 text-center">Acción</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60 text-xs">
+                      <tbody className="divide-y divide-[#0A4191]/30 text-xs bg-white text-[#0A4191]">
                         {incidents
                           .filter((inc) => {
                             if (misReportesFilter === 'en_proceso') {
@@ -2115,13 +2116,13 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                             const priorityBadge = (() => {
                               switch (inc.priority) {
                                 case 'critica':
-                                  return <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300">Crítica</span>;
+                                  return <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-red-100 text-red-800 border border-red-300">Crítica</span>;
                                 case 'alta':
-                                  return <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">Alta</span>;
+                                  return <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-100 text-amber-800 border border-amber-300">Alta</span>;
                                 case 'media':
-                                  return <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">Media</span>;
+                                  return <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-100 text-[#0A4191] border border-blue-300">Media</span>;
                                 default:
-                                  return <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">Baja</span>;
+                                  return <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-slate-100 text-slate-800 border border-slate-300">Baja</span>;
                               }
                             })();
 
@@ -2129,51 +2130,51 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                               <tr
                                 key={inc.id}
                                 onClick={() => setSelectedIncident(inc)}
-                                className="hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition-colors cursor-pointer group"
+                                className="hover:bg-blue-50/60 transition-colors cursor-pointer group bg-white text-[#0A4191]"
                               >
                                 {/* Code Column */}
-                                <td className="py-3 px-3.5 font-mono font-extrabold text-[#0A4191] dark:text-blue-400 whitespace-nowrap">
+                                <td className="py-3 px-3.5 font-mono font-black text-[#0A4191] whitespace-nowrap border-r border-[#0A4191]/30">
                                   {inc.code}
                                 </td>
 
                                 {/* Title / Category Column */}
-                                <td className="py-3 px-3.5">
-                                  <div className="font-extrabold text-slate-900 dark:text-white group-hover:text-[#0A4191] dark:group-hover:text-blue-400 transition-colors line-clamp-1">
+                                <td className="py-3 px-3.5 border-r border-[#0A4191]/30">
+                                  <div className="font-black text-[#0A4191] group-hover:underline line-clamp-1">
                                     {inc.title}
                                   </div>
-                                  <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                                  <div className="text-[11px] font-bold text-[#0A4191]/80">
                                     {inc.category}
                                   </div>
                                 </td>
 
                                 {/* Location Column */}
-                                <td className="py-3 px-3.5">
-                                  <div className="font-semibold text-slate-800 dark:text-slate-200">
+                                <td className="py-3 px-3.5 border-r border-[#0A4191]/30">
+                                  <div className="font-bold text-[#0A4191]">
                                     {inc.location.sector}
                                   </div>
-                                  <div className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1">
+                                  <div className="text-[10px] text-[#0A4191]/80 line-clamp-1">
                                     {inc.location.address}
                                   </div>
                                 </td>
 
                                 {/* Date Column */}
-                                <td className="py-3 px-3.5 font-mono text-[11px] text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                                <td className="py-3 px-3.5 font-mono font-bold text-[11px] text-[#0A4191] whitespace-nowrap border-r border-[#0A4191]/30">
                                   {dateFormatted}
                                 </td>
 
                                 {/* Priority Column */}
-                                <td className="py-3 px-3.5 whitespace-nowrap">
+                                <td className="py-3 px-3.5 whitespace-nowrap border-r border-[#0A4191]/30">
                                   {priorityBadge}
                                 </td>
 
                                 {/* Status Column */}
-                                <td className="py-3 px-3.5 whitespace-nowrap">
+                                <td className="py-3 px-3.5 whitespace-nowrap border-r border-[#0A4191]/30">
                                   <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full inline-block ${
                                     inc.status === 'resuelto' 
-                                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60' 
+                                      ? 'bg-emerald-100 text-emerald-900 border border-emerald-400' 
                                       : inc.status === 'reportado'
-                                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60'
-                                      : 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60'
+                                      ? 'bg-blue-100 text-[#0A4191] border border-blue-400'
+                                      : 'bg-amber-100 text-amber-900 border border-amber-400'
                                   }`}>
                                     {inc.status === 'resuelto' ? 'Solucionado' : inc.status === 'reportado' ? 'Recibido' : 'En proceso'}
                                   </span>
@@ -2187,7 +2188,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                                       e.stopPropagation();
                                       setSelectedIncident(inc);
                                     }}
-                                    className="px-2.5 py-1 text-[11px] font-bold bg-slate-100 dark:bg-slate-700 hover:bg-[#0A4191] hover:text-white dark:hover:bg-blue-600 text-slate-700 dark:text-slate-200 rounded-lg transition-all cursor-pointer"
+                                    className="px-2.5 py-1 text-[11px] font-black bg-[#0A4191] hover:bg-blue-900 text-white rounded-lg transition-all cursor-pointer shadow-2xs border border-[#0A4191]"
                                   >
                                     Ver Detalle
                                   </button>
@@ -2206,7 +2207,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           return true;
                         }).length === 0 && (
                           <tr>
-                            <td colSpan={7} className="text-center py-8 text-xs font-medium text-slate-500 dark:text-slate-400">
+                            <td colSpan={7} className="text-center py-8 text-xs font-black text-[#0A4191] bg-white">
                               No hay reportes registrados en esta categoría.
                             </td>
                           </tr>
@@ -2363,17 +2364,18 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
             {/* TAB 7: NOTICIAS (MATCHES MOCKUP 15. NOTICIAS EXACTLY) */}
             {citizenTab === 'noticias' && (
-              <div className="space-y-4 text-xs animate-in fade-in duration-200 pb-2">
+              <div className="bg-white border-2 border-[#0A4191] rounded-2xl p-4 sm:p-5 shadow-sm space-y-4 text-xs text-[#0A4191] animate-in fade-in duration-200 pb-2">
                 {/* Header Row: Back Arrow + Centered Title "Noticias" */}
                 <div className="relative text-center pt-1 pb-1">
                   <button
                     type="button"
                     onClick={() => setCitizenTab('inicio')}
-                    className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
+                    className="absolute left-0 top-0.5 p-1 text-[#0A4191] hover:bg-blue-50 rounded-full cursor-pointer transition-colors"
+                    title="Volver a Inicio"
                   >
                     <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
                   </button>
-                  <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+                  <h2 className="text-base font-black text-[#0A4191] tracking-tight font-serif">
                     Noticias
                   </h2>
                 </div>
@@ -2388,10 +2390,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       eventos: 'Eventos'
                     };
                     const icons: Record<string, React.ReactNode> = {
-                      todos: <ListFilter className="w-3.5 h-3.5 flex-shrink-0" />,
-                      comunicados: <Megaphone className="w-3.5 h-3.5 flex-shrink-0 text-amber-500" />,
-                      obras: <HardHat className="w-3.5 h-3.5 flex-shrink-0 text-orange-500" />,
-                      eventos: <Calendar className="w-3.5 h-3.5 flex-shrink-0 text-emerald-500" />
+                      todos: <ListFilter className="w-3.5 h-3.5 flex-shrink-0 text-[#0A4191]" />,
+                      comunicados: <Megaphone className="w-3.5 h-3.5 flex-shrink-0 text-[#0A4191]" />,
+                      obras: <HardHat className="w-3.5 h-3.5 flex-shrink-0 text-[#0A4191]" />,
+                      eventos: <Calendar className="w-3.5 h-3.5 flex-shrink-0 text-[#0A4191]" />
                     };
                     const isActive = noticiasFilter === filter;
                     return (
@@ -2400,10 +2402,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                         type="button"
                         onClick={() => setNoticiasFilter(filter)}
                         title={`Filtrar por ${labels[filter]}`}
-                        className={`py-2 px-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer flex items-center justify-center space-x-1 truncate ${
+                        className={`py-2 px-1 rounded-xl text-[11px] font-black transition-all cursor-pointer flex items-center justify-center space-x-1 truncate border-2 border-[#0A4191] text-[#0A4191] ${
                           isActive
-                            ? 'bg-[#0A4191] text-white shadow-sm'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
+                            ? 'bg-blue-100 font-extrabold shadow-xs'
+                            : 'bg-white font-bold hover:bg-blue-50'
                         }`}
                       >
                         {icons[filter]}
@@ -2422,10 +2424,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                     <div
                       key={news.id}
                       onClick={() => setSelectedNews(news)}
-                      className="bg-[#F8FAFC] dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-2.5 flex items-center space-x-3 shadow-xs hover:shadow-md hover:border-blue-400 cursor-pointer transition-all group"
+                      className="bg-white border-2 border-[#0A4191] rounded-2xl p-3 flex items-center space-x-3 shadow-xs hover:shadow-md hover:bg-blue-50/60 cursor-pointer transition-all group text-[#0A4191]"
                     >
                       {/* Left Thumbnail Image */}
-                      <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-700">
+                      <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 bg-white border-2 border-[#0A4191]">
                         <img
                           src={news.image}
                           alt={news.title}
@@ -2435,17 +2437,17 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
                       {/* Middle Title & Date */}
                       <div className="flex-1 min-w-0 pr-1">
-                        <h4 className="font-extrabold text-slate-900 dark:text-white text-xs leading-tight line-clamp-2">
+                        <h4 className="font-black text-[#0A4191] text-xs leading-tight line-clamp-2">
                           {news.title}
                         </h4>
-                        <p className="text-[11px] font-mono text-slate-400 dark:text-slate-500 font-medium mt-1">
+                        <p className="text-[11px] font-mono text-[#0A4191]/80 font-bold mt-1">
                           {news.date}
                         </p>
                       </div>
 
                       {/* Right Chevron */}
                       <div className="flex-shrink-0 pr-1">
-                        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#0A4191] dark:group-hover:text-blue-400 transition-colors" />
+                        <ChevronRight className="w-4 h-4 text-[#0A4191] stroke-[2.5] group-hover:translate-x-0.5 transition-transform" />
                       </div>
                     </div>
                   ))}
@@ -3022,17 +3024,18 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
       {/* 1. NOTICIAS MODAL (MOCKUP 15 DESIGN) */}
       {showNewsModal && (
         <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-xs">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-5 border-2 border-[#0A4191] shadow-2xl space-y-4 text-xs text-[#0A4191]">
             {/* Header Row: Back Arrow + Centered Title "Noticias" */}
             <div className="relative text-center pt-1 pb-1">
               <button
                 type="button"
                 onClick={() => setShowNewsModal(false)}
-                className="absolute left-0 top-0.5 p-1 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full cursor-pointer transition-colors"
+                className="absolute left-0 top-0.5 p-1 text-[#0A4191] hover:bg-blue-50 rounded-full cursor-pointer transition-colors"
+                title="Cerrar"
               >
                 <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
               </button>
-              <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+              <h2 className="text-base font-black text-[#0A4191] tracking-tight font-serif">
                 Noticias
               </h2>
             </div>
@@ -3052,10 +3055,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                     key={filter}
                     type="button"
                     onClick={() => setNoticiasFilter(filter)}
-                    className={`py-2 px-1 rounded-xl text-[11px] font-bold transition-all cursor-pointer text-center truncate ${
+                    className={`py-2 px-1 rounded-xl text-[11px] font-black transition-all cursor-pointer text-center truncate border-2 border-[#0A4191] text-[#0A4191] ${
                       isActive
-                        ? 'bg-[#0A4191] text-white shadow-sm'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-200 dark:hover:bg-slate-700'
+                        ? 'bg-blue-100 font-extrabold shadow-xs'
+                        : 'bg-white font-bold hover:bg-blue-50'
                     }`}
                   >
                     {labels[filter]}
@@ -3076,10 +3079,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                     setSelectedNews(news);
                     setShowNewsModal(false);
                   }}
-                  className="bg-[#F8FAFC] dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-2.5 flex items-center space-x-3 shadow-xs hover:shadow-md hover:border-blue-400 cursor-pointer transition-all group"
+                  className="bg-white border-2 border-[#0A4191] rounded-2xl p-2.5 flex items-center space-x-3 shadow-xs hover:shadow-md hover:bg-blue-50/60 cursor-pointer transition-all group text-[#0A4191]"
                 >
                   {/* Left Thumbnail Image */}
-                  <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-700">
+                  <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 bg-white border-2 border-[#0A4191]">
                     <img
                       src={news.image}
                       alt={news.title}
@@ -3089,17 +3092,17 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
                   {/* Middle Title & Date */}
                   <div className="flex-1 min-w-0 pr-1">
-                    <h4 className="font-extrabold text-slate-900 dark:text-white text-xs leading-tight line-clamp-2">
+                    <h4 className="font-black text-[#0A4191] text-xs leading-tight line-clamp-2">
                       {news.title}
                     </h4>
-                    <p className="text-[11px] font-mono text-slate-400 dark:text-slate-500 font-medium mt-1">
+                    <p className="text-[11px] font-mono text-[#0A4191]/80 font-bold mt-1">
                       {news.date}
                     </p>
                   </div>
 
                   {/* Right Chevron */}
                   <div className="flex-shrink-0 pr-1">
-                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#0A4191] dark:group-hover:text-blue-400 transition-colors" />
+                    <ChevronRight className="w-4 h-4 text-[#0A4191] stroke-[2.5] group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </div>
               ))}
@@ -3108,7 +3111,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
             <button
               type="button"
               onClick={() => setShowNewsModal(false)}
-              className="w-full py-2.5 bg-slate-900 text-white font-bold rounded-xl cursor-pointer"
+              className="w-full py-2.5 bg-white border-2 border-[#0A4191] text-[#0A4191] hover:bg-blue-50 font-black rounded-xl cursor-pointer shadow-xs transition-colors"
             >
               Cerrar
             </button>
@@ -3119,41 +3122,42 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
       {/* SELECTED NEWS READER MODAL */}
       {selectedNews && (
         <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-3.5 text-xs animate-in fade-in duration-200">
-            <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2">
-              <span className="bg-blue-100 dark:bg-blue-950/60 text-[#0A4191] dark:text-blue-400 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-5 border-2 border-[#0A4191] shadow-2xl space-y-3.5 text-xs text-[#0A4191] animate-in fade-in duration-200">
+            <div className="flex justify-between items-center border-b-2 border-[#0A4191]/30 pb-2">
+              <span className="bg-blue-50 text-[#0A4191] border-2 border-[#0A4191] text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                 {selectedNews.categoryLabel}
               </span>
               <button
                 type="button"
                 onClick={() => setSelectedNews(null)}
-                className="text-slate-400 hover:text-slate-600 font-bold p-1"
+                className="text-[#0A4191] hover:bg-blue-50 rounded-full p-1 font-bold"
+                title="Cerrar"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 stroke-[2.5]" />
               </button>
             </div>
 
-            <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 h-40">
+            <div className="rounded-2xl overflow-hidden border-2 border-[#0A4191] h-40 bg-white">
               <img src={selectedNews.image} alt={selectedNews.title} className="w-full h-full object-cover" />
             </div>
 
             <div>
-              <span className="font-mono text-[11px] text-slate-400 font-medium block mb-1">
+              <span className="font-mono text-[11px] text-[#0A4191]/80 font-bold block mb-1">
                 {selectedNews.date}
               </span>
-              <h3 className="font-extrabold text-slate-900 dark:text-white text-sm leading-snug">
+              <h3 className="font-black text-[#0A4191] text-sm leading-snug">
                 {selectedNews.title}
               </h3>
             </div>
 
-            <p className="text-slate-600 dark:text-slate-300 leading-relaxed font-normal bg-slate-50 dark:bg-slate-800/80 p-3 rounded-2xl border border-slate-100 dark:border-slate-700/60 text-xs">
+            <p className="text-[#0A4191] leading-relaxed font-semibold bg-white p-3 rounded-2xl border-2 border-[#0A4191] text-xs">
               {selectedNews.content}
             </p>
 
             <button
               type="button"
               onClick={() => setSelectedNews(null)}
-              className="w-full py-2.5 bg-[#0A4191] text-white font-bold rounded-xl cursor-pointer shadow-sm hover:bg-blue-900"
+              className="w-full py-2.5 bg-white border-2 border-[#0A4191] text-[#0A4191] hover:bg-blue-50 font-black rounded-xl cursor-pointer shadow-xs transition-colors"
             >
               Volver a Noticias
             </button>
