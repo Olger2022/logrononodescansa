@@ -192,18 +192,18 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Navigation Tabs */}
-        <nav className="flex items-center space-x-1 sm:space-x-2 bg-blue-50/80 p-1 rounded-xl border border-[#0A4191] overflow-x-auto max-w-full">
+        <nav className="flex items-center space-x-1 sm:space-x-2 bg-white p-1.5 rounded-xl border-2 border-[#0A4191] overflow-x-auto max-w-full">
           <button
             id="nav-tab-citizen-app"
             onClick={() => setActiveTab('citizen_app')}
             title="App Ciudadana (PWA)"
-            className={`flex items-center space-x-2 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`flex items-center space-x-2 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer border-2 border-[#0A4191] ${
               activeTab === 'citizen_app'
-                ? 'bg-[#0A4191] text-white shadow-md'
-                : 'text-[#0A4191] hover:bg-blue-200/70'
+                ? 'bg-blue-50 text-[#0A4191] shadow-xs font-black ring-2 ring-[#0A4191]/20'
+                : 'bg-white text-[#0A4191] hover:bg-blue-50'
             }`}
           >
-            <Smartphone className="w-4 h-4 flex-shrink-0" />
+            <Smartphone className="w-4 h-4 flex-shrink-0 text-[#0A4191]" />
             <span className="hidden sm:inline">App Ciudadana</span>
           </button>
 
@@ -211,13 +211,13 @@ export const Header: React.FC<HeaderProps> = ({
             id="nav-tab-admin-dashboard"
             onClick={() => setActiveTab('admin_dashboard')}
             title="Panel Municipal GAD"
-            className={`flex items-center space-x-2 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`flex items-center space-x-2 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer border-2 border-[#0A4191] ${
               activeTab === 'admin_dashboard'
-                ? 'bg-[#0A4191] text-white shadow-md'
-                : 'text-[#0A4191] hover:bg-blue-200/70'
+                ? 'bg-blue-50 text-[#0A4191] shadow-xs font-black ring-2 ring-[#0A4191]/20'
+                : 'bg-white text-[#0A4191] hover:bg-blue-50'
             }`}
           >
-            <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
+            <LayoutDashboard className="w-4 h-4 flex-shrink-0 text-[#0A4191]" />
             <span className="hidden sm:inline">Panel GAD</span>
           </button>
 
@@ -225,13 +225,13 @@ export const Header: React.FC<HeaderProps> = ({
             id="nav-tab-tech-docs"
             onClick={() => setActiveTab('tech_docs')}
             title="Documentación Técnica (15 Fases)"
-            className={`flex items-center space-x-2 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`flex items-center space-x-2 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer border-2 border-[#0A4191] ${
               activeTab === 'tech_docs'
-                ? 'bg-[#0A4191] text-white shadow-md'
-                : 'text-[#0A4191] hover:bg-blue-200/70'
+                ? 'bg-blue-50 text-[#0A4191] shadow-xs font-black ring-2 ring-[#0A4191]/20'
+                : 'bg-white text-[#0A4191] hover:bg-blue-50'
             }`}
           >
-            <BookOpenCheck className="w-4 h-4 text-amber-600 flex-shrink-0" />
+            <BookOpenCheck className="w-4 h-4 text-[#0A4191] flex-shrink-0" />
             <span className="hidden md:inline">Docs (15 Fases)</span>
           </button>
 
@@ -239,9 +239,9 @@ export const Header: React.FC<HeaderProps> = ({
             id="nav-tab-logrobot-ai"
             onClick={openLogroBot}
             title="Asistente LogroBot IA"
-            className="flex items-center space-x-1.5 sm:space-x-2 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 transition-all shadow-md cursor-pointer border border-amber-500"
+            className="flex items-center space-x-1.5 sm:space-x-2 px-2.5 sm:px-3 py-2 rounded-lg text-xs font-bold bg-white hover:bg-blue-50 text-[#0A4191] border-2 border-[#0A4191] transition-all shadow-xs cursor-pointer"
           >
-            <Bot className="w-4 h-4 text-slate-950 flex-shrink-0" />
+            <Bot className="w-4 h-4 text-[#0A4191] flex-shrink-0" />
             <span className="hidden sm:inline">LogroBot IA</span>
             <span className="sm:hidden font-extrabold text-[11px]">IA</span>
           </button>

@@ -13,7 +13,6 @@ import {
   AlertTriangle, 
   Clock, 
   ShieldAlert, 
-  Flame,
   UserCheck, 
   Building2, 
   FileSpreadsheet, 
@@ -206,157 +205,160 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-2 sm:px-4 py-6 space-y-6 bg-white p-4 sm:p-6 rounded-3xl border-2 border-[#0A4191] shadow-md text-[#0A4191]">
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 py-6 space-y-6 bg-gradient-to-b from-slate-50 via-blue-50/30 to-slate-100 text-slate-800 rounded-3xl p-4 sm:p-6 border-2 border-[#0A4191] shadow-xl">
       
       {/* Top Header Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4.5 rounded-2xl border-2 border-[#0A4191] shadow-xs">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] p-5.5 rounded-2xl border-2 border-[#0A4191] shadow-md text-white">
         <div>
-          <div className="flex items-center space-x-2">
-            <h2 className="text-xl font-black text-[#0A4191] font-serif tracking-tight">
-              Panel Administrativo de Control Municipal
+          <div className="flex items-center space-x-2.5">
+            <h2 className="text-xl sm:text-2xl font-black text-white font-serif tracking-tight">
+              Panel Administrativo de Control Municipal GAD
             </h2>
-            <span className="bg-white text-[#0A4191] text-xs font-black px-3 py-0.5 rounded-full border-2 border-[#0A4191] shadow-2xs">
+            <span className="bg-white/20 text-amber-300 text-xs font-black px-3 py-1 rounded-full border border-white/30 backdrop-blur-md shadow-2xs">
               GAD Logroño
             </span>
           </div>
-          <p className="text-xs text-[#0A4191]/80 font-medium mt-1">
+          <p className="text-xs text-blue-100 font-medium mt-1">
             Gestión en tiempo real de cuadrillas, asignación de departamentos y priorización inteligente.
           </p>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons: Botones Profesionales con Gradientes */}
         <div className="flex flex-wrap items-center gap-2">
           <button
-            type="button"
             onClick={handlePredictInfrastructureRisk}
             disabled={isPredictingRisk}
-            className="flex items-center space-x-1.5 bg-white hover:bg-blue-50 text-[#0A4191] font-extrabold text-xs px-3.5 py-2 rounded-xl border-2 border-[#0A4191] shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+            className="flex items-center space-x-2 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl border border-amber-600 shadow-xs hover:shadow-md transition-all cursor-pointer disabled:opacity-50 active:scale-95"
           >
-            <Sparkles className="w-4 h-4 text-[#0A4191]" />
+            <Sparkles className="w-4 h-4 text-slate-950 animate-spin" />
             <span>{isPredictingRisk ? 'Calculando Riesgos...' : 'Predicción de Riesgo IA'}</span>
           </button>
 
           <button
-            type="button"
             onClick={() => handleExportData('excel')}
-            className="flex items-center space-x-1 bg-white hover:bg-blue-50 text-[#0A4191] text-xs font-bold px-3 py-2 rounded-xl border border-[#0A4191] shadow-2xs transition-all cursor-pointer"
+            className="flex items-center space-x-1.5 bg-white/15 hover:bg-white/25 text-white font-extrabold text-xs px-3.5 py-2.5 rounded-xl border border-white/30 shadow-2xs backdrop-blur-md cursor-pointer transition-all active:scale-95"
           >
-            <FileSpreadsheet className="w-4 h-4 text-[#0A4191]" />
+            <FileSpreadsheet className="w-4 h-4 text-emerald-300" />
             <span>Exportar Excel</span>
           </button>
 
           <button
-            type="button"
             onClick={() => handleExportData('pdf')}
-            className="flex items-center space-x-1 bg-white hover:bg-blue-50 text-[#0A4191] text-xs font-bold px-3 py-2 rounded-xl border border-[#0A4191] shadow-2xs transition-all cursor-pointer"
+            className="flex items-center space-x-1.5 bg-white/15 hover:bg-white/25 text-white font-extrabold text-xs px-3.5 py-2.5 rounded-xl border border-white/30 shadow-2xs backdrop-blur-md cursor-pointer transition-all active:scale-95"
           >
-            <FileText className="w-4 h-4 text-[#0A4191]" />
+            <FileText className="w-4 h-4 text-sky-300" />
             <span>Informe PDF</span>
           </button>
         </div>
       </div>
 
-      {/* Top Navigation SubTabs: Active vs Archived Panel */}
-      <div className="flex border-2 border-[#0A4191] bg-white rounded-2xl p-1.5 shadow-xs gap-2">
+      {/* Top Navigation SubTabs: Pestañas Personalizadas con Combinación de Colores */}
+      <div className="flex border-2 border-[#0A4191]/40 bg-slate-200/70 backdrop-blur-xs rounded-2xl p-1.5 shadow-inner gap-2">
         <button
-          type="button"
           onClick={() => setAdminSubTab('activas')}
-          className={`flex-1 py-3 px-4 rounded-xl font-black text-xs flex items-center justify-center space-x-2 transition-all cursor-pointer ${
+          className={`flex-1 py-3 px-4 rounded-xl font-black text-xs flex items-center justify-center space-x-2 transition-all cursor-pointer border ${
             adminSubTab === 'activas'
-              ? 'bg-white text-[#0A4191] border-2 border-[#0A4191] shadow-md ring-2 ring-[#0A4191]/30'
-              : 'bg-white text-[#0A4191]/70 border border-[#0A4191]/40 hover:border-[#0A4191] hover:text-[#0A4191] hover:bg-blue-50/50'
+              ? 'bg-gradient-to-r from-[#0A4191] to-[#0C51B6] text-white border-[#0A4191] shadow-md ring-2 ring-[#0A4191]/30'
+              : 'bg-white/90 text-slate-700 border-slate-300 hover:bg-white hover:text-[#0A4191]'
           }`}
         >
-          <Activity className="w-4 h-4 text-[#0A4191] shrink-0" />
+          <Activity className={`w-4 h-4 shrink-0 ${adminSubTab === 'activas' ? 'text-amber-300' : 'text-[#0A4191]'}`} />
           <span>Trámites e Incidencias Activas</span>
-          <span className="ml-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-white text-[#0A4191] border border-[#0A4191] font-black">
+          <span className={`ml-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black ${
+            adminSubTab === 'activas'
+              ? 'bg-white/20 text-white border border-white/30'
+              : 'bg-blue-100 text-[#0A4191] border border-blue-200'
+          }`}>
             {activeIncidentsList.length}
           </span>
         </button>
 
         <button
-          type="button"
           onClick={() => setAdminSubTab('atendidas')}
-          className={`flex-1 py-3 px-4 rounded-xl font-black text-xs flex items-center justify-center space-x-2 transition-all cursor-pointer ${
+          className={`flex-1 py-3 px-4 rounded-xl font-black text-xs flex items-center justify-center space-x-2 transition-all cursor-pointer border ${
             adminSubTab === 'atendidas'
-              ? 'bg-white text-[#0A4191] border-2 border-[#0A4191] shadow-md ring-2 ring-[#0A4191]/30'
-              : 'bg-white text-[#0A4191]/70 border border-[#0A4191]/40 hover:border-[#0A4191] hover:text-[#0A4191] hover:bg-blue-50/50'
+              ? 'bg-gradient-to-r from-[#0A4191] to-[#0C51B6] text-white border-[#0A4191] shadow-md ring-2 ring-[#0A4191]/30'
+              : 'bg-white/90 text-slate-700 border-slate-300 hover:bg-white hover:text-[#0A4191]'
           }`}
         >
-          <Archive className="w-4 h-4 text-[#0A4191] shrink-0" />
+          <Archive className={`w-4 h-4 shrink-0 ${adminSubTab === 'atendidas' ? 'text-emerald-300' : 'text-[#0A4191]'}`} />
           <span>Panel de Incidencias Atendidas y Archivadas</span>
-          <span className="ml-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-white text-[#0A4191] border border-[#0A4191] font-black">
+          <span className={`ml-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black ${
+            adminSubTab === 'atendidas'
+              ? 'bg-white/20 text-white border border-white/30'
+              : 'bg-emerald-100 text-emerald-900 border border-emerald-200'
+          }`}>
             {resolvedIncidentsList.length}
           </span>
         </button>
       </div>
 
-      {/* Analytics Counter Widgets Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-white p-4 rounded-2xl border-2 border-[#0A4191] shadow-2xs flex items-center justify-between">
+      {/* Analytics Counter Widgets Grid: Tarjetas Personalizadas Combinadas */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+        <div className="bg-gradient-to-br from-white via-slate-50 to-blue-50/60 p-4 rounded-2xl border-2 border-[#0A4191]/40 shadow-xs flex items-center justify-between text-slate-800">
           <div>
-            <span className="text-xs font-bold text-[#0A4191] uppercase tracking-wider">Total Reportes</span>
+            <span className="text-[11px] font-extrabold text-[#0A4191] uppercase tracking-wider">Total Reportes</span>
             <span className="block text-2xl font-black text-[#0A4191] mt-1">{totalCount}</span>
-            <span className="text-[10px] text-[#0A4191] font-bold">100% Georreferenciados</span>
+            <span className="text-[10px] text-slate-500 font-bold">100% Georreferenciados</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-white border border-[#0A4191] flex items-center justify-center text-[#0A4191]">
-            <LayoutDashboard className="w-5 h-5" />
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-2xl border-2 border-[#0A4191] shadow-2xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-bold text-[#0A4191] uppercase tracking-wider">Prioridad Alta / Crítica</span>
-            <span className="block text-2xl font-black text-[#0A4191] mt-1">{criticalCount}</span>
-            <span className="text-[10px] text-[#0A4191] font-bold">Despacho Inmediato</span>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-white border border-[#0A4191] flex items-center justify-center text-[#0A4191]">
-            <ShieldAlert className="w-5 h-5 text-[#0A4191]" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0A4191] to-[#0C51B6] text-white flex items-center justify-center shadow-xs">
+            <LayoutDashboard className="w-5 h-5 text-amber-300" />
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border-2 border-[#0A4191] shadow-2xs flex items-center justify-between">
+        <div className="bg-gradient-to-br from-white via-rose-50/30 to-amber-50/50 p-4 rounded-2xl border-2 border-rose-300/80 shadow-xs flex items-center justify-between text-slate-800">
           <div>
-            <span className="text-xs font-bold text-[#0A4191] uppercase tracking-wider">En Cuadrilla / Proceso</span>
-            <span className="block text-2xl font-black text-[#0A4191] mt-1">{inProgressCount}</span>
-            <span className="text-[10px] text-[#0A4191] font-bold">Maquinaria en Terreno</span>
+            <span className="text-[11px] font-extrabold text-rose-900 uppercase tracking-wider">Prioridad Alta / Crítica</span>
+            <span className="block text-2xl font-black text-rose-700 mt-1">{criticalCount}</span>
+            <span className="text-[10px] text-rose-600 font-bold">Despacho Inmediato</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-white border border-[#0A4191] flex items-center justify-center text-[#0A4191]">
-            <Clock className="w-5 h-5 text-[#0A4191]" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-600 to-red-700 text-white flex items-center justify-center shadow-xs">
+            <ShieldAlert className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border-2 border-[#0A4191] shadow-2xs flex items-center justify-between">
+        <div className="bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/50 p-4 rounded-2xl border-2 border-purple-300/80 shadow-xs flex items-center justify-between text-slate-800">
           <div>
-            <span className="text-xs font-bold text-[#0A4191] uppercase tracking-wider">Atendidos y Archivados</span>
-            <span className="block text-2xl font-black text-[#0A4191] mt-1">{resolvedCount}</span>
-            <span className="text-[10px] text-[#0A4191] font-bold">Archivados Automáticos</span>
+            <span className="text-[11px] font-extrabold text-purple-900 uppercase tracking-wider">En Cuadrilla / Proceso</span>
+            <span className="block text-2xl font-black text-purple-700 mt-1">{inProgressCount}</span>
+            <span className="text-[10px] text-purple-600 font-bold">Maquinaria en Terreno</span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-white border border-[#0A4191] flex items-center justify-center text-[#0A4191]">
-            <CheckCircle2 className="w-5 h-5 text-[#0A4191]" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-700 text-white flex items-center justify-center shadow-xs">
+            <Clock className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/50 p-4 rounded-2xl border-2 border-emerald-300/80 shadow-xs flex items-center justify-between text-slate-800">
+          <div>
+            <span className="text-[11px] font-extrabold text-emerald-900 uppercase tracking-wider">Atendidos y Archivados</span>
+            <span className="block text-2xl font-black text-emerald-700 mt-1">{resolvedCount}</span>
+            <span className="text-[10px] text-emerald-600 font-bold">Archivados en Registro</span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center shadow-xs">
+            <CheckCircle2 className="w-5 h-5 text-emerald-200" />
           </div>
         </div>
       </div>
 
       {/* AI Risk Analytics Banner (If Triggered) */}
       {riskReport && (
-        <div className="bg-white p-4.5 rounded-2xl border-2 border-[#0A4191] text-[#0A4191] space-y-2 animate-fadeIn shadow-sm">
-          <div className="flex items-center justify-between border-b border-[#0A4191]/30 pb-2">
+        <div className="bg-gradient-to-r from-amber-500/10 via-amber-100/60 to-orange-100/40 border-2 border-amber-500 rounded-2xl p-4.5 text-slate-800 shadow-sm space-y-2.5 animate-fadeIn">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Sparkles className="w-5 h-5 text-[#0A4191]" />
-              <h3 className="font-extrabold text-sm text-[#0A4191]">
+              <Sparkles className="w-5 h-5 text-amber-700" />
+              <h3 className="font-extrabold text-sm text-slate-900">
                 Informe IA Gemini: Predicción de Riesgo de Infraestructura
               </h3>
             </div>
-            <span className="bg-white text-[#0A4191] border border-[#0A4191] font-black text-[10px] px-2.5 py-0.5 rounded uppercase">
+            <span className="bg-amber-500 text-slate-950 font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-2xs">
               Riesgo {riskReport.riskLevel || 'ALTO'}
             </span>
           </div>
 
-          <div className="text-xs space-y-1 pt-1 font-semibold">
+          <div className="text-xs space-y-1.5 text-slate-700">
             <p><strong>Sector Crítico:</strong> {riskReport.highRiskSector}</p>
             <p><strong>Amenaza Detectada:</strong> {riskReport.predictedIncident}</p>
-            <p className="bg-white p-2.5 rounded-xl border border-[#0A4191] text-[#0A4191] font-bold mt-1">
+            <p className="text-amber-950 bg-amber-200/80 p-2.5 rounded-xl border border-amber-300 font-medium">
               <strong>Acción Recomendada para Alcaldía:</strong> {riskReport.recommendedAction}
             </p>
           </div>
@@ -367,7 +369,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       {adminSubTab === 'activas' && (
         <>
           {/* Filters Bar for Active */}
-          <div className="bg-white p-4 rounded-2xl border-2 border-[#0A4191] shadow-2xs space-y-3">
+          <div className="bg-gradient-to-r from-slate-100 via-blue-50/40 to-slate-100 p-4 rounded-2xl border-2 border-[#0A4191]/30 shadow-xs space-y-3">
             <div className="flex flex-col md:flex-row gap-3">
               
               {/* Search Input */}
@@ -378,7 +380,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   placeholder="Buscar en activas por código, título o ciudadano..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 rounded-xl border-2 border-[#0A4191] bg-white text-xs text-[#0A4191] font-extrabold outline-none focus:ring-2 focus:ring-[#0A4191]"
+                  className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-800 font-bold outline-none focus:ring-2 focus:ring-[#0A4191]/40 focus:border-[#0A4191]"
                 />
               </div>
 
@@ -387,7 +389,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <select
                   value={sectorFilter}
                   onChange={(e) => setSectorFilter(e.target.value)}
-                  className="w-full p-2 rounded-xl border-2 border-[#0A4191] bg-white text-xs text-[#0A4191] font-extrabold outline-none"
+                  className="w-full p-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-800 font-bold outline-none focus:ring-2 focus:ring-[#0A4191]/40"
                 >
                   <option value="todos">Todos los Sectores</option>
                   <option value="Logroño Centro (Cabecera)">Logroño Centro</option>
@@ -403,7 +405,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <select
                   value={priorityFilter}
                   onChange={(e) => setPriorityFilter(e.target.value)}
-                  className="w-full p-2 rounded-xl border-2 border-[#0A4191] bg-white text-xs text-[#0A4191] font-extrabold outline-none"
+                  className="w-full p-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-800 font-bold outline-none focus:ring-2 focus:ring-[#0A4191]/40"
                 >
                   <option value="todos">Todas Prioridades</option>
                   <option value="critica">Crítica</option>
@@ -418,7 +420,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full p-2 rounded-xl border-2 border-[#0A4191] bg-white text-xs text-[#0A4191] font-extrabold outline-none"
+                  className="w-full p-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-800 font-bold outline-none focus:ring-2 focus:ring-[#0A4191]/40"
                 >
                   <option value="todos">Todos los Estados Activos</option>
                   <option value="reportado">Reportado</option>
@@ -431,40 +433,40 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
           {/* Real-Time Selected Map & GPS Route Navigation Panel */}
           {selectedMapIncident && (
-            <div id="gad-realtime-map-section" className="bg-white rounded-2xl border-2 border-[#0A4191] shadow-md p-4 space-y-3">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b-2 border-[#0A4191]/30 pb-3">
+            <div id="gad-realtime-map-section" className="bg-gradient-to-b from-white via-slate-50 to-blue-50/30 rounded-2xl border-2 border-[#0A4191] shadow-md p-4 space-y-3 text-slate-800">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b-2 border-[#0A4191]/20 pb-3">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-xl bg-white border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center shadow-2xs shrink-0">
-                    <Navigation className="w-5 h-5 text-[#0A4191] stroke-[2.5]" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0A4191] to-[#0C51B6] text-white flex items-center justify-center shadow-xs shrink-0">
+                    <Navigation className="w-5 h-5 text-amber-300 stroke-[2.5]" />
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="bg-white text-[#0A4191] font-black text-[10px] px-2 py-0.5 rounded-md border border-[#0A4191] uppercase font-mono">
+                      <span className="bg-[#0A4191] text-white font-black text-[10px] px-2.5 py-0.5 rounded-md uppercase font-mono shadow-2xs">
                         {selectedMapIncident.code}
                       </span>
-                      <span className="text-[11px] font-black text-[#0A4191] flex items-center space-x-1">
+                      <span className="text-[11px] font-extrabold text-[#0A4191] flex items-center space-x-1">
                         <span className="w-2 h-2 rounded-full bg-[#0A4191] animate-ping inline-block" />
                         <span>Navegador GPS en Tiempo Real</span>
                       </span>
                     </div>
-                    <h3 className="text-sm font-black text-[#0A4191] mt-0.5">
-                      Ubicación Marcada por Usuario: <span className="text-[#0A4191]">{selectedMapIncident.title}</span>
+                    <h3 className="text-sm font-extrabold text-slate-900 mt-0.5">
+                      Ubicación Marcada por Usuario: <span className="text-[#0A4191] font-black">{selectedMapIncident.title}</span>
                     </h3>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="bg-white text-[#0A4191] text-xs font-mono font-bold px-2.5 py-1 rounded-lg border border-[#0A4191] flex items-center space-x-1">
+                  <span className="bg-slate-100 text-slate-800 text-xs font-mono font-bold px-3 py-1 rounded-lg border border-slate-300 flex items-center space-x-1">
                     <MapPin className="w-3.5 h-3.5 text-[#0A4191] shrink-0" />
                     <span>GPS: {selectedMapIncident.location.lat ? selectedMapIncident.location.lat.toFixed(5) : '-2.62800'}, {selectedMapIncident.location.lng ? selectedMapIncident.location.lng.toFixed(5) : '-78.17600'}</span>
                   </span>
-                  <span className="bg-white text-[#0A4191] text-xs font-bold px-2.5 py-1 rounded-lg border border-[#0A4191]">
+                  <span className="bg-blue-100 text-[#0A4191] text-xs font-bold px-3 py-1 rounded-lg border border-blue-200">
                     Sector: {selectedMapIncident.location.sector}
                   </span>
                   <button
                     type="button"
                     onClick={() => handleOpenInspector(selectedMapIncident)}
-                    className="bg-white hover:bg-blue-50 text-[#0A4191] text-xs font-black px-3.5 py-1.5 rounded-xl border-2 border-[#0A4191] shadow-2xs transition-all cursor-pointer"
+                    className="bg-gradient-to-r from-[#0A4191] to-[#0C51B6] hover:from-[#083373] hover:to-[#0A4191] text-white text-xs font-extrabold px-3.5 py-1.5 rounded-lg shadow-xs transition-all cursor-pointer"
                   >
                     Atender Trámite
                   </button>
@@ -472,7 +474,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </div>
 
               {/* Interactive Map Component with GPS Route & Voice */}
-              <div className="rounded-xl overflow-hidden border-2 border-[#0A4191] shadow-inner">
+              <div className="rounded-xl overflow-hidden border-2 border-[#0A4191]/60 shadow-inner">
                 <LogronoGoogleMap
                   incidents={incidents}
                   selectedLat={selectedMapIncident.location.lat}
@@ -486,53 +488,51 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             </div>
           )}
 
-          {/* Active Incidents Main Data Table Container */}
-          <div className="bg-[#f8fafc] rounded-2xl border-2 border-[#0A4191] shadow-md overflow-hidden">
-            {/* Header Banner */}
-            <div className="p-4 border-b-2 border-[#0A4191] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-gradient-to-r from-[#0A4191] via-[#0D4EAD] to-[#083373] text-white">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-xl bg-white/10 border border-white/20 text-amber-300 backdrop-blur-xs">
-                  <Activity className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-black tracking-tight text-white flex items-center space-x-2">
-                    <span>Listado de Trámites Activos Pendientes ({filteredActiveIncidents.length})</span>
-                  </h3>
-                  <p className="text-[11px] text-blue-100/90 font-medium mt-0.5">
-                    Las incidencias marcadas como "Resuelto" se archivan automáticamente en el Panel de Atendidos.
-                  </p>
-                </div>
+          {/* ================= CONTENEDOR DE LISTADO DE TRÁMITES ACTIVOS PENDIENTES ================= */}
+          <div className="bg-gradient-to-b from-white via-slate-50/50 to-blue-50/30 rounded-2xl border-2 border-[#0A4191] shadow-lg overflow-hidden text-[#0A4191]">
+            
+            {/* Header del Contenedor con Gradiente Combinado Azul Municipal */}
+            <div className="p-4.5 bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] border-b-2 border-[#0A4191] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-white">
+              <div className="space-y-0.5">
+                <h3 className="text-base font-extrabold text-white flex items-center space-x-2">
+                  <div className="w-7 h-7 rounded-lg bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/30 text-amber-300">
+                    <Activity className="w-4 h-4 stroke-[2.5]" />
+                  </div>
+                  <span>Listado de Trámites Activos Pendientes ({filteredActiveIncidents.length})</span>
+                </h3>
+                <p className="text-xs text-blue-100 font-medium pl-9">
+                  Gestión priorizada en tiempo real. Al marcar como "Resuelto", el trámite se transfiere automáticamente al Registro Archivista.
+                </p>
               </div>
-              <span className="text-xs font-mono font-black bg-white text-[#0A4191] px-3.5 py-1.5 rounded-xl border border-blue-200 shadow-xs">
+              <span className="text-xs text-white font-mono font-black bg-white/20 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-white/30 shadow-xs shrink-0">
                 {filteredActiveIncidents.length} de {activeIncidentsList.length} activas
               </span>
             </div>
 
-            {/* Custom Table */}
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto bg-white/80">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-[#083373] text-blue-50 font-black uppercase tracking-wider text-[10px] border-b-2 border-[#0A4191]">
-                    <th className="py-3.5 px-4 border-r border-blue-800/50">Código / Fecha</th>
-                    <th className="py-3.5 px-4 border-r border-blue-800/50">Incidencia / Sector</th>
-                    <th className="py-3.5 px-4 border-r border-blue-800/50">Ubicación Exacta Mapa</th>
-                    <th className="py-3.5 px-4 border-r border-blue-800/50">Categoría</th>
-                    <th className="py-3.5 px-4 border-r border-blue-800/50">Prioridad IA</th>
-                    <th className="py-3.5 px-4 border-r border-blue-800/50">Estado</th>
-                    <th className="py-3.5 px-4 border-r border-blue-800/50">Departamento</th>
+                  <tr className="bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 text-[#0A4191] font-black border-b-2 border-[#0A4191]/30 uppercase tracking-wider text-[10px]">
+                    <th className="py-3.5 px-4">Código / Fecha</th>
+                    <th className="py-3.5 px-4">Incidencia / Sector</th>
+                    <th className="py-3.5 px-4">Ubicación Exacta Mapa</th>
+                    <th className="py-3.5 px-4">Categoría</th>
+                    <th className="py-3.5 px-4">Prioridad IA</th>
+                    <th className="py-3.5 px-4">Estado</th>
+                    <th className="py-3.5 px-4">Departamento</th>
                     <th className="py-3.5 px-4 text-right">Gestión / Acción</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 text-slate-800">
+                <tbody className="divide-y divide-blue-200/70 text-slate-800">
                   {filteredActiveIncidents.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="text-center py-12 text-[#0A4191] space-y-2 bg-slate-50">
-                        <CheckCircle2 className="w-10 h-10 text-[#0A4191] mx-auto opacity-80" />
-                        <p className="font-black text-sm text-[#0A4191]">
+                      <td colSpan={8} className="text-center py-12 text-[#0A4191] space-y-2 bg-slate-50/50">
+                        <CheckCircle2 className="w-10 h-10 text-[#0A4191] mx-auto animate-bounce" />
+                        <p className="font-extrabold text-sm text-[#0A4191]">
                           ¡No hay trámites pendientes en esta lista!
                         </p>
-                        <p className="text-xs text-slate-600 font-medium max-w-sm mx-auto">
-                          Todos los trámites resueltos han sido trasladados automáticamente al <button onClick={() => setAdminSubTab('atendidas')} className="text-[#0A4191] font-black underline cursor-pointer">Panel de Incidencias Atendidas y Archivadas</button>.
+                        <p className="text-xs text-slate-600 max-w-sm mx-auto">
+                          Todos los trámites resueltos han sido trasladados automáticamente al <button onClick={() => setAdminSubTab('atendidas')} className="text-[#0A4191] font-bold underline cursor-pointer">Panel de Incidencias Atendidas y Archivadas</button>.
                         </p>
                       </td>
                     </tr>
@@ -540,39 +540,41 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     filteredActiveIncidents.map((inc) => (
                       <tr 
                         key={inc.id} 
-                        className={`transition-colors duration-150 odd:bg-slate-50/90 even:bg-blue-50/40 hover:bg-amber-50/80 ${
-                          selectedMapIncident?.id === inc.id ? 'bg-blue-100/90 font-semibold border-l-4 border-l-[#0A4191]' : ''
+                        className={`transition-all duration-150 ${
+                          selectedMapIncident?.id === inc.id 
+                            ? 'bg-blue-100/90 font-semibold border-l-4 border-l-[#0A4191]' 
+                            : 'even:bg-slate-50/60 odd:bg-white hover:bg-amber-50/60'
                         }`}
                       >
-                        {/* Code / Date */}
-                        <td className="py-3 px-4 whitespace-nowrap border-r border-slate-200">
-                          <span className="font-mono font-black text-[#0A4191] bg-blue-100/70 border border-blue-200 px-2 py-0.5 rounded-md block w-fit text-[11px]">
+                        {/* Código / Fecha */}
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <span className="font-mono font-black text-white bg-[#0A4191] px-2.5 py-1 rounded-lg text-[11px] shadow-2xs inline-block">
                             {inc.code}
                           </span>
-                          <span className="text-[10px] text-slate-500 font-medium mt-1 block">
+                          <span className="text-[10px] text-slate-500 font-semibold block mt-1">
                             {new Date(inc.createdAt).toLocaleDateString()}
                           </span>
                         </td>
 
-                        {/* Title / Sector */}
-                        <td className="py-3 px-4 border-r border-slate-200">
-                          <span className="font-bold block text-slate-900 line-clamp-1">
+                        {/* Incidencia / Sector */}
+                        <td className="py-3.5 px-4">
+                          <span className="font-extrabold block text-[#0A4191] text-xs line-clamp-1">
                             {inc.title}
                           </span>
-                          <span className="text-[10px] text-[#0A4191] font-bold flex items-center space-x-1 mt-0.5">
+                          <span className="text-[11px] text-slate-600 font-medium flex items-center space-x-1 mt-0.5">
                             <MapPin className="w-3 h-3 text-[#0A4191] shrink-0" />
                             <span>{inc.location.sector}</span>
                           </span>
                         </td>
 
-                        {/* Map GPS Location */}
-                        <td className="py-3 px-4 whitespace-nowrap border-r border-slate-200">
+                        {/* Ubicación GPS Mapa */}
+                        <td className="py-3.5 px-4 whitespace-nowrap">
                           <div className="flex flex-col space-y-1">
-                            <span className="font-mono text-[11px] font-bold text-slate-700 flex items-center space-x-1">
+                            <span className="font-mono text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 flex items-center space-x-1 w-fit">
                               <Navigation className="w-3 h-3 text-[#0A4191] shrink-0" />
                               <span>{inc.location.lat ? inc.location.lat.toFixed(4) : '-2.6280'}, {inc.location.lng ? inc.location.lng.toFixed(4) : '-78.1760'}</span>
                             </span>
-                            <span className="text-[10px] text-slate-500 font-medium max-w-[150px] truncate" title={inc.location.address || inc.location.sector}>
+                            <span className="text-[10px] text-slate-500 max-w-[150px] truncate" title={inc.location.address || inc.location.sector}>
                               {inc.location.address || inc.location.sector}
                             </span>
                             <button
@@ -582,85 +584,90 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                                 const el = document.getElementById('gad-realtime-map-section');
                                 if (el) el.scrollIntoView({ behavior: 'smooth' });
                               }}
-                              className={`text-[10px] font-black px-2.5 py-1 rounded-lg border transition-all cursor-pointer flex items-center space-x-1 w-fit shadow-2xs ${
-                                selectedMapIncident?.id === inc.id
-                                  ? 'bg-[#0A4191] text-white border-[#0A4191] font-black'
-                                  : 'bg-amber-500 hover:bg-amber-600 text-slate-950 border-amber-600'
-                              }`}
+                              className="bg-gradient-to-r from-[#0A4191] to-[#0d52b8] hover:from-[#083373] hover:to-[#0A4191] text-white text-[10px] font-extrabold px-2.5 py-1 rounded-lg shadow-2xs hover:shadow-xs transition-all cursor-pointer flex items-center space-x-1 w-fit active:scale-95"
                             >
-                              <Route className="w-3 h-3 text-current" />
+                              <Route className="w-3 h-3 text-amber-300" />
                               <span>{selectedMapIncident?.id === inc.id ? 'Mapa Activo' : 'Ver Ruta GPS'}</span>
                             </button>
                           </div>
                         </td>
 
-                        {/* Category */}
-                        <td className="py-3 px-4 border-r border-slate-200">
-                          <span className="bg-indigo-50/90 border border-indigo-200 text-indigo-900 px-2.5 py-1 rounded-lg font-bold text-[11px] shadow-2xs inline-block">
+                        {/* Categoría */}
+                        <td className="py-3.5 px-4">
+                          <span className="bg-indigo-50 border border-indigo-200/90 text-indigo-950 px-2.5 py-1 rounded-lg font-extrabold text-[11px] shadow-2xs inline-block">
                             {inc.category}
                           </span>
                         </td>
 
-                        {/* Priority */}
-                        <td className="py-3 px-4 whitespace-nowrap border-r border-slate-200">
-                          {inc.priority === 'critica' ? (
-                            <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold inline-flex items-center space-x-1 bg-red-100 text-red-900 border border-red-300 shadow-2xs">
-                              <Flame className="w-3.5 h-3.5 text-red-600 flex-shrink-0 animate-pulse" />
+                        {/* Prioridad IA Combinada */}
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          {inc.priority === 'critica' && (
+                            <span className="bg-gradient-to-r from-red-100 to-rose-100 text-red-900 border border-red-300 font-black px-2.5 py-1 rounded-full text-[10px] uppercase flex items-center space-x-1 w-fit shadow-2xs">
+                              <AlertTriangle className="w-3 h-3 text-red-600" />
                               <span>CRÍTICA</span>
                             </span>
-                          ) : inc.priority === 'alta' ? (
-                            <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold inline-flex items-center space-x-1 bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs">
-                              <AlertTriangle className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
+                          )}
+                          {inc.priority === 'alta' && (
+                            <span className="bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-900 border border-amber-300 font-extrabold px-2.5 py-1 rounded-full text-[10px] uppercase flex items-center space-x-1 w-fit shadow-2xs">
+                              <Clock className="w-3 h-3 text-amber-600" />
                               <span>ALTA</span>
                             </span>
-                          ) : inc.priority === 'media' ? (
-                            <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold inline-flex items-center space-x-1 bg-blue-100 text-[#0A4191] border border-blue-300 shadow-2xs">
-                              <Clock className="w-3.5 h-3.5 text-[#0A4191] flex-shrink-0" />
+                          )}
+                          {inc.priority === 'media' && (
+                            <span className="bg-gradient-to-r from-sky-100 to-blue-100 text-blue-900 border border-blue-300 font-bold px-2.5 py-1 rounded-full text-[10px] uppercase flex items-center space-x-1 w-fit shadow-2xs">
                               <span>MEDIA</span>
                             </span>
-                          ) : (
-                            <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold inline-flex items-center space-x-1 bg-slate-100 text-slate-800 border border-slate-300 shadow-2xs">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
+                          )}
+                          {inc.priority === 'baja' && (
+                            <span className="bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-900 border border-emerald-300 font-bold px-2.5 py-1 rounded-full text-[10px] uppercase flex items-center space-x-1 w-fit shadow-2xs">
                               <span>BAJA</span>
                             </span>
                           )}
                         </td>
 
-                        {/* Status */}
-                        <td className="py-3 px-4 whitespace-nowrap border-r border-slate-200">
-                          <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase border shadow-2xs inline-block ${
-                            inc.status === 'en_proceso'
-                              ? 'bg-blue-100 text-blue-900 border-blue-300'
-                              : inc.status === 'asignado'
-                              ? 'bg-purple-100 text-purple-900 border-purple-300'
-                              : 'bg-amber-100 text-amber-900 border-amber-300'
-                          }`}>
-                            {inc.status.replace('_', ' ')}
+                        {/* Estado Combinado */}
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          {inc.status === 'en_proceso' && (
+                            <span className="bg-purple-100 text-purple-900 border border-purple-300 font-extrabold px-2.5 py-1 rounded-full text-[10px] uppercase shadow-2xs inline-flex items-center space-x-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-purple-600 animate-ping inline-block" />
+                              <span>EN PROCESO</span>
+                            </span>
+                          )}
+                          {inc.status === 'asignado' && (
+                            <span className="bg-blue-100 text-blue-900 border border-blue-300 font-extrabold px-2.5 py-1 rounded-full text-[10px] uppercase shadow-2xs inline-flex items-center space-x-1">
+                              <span>ASIGNADO</span>
+                            </span>
+                          )}
+                          {inc.status === 'reportado' && (
+                            <span className="bg-amber-100 text-amber-900 border border-amber-300 font-extrabold px-2.5 py-1 rounded-full text-[10px] uppercase shadow-2xs inline-flex items-center space-x-1">
+                              <span>REPORTADO</span>
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Departamento */}
+                        <td className="py-3.5 px-4 font-bold text-[11px] text-slate-700">
+                          <span className="bg-slate-100/90 border border-slate-200/90 text-slate-800 px-2.5 py-1 rounded-lg inline-block">
+                            {inc.assignedDepartment || 'Por Asignar'}
                           </span>
                         </td>
 
-                        {/* Department */}
-                        <td className="py-3 px-4 font-bold text-[11px] text-[#0A4191] border-r border-slate-200">
-                          {inc.assignedDepartment || 'Por Asignar'}
-                        </td>
-
-                        {/* Action Buttons */}
-                        <td className="py-3 px-4 text-right">
-                          <div className="flex items-center justify-end space-x-1.5">
+                        {/* Botones de Acción Profesionales dentro del Listado */}
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end space-x-2">
                             <button
-                              type="button"
                               onClick={() => handleOpenInspector(inc)}
-                              className="bg-[#0A4191] hover:bg-[#072e68] text-white text-[11px] font-extrabold px-3 py-1.5 rounded-xl border border-[#0A4191] shadow-xs hover:shadow-md transition-all cursor-pointer"
+                              className="bg-gradient-to-r from-[#0A4191] to-[#0C51B6] hover:from-[#083373] hover:to-[#0A4191] text-white border border-[#0A4191] text-[11px] font-extrabold px-3.5 py-1.5 rounded-xl shadow-xs hover:shadow-md transition-all duration-150 cursor-pointer flex items-center space-x-1 active:scale-95"
                             >
-                              Atender
+                              <UserCheck className="w-3.5 h-3.5 text-amber-300" />
+                              <span>Atender</span>
                             </button>
                             <button
-                              type="button"
                               onClick={() => handleQuickResolve(inc)}
                               title="Resolver y Archivar automáticamente"
-                              className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-extrabold px-2.5 py-1.5 rounded-xl border border-emerald-700 shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center space-x-1"
+                              className="bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white border border-emerald-700 text-[11px] font-extrabold px-3 py-1.5 rounded-xl shadow-xs hover:shadow-md transition-all duration-150 cursor-pointer flex items-center space-x-1.5 active:scale-95"
                             >
-                              <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-200" />
                               <span>Resolver & Archivar</span>
                             </button>
                           </div>
@@ -680,34 +687,32 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         <div className="space-y-6 animate-fadeIn">
           
           {/* Header Banner for Archived Panel */}
-          <div className="bg-white p-5 rounded-2xl text-[#0A4191] shadow-md border-2 border-[#0A4191] flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="bg-white p-5 rounded-2xl text-[#0A4191] shadow-xs border-2 border-[#0A4191] flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 rounded-lg bg-white border-2 border-[#0A4191] flex items-center justify-center text-[#0A4191]">
                   <Archive className="w-5 h-5 stroke-[2.5]" />
                 </div>
-                <h3 className="text-base font-black tracking-wide text-[#0A4191] font-serif">
+                <h3 className="text-base font-extrabold tracking-wide text-[#0A4191] font-serif">
                   Panel y Registro Oficial de Incidencias Atendidas y Archivadas
                 </h3>
               </div>
-              <p className="text-xs text-[#0A4191]/80 font-medium max-w-2xl">
+              <p className="text-xs text-[#0A4191] font-medium max-w-2xl">
                 Repositorio oficial del GAD Municipal de Logroño para la fiscalización, trazabilidad técnica y certificación de obras e intervenciones resueltas en el cantón.
               </p>
             </div>
 
             <div className="flex items-center space-x-2 shrink-0">
               <button
-                type="button"
                 onClick={() => handleExportData('excel')}
-                className="bg-white hover:bg-blue-50 text-[#0A4191] font-extrabold text-xs px-3 py-2 rounded-xl border border-[#0A4191] shadow-2xs transition-all cursor-pointer flex items-center space-x-1"
+                className="bg-white hover:bg-blue-50 text-[#0A4191] font-bold text-xs px-3 py-2 rounded-xl border-2 border-[#0A4191] shadow-xs transition-all cursor-pointer flex items-center space-x-1"
               >
                 <FileSpreadsheet className="w-4 h-4 text-[#0A4191]" />
                 <span>Exportar Archivo</span>
               </button>
               <button
-                type="button"
                 onClick={() => handleExportData('pdf')}
-                className="bg-white hover:bg-blue-50 text-[#0A4191] font-extrabold text-xs px-3 py-2 rounded-xl border border-[#0A4191] shadow-2xs transition-all cursor-pointer flex items-center space-x-1"
+                className="bg-white hover:bg-blue-50 text-[#0A4191] font-bold text-xs px-3 py-2 rounded-xl border-2 border-[#0A4191] shadow-xs transition-all cursor-pointer flex items-center space-x-1"
               >
                 <Printer className="w-4 h-4 text-[#0A4191]" />
                 <span>Informe Histórico PDF</span>
@@ -716,7 +721,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           </div>
 
           {/* Search & Filters for Archived Panel */}
-          <div className="bg-white p-4 rounded-2xl border-2 border-[#0A4191] shadow-2xs space-y-3">
+          <div className="bg-gradient-to-r from-slate-100 via-emerald-50/30 to-slate-100 p-4 rounded-2xl border-2 border-[#0A4191]/30 shadow-xs space-y-3 text-slate-800">
             <div className="flex flex-col md:flex-row gap-3">
               <div className="flex-1 relative">
                 <Search className="w-4 h-4 text-[#0A4191] absolute left-3 top-3" />
@@ -725,7 +730,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   placeholder="Buscar en incidencias archivadas por código, título o ciudadano..."
                   value={archivedSearchTerm}
                   onChange={(e) => setArchivedSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 rounded-xl border-2 border-[#0A4191] bg-white text-xs text-[#0A4191] font-extrabold outline-none focus:ring-2 focus:ring-[#0A4191]"
+                  className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-800 font-bold outline-none focus:ring-2 focus:ring-[#0A4191]/40 focus:border-[#0A4191]"
                 />
               </div>
 
@@ -733,7 +738,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <select
                   value={archivedSectorFilter}
                   onChange={(e) => setArchivedSectorFilter(e.target.value)}
-                  className="w-full p-2 rounded-xl border-2 border-[#0A4191] bg-white text-xs text-[#0A4191] font-extrabold outline-none"
+                  className="w-full p-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-800 font-bold outline-none focus:ring-2 focus:ring-[#0A4191]/40"
                 >
                   <option value="todos">Todos los Sectores Archivados</option>
                   <option value="Logroño Centro (Cabecera)">Logroño Centro</option>
@@ -748,42 +753,41 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
           {/* Real-Time Selected Archived Map Section */}
           {selectedMapIncident && (
-            <div id="gad-archived-map-section" className="bg-white rounded-2xl border-2 border-[#0A4191] shadow-md p-4 space-y-3">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b-2 border-[#0A4191]/30 pb-3">
+            <div id="gad-archived-map-section" className="bg-gradient-to-b from-white via-slate-50 to-emerald-50/20 rounded-2xl border-2 border-[#0A4191] shadow-md p-4 space-y-3 text-slate-800">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b-2 border-[#0A4191]/20 pb-3">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-xl bg-white border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center shadow-2xs shrink-0">
-                    <FileCheck className="w-5 h-5 text-[#0A4191] stroke-[2.5]" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center shadow-xs shrink-0">
+                    <FileCheck className="w-5 h-5 text-emerald-200 stroke-[2.5]" />
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="bg-white text-[#0A4191] font-black text-[10px] px-2 py-0.5 rounded-md border border-[#0A4191] uppercase font-mono">
+                      <span className="bg-slate-800 text-white font-black text-[10px] px-2.5 py-0.5 rounded-md uppercase font-mono shadow-2xs">
                         {selectedMapIncident.code}
                       </span>
-                      <span className="text-[11px] font-black text-[#0A4191] flex items-center space-x-1">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#0A4191]" />
+                      <span className="text-[11px] font-extrabold text-emerald-800 flex items-center space-x-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                         <span>Trámite Resuelto y Verificado en Terreno</span>
                       </span>
                     </div>
-                    <h3 className="text-sm font-black text-[#0A4191] mt-0.5">
-                      Ubicación de Solución: <span className="text-[#0A4191]">{selectedMapIncident.title}</span>
+                    <h3 className="text-sm font-extrabold text-slate-900 mt-0.5">
+                      Ubicación de Solución: <span className="text-[#0A4191] font-black">{selectedMapIncident.title}</span>
                     </h3>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
                   <button
-                    type="button"
                     onClick={() => setSelectedCertIncident(selectedMapIncident)}
-                    className="bg-white hover:bg-blue-50 text-[#0A4191] text-xs font-black px-3.5 py-1.5 rounded-xl border-2 border-[#0A4191] shadow-2xs transition-all cursor-pointer flex items-center space-x-1"
+                    className="bg-gradient-to-r from-[#0A4191] to-[#0C51B6] hover:from-[#083373] hover:to-[#0A4191] text-white text-xs font-extrabold px-3.5 py-2 rounded-xl shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center space-x-1.5 active:scale-95"
                   >
-                    <Award className="w-3.5 h-3.5 text-[#0A4191]" />
+                    <Award className="w-3.5 h-3.5 text-amber-300" />
                     <span>Ver Certificado de Cierre</span>
                   </button>
                 </div>
               </div>
 
               {/* Map displaying archived resolution point */}
-              <div className="rounded-xl overflow-hidden border-2 border-[#0A4191] shadow-inner">
+              <div className="rounded-xl overflow-hidden border-2 border-[#0A4191]/60 shadow-inner">
                 <LogronoGoogleMap
                   incidents={resolvedIncidentsList}
                   selectedLat={selectedMapIncident.location.lat}
@@ -798,72 +802,81 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           )}
 
           {/* Archived Incidents Table */}
-          <div className="bg-white rounded-2xl border-2 border-[#0A4191] shadow-sm overflow-hidden">
-            <div className="p-4 border-b-2 border-[#0A4191] flex justify-between items-center bg-white">
-              <div>
-                <h3 className="text-sm font-black text-[#0A4191] flex items-center space-x-2">
-                  <Archive className="w-4 h-4 text-[#0A4191]" />
+          <div className="bg-gradient-to-b from-white via-slate-50/50 to-emerald-50/20 rounded-2xl border-2 border-[#0A4191] shadow-lg overflow-hidden text-slate-800">
+            <div className="p-4.5 bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] border-b-2 border-[#0A4191] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-white">
+              <div className="space-y-0.5">
+                <h3 className="text-base font-extrabold text-white flex items-center space-x-2">
+                  <div className="w-7 h-7 rounded-lg bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/30 text-emerald-300">
+                    <Archive className="w-4 h-4 stroke-[2.5]" />
+                  </div>
                   <span>Histórico de Incidencias Atendidas ({filteredResolvedIncidents.length})</span>
                 </h3>
-                <p className="text-[11px] text-[#0A4191]/80 font-medium mt-0.5">
+                <p className="text-xs text-blue-100 font-medium pl-9">
                   Registro permanente con actas digitales de solución y auditoría técnica.
                 </p>
               </div>
-              <span className="text-xs text-[#0A4191] font-mono font-black bg-white px-3 py-1 rounded-xl border border-[#0A4191]">
+              <span className="text-xs text-white font-mono font-black bg-white/20 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-white/30 shadow-xs shrink-0">
                 {filteredResolvedIncidents.length} resueltas
               </span>
             </div>
 
-            <div className="overflow-x-auto bg-white">
+            <div className="overflow-x-auto bg-white/80">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-white text-[#0A4191] font-black border-b-2 border-[#0A4191] uppercase tracking-wider text-[10px]">
-                    <th className="py-3 px-4 border-r border-[#0A4191]/30">Código / Registro</th>
-                    <th className="py-3 px-4 border-r border-[#0A4191]/30">Obra / Solución Realizada</th>
-                    <th className="py-3 px-4 border-r border-[#0A4191]/30">Ubicación GPS</th>
-                    <th className="py-3 px-4 border-r border-[#0A4191]/30">Departamento / Inspector</th>
-                    <th className="py-3 px-4 border-r border-[#0A4191]/30">Estado Cierre</th>
-                    <th className="py-3 px-4 text-right">Acciones de Archivo</th>
+                  <tr className="bg-gradient-to-r from-slate-100 via-emerald-50/60 to-slate-100 text-[#0A4191] font-black border-b-2 border-[#0A4191]/30 uppercase tracking-wider text-[10px]">
+                    <th className="py-3.5 px-4">Código / Registro</th>
+                    <th className="py-3.5 px-4">Obra / Solución Realizada</th>
+                    <th className="py-3.5 px-4">Ubicación GPS</th>
+                    <th className="py-3.5 px-4">Departamento / Inspector</th>
+                    <th className="py-3.5 px-4">Estado Cierre</th>
+                    <th className="py-3.5 px-4 text-right">Acciones de Archivo</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#0A4191]/30 text-[#0A4191] bg-white">
+                <tbody className="divide-y divide-blue-200/70 text-slate-800">
                   {filteredResolvedIncidents.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="text-center py-12 text-[#0A4191] space-y-2 bg-white">
+                      <td colSpan={6} className="text-center py-12 text-[#0A4191] space-y-2 bg-slate-50/50">
                         <Archive className="w-10 h-10 text-[#0A4191] mx-auto opacity-70" />
-                        <p className="font-black text-sm text-[#0A4191]">
+                        <p className="font-extrabold text-sm text-[#0A4191]">
                           No hay incidencias archivadas actualmente
                         </p>
-                        <p className="text-xs text-[#0A4191]/80 font-medium max-w-sm mx-auto">
+                        <p className="text-xs text-slate-600 max-w-sm mx-auto">
                           Al cambiar el estado de un trámite activo a "Resuelto", se archivará automáticamente en esta sección.
                         </p>
                       </td>
                     </tr>
                   ) : (
                     filteredResolvedIncidents.map((inc) => (
-                      <tr key={inc.id} className={`transition-colors bg-white hover:bg-blue-50/60 ${selectedMapIncident?.id === inc.id ? 'bg-blue-50/80 font-bold' : ''}`}>
-                        <td className="py-3 px-4 whitespace-nowrap border-r border-[#0A4191]/30">
-                          <span className="font-mono font-black text-[#0A4191] block">
+                      <tr 
+                        key={inc.id} 
+                        className={`transition-all duration-150 ${
+                          selectedMapIncident?.id === inc.id 
+                            ? 'bg-emerald-100/70 font-semibold border-l-4 border-l-emerald-600' 
+                            : 'even:bg-slate-50/60 odd:bg-white hover:bg-emerald-50/50'
+                        }`}
+                      >
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <span className="font-mono font-black text-white bg-slate-800 px-2.5 py-1 rounded-lg text-[11px] shadow-2xs inline-block">
                             {inc.code}
                           </span>
-                          <span className="text-[10px] text-[#0A4191]/70 font-semibold">
+                          <span className="text-[10px] text-slate-500 font-semibold block mt-1">
                             Resuelto: {new Date(inc.updatedAt || inc.createdAt).toLocaleDateString()}
                           </span>
                         </td>
 
-                        <td className="py-3 px-4 border-r border-[#0A4191]/30">
-                          <span className="font-bold block text-[#0A4191] line-clamp-1">
+                        <td className="py-3.5 px-4">
+                          <span className="font-extrabold block text-[#0A4191] text-xs line-clamp-1">
                             {inc.title}
                           </span>
-                          <span className="text-[10px] text-[#0A4191]/80 block truncate max-w-[200px]">
+                          <span className="text-[11px] text-slate-600 block truncate max-w-[200px]">
                             Ciudadano: {inc.citizenName} ({inc.citizenCedula || 'Sin CI'})
                           </span>
                         </td>
 
-                        <td className="py-3 px-4 whitespace-nowrap border-r border-[#0A4191]/30">
+                        <td className="py-3.5 px-4 whitespace-nowrap">
                           <div className="flex flex-col space-y-1">
-                            <span className="font-mono text-[11px] font-black text-[#0A4191] flex items-center space-x-1">
-                              <MapPin className="w-3 h-3 text-[#0A4191] shrink-0" />
+                            <span className="font-mono text-[11px] font-bold text-slate-700 flex items-center space-x-1">
+                              <MapPin className="w-3.5 h-3.5 text-[#0A4191] shrink-0" />
                               <span>{inc.location.sector}</span>
                             </span>
                             <button
@@ -873,7 +886,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                                 const el = document.getElementById('gad-archived-map-section');
                                 if (el) el.scrollIntoView({ behavior: 'smooth' });
                               }}
-                              className="text-[10px] font-black text-[#0A4191] hover:underline flex items-center space-x-1 cursor-pointer"
+                              className="text-[10px] font-extrabold text-[#0A4191] hover:underline flex items-center space-x-1 cursor-pointer"
                             >
                               <Route className="w-3 h-3 text-[#0A4191]" />
                               <span>Ver Mapa Resuelto</span>
@@ -881,36 +894,34 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           </div>
                         </td>
 
-                        <td className="py-3 px-4 font-bold text-[11px] text-[#0A4191] border-r border-[#0A4191]/30">
-                          <span className="font-black block text-[#0A4191]">{inc.assignedDepartment || 'Obras Públicas'}</span>
-                          <span className="text-[10px] text-[#0A4191]/80">{inc.assignedOperator || 'Ing. Técnico Cuadrilla'}</span>
+                        <td className="py-3.5 px-4 font-bold text-[11px]">
+                          <span className="font-extrabold block text-[#0A4191]">{inc.assignedDepartment || 'Obras Públicas'}</span>
+                          <span className="text-[10px] text-slate-500">{inc.assignedOperator || 'Ing. Técnico Cuadrilla'}</span>
                         </td>
 
-                        <td className="py-3 px-4 whitespace-nowrap border-r border-[#0A4191]/30">
-                          <span className="inline-flex items-center space-x-1 text-[10px] font-black px-2.5 py-1 rounded-full bg-white text-[#0A4191] border border-[#0A4191]">
-                            <CheckCircle2 className="w-3 h-3 text-[#0A4191]" />
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <span className="inline-flex items-center space-x-1 text-[10px] font-black px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 shadow-2xs">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                             <span>RESUELTO & ARCHIVADO</span>
                           </span>
                         </td>
 
-                        <td className="py-3 px-4 text-right">
-                          <div className="flex items-center justify-end space-x-1.5">
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end space-x-2">
                             <button
-                              type="button"
                               onClick={() => setSelectedCertIncident(inc)}
-                              className="bg-white hover:bg-blue-50 text-[#0A4191] text-[11px] font-black px-3 py-1.5 rounded-xl border border-[#0A4191] shadow-2xs transition-all cursor-pointer flex items-center space-x-1"
+                              className="bg-gradient-to-r from-[#0A4191] to-[#0C51B6] hover:from-[#083373] hover:to-[#0A4191] text-white text-[11px] font-extrabold px-3 py-1.5 rounded-xl shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center space-x-1 active:scale-95"
                             >
-                              <FileCheck className="w-3.5 h-3.5 text-[#0A4191]" />
+                              <FileCheck className="w-3.5 h-3.5 text-amber-300" />
                               <span>Certificado</span>
                             </button>
 
                             <button
-                              type="button"
                               onClick={() => handleReopenIncident(inc)}
                               title="Reabrir trámite si persiste la incidencia"
-                              className="bg-white hover:bg-blue-50 text-[#0A4191] text-[11px] font-black px-2.5 py-1.5 rounded-xl border border-[#0A4191] shadow-2xs transition-all cursor-pointer flex items-center space-x-1"
+                              className="bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 text-[11px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer flex items-center space-x-1 active:scale-95"
                             >
-                              <RotateCcw className="w-3 h-3 text-[#0A4191]" />
+                              <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
                               <span>Reabrir</span>
                             </button>
                           </div>
@@ -927,39 +938,38 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
       {/* Inspector & Workflow Modal */}
       {selectedIncident && (
-        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white text-[#0A4191] rounded-2xl max-w-2xl w-full p-5 border-2 border-[#0A4191] shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto text-xs">
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-gradient-to-b from-white via-slate-50 to-blue-50/20 rounded-3xl max-w-2xl w-full p-6 border-2 border-[#0A4191] shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto text-xs text-slate-800">
             
             {/* Header */}
-            <div className="flex justify-between items-start border-b-2 border-[#0A4191]/30 pb-3">
-              <div>
-                <span className="text-xs font-mono font-black text-[#0A4191]">
+            <div className="flex justify-between items-start bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] p-4.5 -mx-6 -mt-6 rounded-t-3xl border-b-2 border-[#0A4191] text-white">
+              <div className="space-y-1">
+                <span className="text-[11px] font-mono font-black text-white bg-white/20 px-2.5 py-0.5 rounded-md border border-white/30 shadow-2xs">
                   {selectedIncident.code}
                 </span>
-                <h3 className="text-lg font-black text-[#0A4191]">
+                <h3 className="text-lg font-black text-white">
                   {selectedIncident.title}
                 </h3>
               </div>
               <button
-                type="button"
                 onClick={() => setSelectedIncident(null)}
-                className="text-[#0A4191] hover:bg-blue-50 rounded-lg p-1 font-black text-lg cursor-pointer"
+                className="text-white hover:bg-white/20 font-black text-base w-8 h-8 rounded-full border border-white/30 flex items-center justify-center cursor-pointer transition-all"
               >
                 ✕
               </button>
             </div>
 
             {/* Content Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
               {/* Left Column: Citizen Data & Evidence */}
               <div className="space-y-3">
                 {selectedIncident.photoUrl && (
-                  <img src={selectedIncident.photoUrl} alt="" className="w-full h-44 rounded-xl object-cover border-2 border-[#0A4191]" />
+                  <img src={selectedIncident.photoUrl} alt="" className="w-full h-44 rounded-2xl object-cover border-2 border-[#0A4191]/60 shadow-sm" />
                 )}
 
-                <div className="bg-white p-3 rounded-xl border border-[#0A4191] space-y-1.5 text-[#0A4191]">
-                  <h4 className="font-black uppercase tracking-wider text-[10px]">
-                    Datos del Ciudadano
+                <div className="bg-white p-3.5 rounded-2xl border border-slate-300 shadow-2xs space-y-1.5 text-slate-800">
+                  <h4 className="font-black text-[#0A4191] uppercase tracking-wider text-[10px] border-b border-slate-100 pb-1">
+                    Datos del Ciudadano Solicitante
                   </h4>
                   <p><strong>Nombre:</strong> {selectedIncident.citizenName}</p>
                   <p><strong>Cédula:</strong> {selectedIncident.citizenCedula}</p>
@@ -969,14 +979,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 </div>
 
                 {selectedIncident.aiAnalysis && (
-                  <div className="bg-white p-3 rounded-xl border border-[#0A4191] space-y-1 text-[#0A4191]">
-                    <span className="font-black block text-[10px] uppercase">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50/60 p-3.5 rounded-2xl border border-blue-200 space-y-1 text-slate-800 shadow-2xs">
+                    <span className="font-extrabold text-[#0A4191] block text-[10px] uppercase">
                       Diagnóstico IA Gemini 3.6 Flash
                     </span>
-                    <p className="italic font-medium">
+                    <p className="italic text-slate-700">
                       "{selectedIncident.aiAnalysis.recommendation}"
                     </p>
-                    <span className="block text-[10px] font-bold mt-1">
+                    <span className="block text-[10px] text-[#0A4191] font-bold mt-1">
                       Urgencia Estimada: {selectedIncident.aiAnalysis.estimatedHours} horas de reparación
                     </span>
                   </div>
@@ -984,18 +994,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </div>
 
               {/* Right Column: Workflow Control */}
-              <div className="space-y-3 bg-white p-3.5 rounded-xl border border-[#0A4191] text-[#0A4191]">
-                <h4 className="font-black uppercase tracking-wider text-[10px]">
+              <div className="space-y-3 bg-white p-4 rounded-2xl border border-slate-300 shadow-2xs">
+                <h4 className="font-black text-[#0A4191] uppercase tracking-wider text-[10px] border-b border-slate-100 pb-1">
                   Gestión Municipal & Asignación
                 </h4>
 
                 {/* Target Status Selector */}
                 <div>
-                  <label className="block font-bold mb-1">Actualizar Estado</label>
+                  <label className="block font-extrabold mb-1 text-slate-800">Actualizar Estado</label>
                   <select
                     value={targetStatus}
                     onChange={(e) => setTargetStatus(e.target.value as IncidentStatus)}
-                    className="w-full p-2 rounded-lg border-2 border-[#0A4191] bg-white text-[#0A4191] font-bold"
+                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-slate-50 font-bold text-slate-800 focus:ring-2 focus:ring-[#0A4191]/30 focus:bg-white outline-none"
                   >
                     <option value="reportado">Reportado (Fase Inicial)</option>
                     <option value="en_revision">En Revisión Mesa Control</option>
@@ -1008,11 +1018,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
                 {/* Department */}
                 <div>
-                  <label className="block font-bold mb-1">Departamento Responsable</label>
+                  <label className="block font-extrabold mb-1 text-slate-800">Departamento Responsable</label>
                   <select
                     value={assignedDepartment}
                     onChange={(e) => setAssignedDepartment(e.target.value)}
-                    className="w-full p-2 rounded-lg border-2 border-[#0A4191] bg-white text-[#0A4191] font-bold"
+                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-slate-50 font-bold text-slate-800 focus:ring-2 focus:ring-[#0A4191]/30 focus:bg-white outline-none"
                   >
                     <option value="Dirección de Obras Públicas Municipales">Dirección de Obras Públicas</option>
                     <option value="Unidad de Agua Potable y Saneamiento">Unidad de Agua Potable</option>
@@ -1024,41 +1034,41 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
                 {/* Operator Name */}
                 <div>
-                  <label className="block font-bold mb-1">Técnico / Jefe de Cuadrilla</label>
+                  <label className="block font-extrabold mb-1 text-slate-800">Técnico / Jefe de Cuadrilla</label>
                   <input
                     type="text"
                     value={assignedOperator}
                     onChange={(e) => setAssignedOperator(e.target.value)}
-                    className="w-full p-2 rounded-lg border-2 border-[#0A4191] bg-white text-[#0A4191] font-bold"
+                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 font-bold focus:ring-2 focus:ring-[#0A4191]/30 focus:bg-white outline-none"
                   />
                 </div>
 
                 {/* Note to Citizen */}
                 <div>
-                  <label className="block font-bold mb-1">Respuesta Oficial para el Ciudadano</label>
+                  <label className="block font-extrabold mb-1 text-slate-800">Respuesta Oficial para el Ciudadano</label>
                   <textarea
                     rows={3}
                     placeholder="Escriba la nota que se notificará al usuario en su app..."
                     value={gadNote}
                     onChange={(e) => setGadNote(e.target.value)}
-                    className="w-full p-2 rounded-lg border-2 border-[#0A4191] bg-white text-[#0A4191] font-medium"
+                    className="w-full p-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 font-medium focus:ring-2 focus:ring-[#0A4191]/30 focus:bg-white outline-none"
                   />
                 </div>
 
-                {/* Save Changes */}
+                {/* Save Changes Button: Botón Profesional con Gradiente Azul */}
                 <button
-                  type="button"
                   onClick={handleSaveInspector}
-                  className="w-full py-2.5 bg-white hover:bg-blue-50 text-[#0A4191] font-black border-2 border-[#0A4191] rounded-xl shadow-2xs transition-all cursor-pointer text-xs"
+                  className="w-full py-3 bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] hover:from-[#083373] hover:to-[#0A4191] text-white font-black rounded-xl shadow-md transition-all cursor-pointer text-xs uppercase tracking-wide active:scale-95 flex items-center justify-center space-x-2"
                 >
-                  GUARDAR Y NOTIFICAR AL CIUDADANO
+                  <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                  <span>Guardar y Notificar al Ciudadano</span>
                 </button>
               </div>
             </div>
 
             {/* Real-time Technical Chat Channel with Citizen */}
-            <div className="pt-2 border-t-2 border-[#0A4191]/30">
-              <h4 className="font-black uppercase tracking-wider text-xs mb-2">
+            <div className="pt-3 border-t-2 border-[#0A4191]/20">
+              <h4 className="font-black text-[#0A4191] uppercase tracking-wider text-xs mb-2">
                 Canal de Chat en Tiempo Real con el Ciudadano
               </h4>
               <ReportIncidentChat
@@ -1079,117 +1089,114 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
       {/* Official Municipal Solution Certificate / Acta Modal */}
       {selectedCertIncident && (
-        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white text-[#0A4191] rounded-2xl max-w-2xl w-full p-6 border-2 border-[#0A4191] shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto text-xs">
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-gradient-to-b from-white via-slate-50 to-blue-50/20 rounded-3xl max-w-2xl w-full p-6 border-2 border-[#0A4191] shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto text-xs text-slate-800">
             
             {/* Certificate Header Banner */}
-            <div className="border-b-2 border-[#0A4191] pb-4 flex justify-between items-start">
+            <div className="bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] p-4.5 -mx-6 -mt-6 rounded-t-3xl border-b-2 border-[#0A4191] text-white flex justify-between items-start">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 rounded-xl bg-white text-[#0A4191] border-2 border-[#0A4191] flex items-center justify-center font-black text-sm shadow-2xs">
+                <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 text-amber-300 flex items-center justify-center font-black text-sm shadow-xs">
                   GAD
                 </div>
                 <div>
-                  <h2 className="text-sm font-black font-serif uppercase tracking-wider">
+                  <h2 className="text-sm font-black text-white font-serif uppercase tracking-wider">
                     Gobierno Autónomo Descentralizado Municipal
                   </h2>
-                  <h3 className="text-xs font-bold">
+                  <h3 className="text-xs font-bold text-blue-100">
                     Cantón Logroño - Provincia de Morona Santiago
                   </h3>
-                  <p className="text-[10px] font-mono font-extrabold">
+                  <p className="text-[10px] text-amber-300 font-mono font-bold mt-0.5">
                     ACTA TÉCNICA DE RESOLUCIÓN Y REGISTRO HISTÓRICO DE OBRA N° {selectedCertIncident.code}
                   </p>
                 </div>
               </div>
 
               <button
-                type="button"
                 onClick={() => setSelectedCertIncident(null)}
-                className="text-[#0A4191] hover:bg-blue-50 rounded-lg p-1 font-black text-xl cursor-pointer"
+                className="text-white hover:bg-white/20 font-black text-base w-8 h-8 rounded-full border border-white/30 flex items-center justify-center cursor-pointer transition-all"
               >
                 ✕
               </button>
             </div>
 
             {/* Certificate Body */}
-            <div className="space-y-4 bg-white p-4 rounded-xl border-2 border-[#0A4191]">
-              <div className="flex justify-between items-center bg-white p-2.5 rounded-lg border border-[#0A4191]">
+            <div className="space-y-4 bg-white p-5 rounded-2xl border border-slate-300 shadow-2xs pt-3">
+              <div className="flex justify-between items-center bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 p-3 rounded-xl border border-emerald-300">
                 <div className="flex items-center space-x-2">
-                  <Award className="w-5 h-5 text-[#0A4191]" />
-                  <span className="font-black text-xs text-[#0A4191]">
+                  <Award className="w-5 h-5 text-emerald-700" />
+                  <span className="font-extrabold text-xs text-emerald-950">
                     CERTIFICACIÓN DE OBRA CONCLUIDA
                   </span>
                 </div>
-                <span className="bg-white text-[#0A4191] border border-[#0A4191] font-mono font-black text-[10px] px-2 py-0.5 rounded">
+                <span className="bg-emerald-600 text-white font-mono font-black text-[10px] px-2.5 py-1 rounded-md shadow-2xs">
                   ESTADO: ATENDIDO Y ARCHIVADO
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-[11px]">
+              <div className="grid grid-cols-2 gap-3.5 text-[11px] text-slate-800">
                 <div>
-                  <p className="font-semibold text-[#0A4191]/80">Trámite / Incidencia:</p>
-                  <p className="font-bold text-[#0A4191]">{selectedCertIncident.title}</p>
+                  <p className="text-slate-500 font-bold">Trámite / Incidencia:</p>
+                  <p className="font-extrabold text-[#0A4191]">{selectedCertIncident.title}</p>
                 </div>
 
                 <div>
-                  <p className="font-semibold text-[#0A4191]/80">Categoría Municipal:</p>
-                  <p className="font-bold text-[#0A4191]">{selectedCertIncident.category}</p>
+                  <p className="text-slate-500 font-bold">Categoría Municipal:</p>
+                  <p className="font-extrabold text-slate-800">{selectedCertIncident.category}</p>
                 </div>
 
                 <div>
-                  <p className="font-semibold text-[#0A4191]/80">Ciudadano Solicitante:</p>
-                  <p className="font-bold text-[#0A4191]">{selectedCertIncident.citizenName} (C.I: {selectedCertIncident.citizenCedula || 'S/N'})</p>
+                  <p className="text-slate-500 font-bold">Ciudadano Solicitante:</p>
+                  <p className="font-extrabold text-slate-800">{selectedCertIncident.citizenName} (C.I: {selectedCertIncident.citizenCedula || 'S/N'})</p>
                 </div>
 
                 <div>
-                  <p className="font-semibold text-[#0A4191]/80">Ubicación / Sector:</p>
-                  <p className="font-bold text-[#0A4191]">{selectedCertIncident.location.sector}</p>
+                  <p className="text-slate-500 font-bold">Ubicación / Sector:</p>
+                  <p className="font-extrabold text-slate-800">{selectedCertIncident.location.sector}</p>
                 </div>
 
                 <div>
-                  <p className="font-semibold text-[#0A4191]/80">Coordenadas GPS de Terreno:</p>
-                  <p className="font-mono font-bold text-[#0A4191]">
+                  <p className="text-slate-500 font-bold">Coordenadas GPS de Terreno:</p>
+                  <p className="font-mono font-extrabold text-[#0A4191]">
                     {selectedCertIncident.location.lat ? selectedCertIncident.location.lat.toFixed(5) : '-2.62800'}, {selectedCertIncident.location.lng ? selectedCertIncident.location.lng.toFixed(5) : '-78.17600'}
                   </p>
                 </div>
 
                 <div>
-                  <p className="font-semibold text-[#0A4191]/80">Fecha de Registro / Cierre:</p>
-                  <p className="font-bold text-[#0A4191]">
+                  <p className="text-slate-500 font-bold">Fecha de Registro / Cierre:</p>
+                  <p className="font-extrabold text-slate-800">
                     {new Date(selectedCertIncident.createdAt).toLocaleDateString()} - {new Date(selectedCertIncident.updatedAt || selectedCertIncident.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               </div>
 
-              <div className="border-t border-[#0A4191]/30 pt-3 space-y-1">
-                <p className="font-semibold text-[#0A4191]/80">Departamento e Inspector Responsables:</p>
-                <p className="font-bold text-[#0A4191]">
+              <div className="border-t border-slate-200 pt-3 space-y-1">
+                <p className="text-slate-500 font-bold">Departamento e Inspector Responsables:</p>
+                <p className="font-extrabold text-[#0A4191]">
                   {selectedCertIncident.assignedDepartment || 'Dirección de Obras Públicas'} - {selectedCertIncident.assignedOperator || 'Ing. Supervisor de Campo'}
                 </p>
-                <p className="italic bg-white p-2.5 rounded-lg border border-[#0A4191] text-[#0A4191] font-medium mt-2">
+                <p className="text-slate-800 italic bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2">
                   "{selectedCertIncident.gadNote || 'Intervención de mantenimiento municipal ejecutada satisfactoriamente con la cuadrilla asignada y verificación técnica posterior.'}"
                 </p>
               </div>
             </div>
 
             {/* Certificate Footer / Actions */}
-            <div className="flex items-center justify-between pt-2">
-              <span className="text-[10px] font-mono font-bold text-[#0A4191]/70">
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-[10px] text-slate-500 font-mono font-bold">
                 Sello Digital de Validación GAD Logroño • Morona Santiago
               </span>
 
               <div className="flex items-center space-x-2">
                 <button
-                  type="button"
                   onClick={() => window.print()}
-                  className="bg-white hover:bg-blue-50 text-[#0A4191] font-black text-xs px-4 py-2 rounded-xl border-2 border-[#0A4191] shadow-2xs transition-all cursor-pointer flex items-center space-x-1.5"
+                  className="bg-gradient-to-r from-[#0A4191] to-[#0C51B6] hover:from-[#083373] hover:to-[#0A4191] text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer flex items-center space-x-1.5 active:scale-95"
                 >
-                  <Printer className="w-4 h-4 text-[#0A4191]" />
+                  <Printer className="w-4 h-4 text-amber-300" />
                   <span>Imprimir Certificado</span>
                 </button>
                 <button
-                  type="button"
                   onClick={() => setSelectedCertIncident(null)}
-                  className="bg-white hover:bg-blue-50 text-[#0A4191] font-black text-xs px-4 py-2 rounded-xl border border-[#0A4191] transition-all cursor-pointer"
+                  className="bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 font-extrabold text-xs px-4 py-2.5 rounded-xl transition-all cursor-pointer active:scale-95"
                 >
                   Cerrar
                 </button>

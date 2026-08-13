@@ -70,32 +70,10 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  TrendingUp,
-  Users,
-  PieChart,
-  Smile,
-  Activity,
-  BarChart3,
-  MousePointerClick,
-  Eye,
-  ThumbsUp,
-  Star,
-  Award,
-  Zap,
-  Receipt,
-  CreditCard,
-  Car,
-  FileSpreadsheet,
-  Phone,
-  Landmark,
-  Droplet,
-  ShoppingCart,
-  ExternalLink,
   Search,
-  Briefcase,
-  Building,
-  Download,
-  BookOpen
+  LayoutGrid,
+  Table,
+  Users
 } from 'lucide-react';
 
 export interface NewsItem {
@@ -149,6 +127,171 @@ export const MOCK_NEWS: NewsItem[] = [
     image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&auto=format&fit=crop&q=80',
     summary: 'Horarios especiales de atención ciudadana y brigadas de turno de agua potable y recolección.',
     content: 'Se informa a la ciudadanía del cantón Logroño que los servicios de recolección de basura y emergencia de agua potable operarán con normalidad durante los feriados.'
+  },
+  {
+    id: 'news-5',
+    title: 'Feria Gastronómica y Artesanal Shuar en Logroño',
+    date: '10/05/2024',
+    category: 'eventos',
+    categoryLabel: 'Eventos',
+    image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&auto=format&fit=crop&q=80',
+    summary: 'Exposición de platos tradicionales, chicha de chonta y productos agrícolas locales en la Plaza Intercultural.',
+    content: 'El departamento de Desarrollo Social y Turismo del GAD Logroño invita a toda la ciudadanía a disfrutar de la Gran Feria Intercultural. Habrá presentaciones de danza tradicional Shuar y emprendimientos agrícolas.'
+  },
+  {
+    id: 'news-6',
+    title: 'Construcción del nuevo Puente Peatonal sobre el Río Upano',
+    date: '02/05/2024',
+    category: 'obras',
+    categoryLabel: 'Obras',
+    image: 'https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=400&auto=format&fit=crop&q=80',
+    summary: 'Firma de contrato de obra pública para conectar a las comunidades de Yaupi con la cabecera cantonal.',
+    content: 'Con una inversión histórica municipal, el Alcalde dio inicio a las obras preliminares del puente colgante peatonal y carrozable ligero. Se beneficiará a más de 3.500 habitantes comunales.'
+  }
+];
+
+export interface TramiteCatalogItem {
+  id: string;
+  code: string;
+  name: string;
+  department: string;
+  category: 'avaluos' | 'obras' | 'agua' | 'patentes' | 'pqrs';
+  categoryLabel: string;
+  description: string;
+  requirements: string[];
+  responseTime: string;
+  cost: string;
+  isOnline: boolean;
+}
+
+export interface UserTramiteRecord {
+  id: string;
+  code: string;
+  type: string;
+  subject: string;
+  department: string;
+  date: string;
+  status: 'aprobado' | 'en_proceso' | 'en_revision' | 'rechazado';
+  applicant: string;
+  observation: string;
+  downloadUrl?: string;
+}
+
+export const MOCK_TRAMITES_CATALOG: TramiteCatalogItem[] = [
+  {
+    id: 'trm-cat-1',
+    code: 'TRM-CAT-01',
+    name: 'Certificado de No Adeudar al Municipio',
+    department: 'Tesorería & Avalúos',
+    category: 'avaluos',
+    categoryLabel: 'Avalúos y Catastros',
+    description: 'Documento oficial habilitante que valida que el ciudadano se encuentra al día en el pago de sus obligaciones tributarias cantonales.',
+    requirements: ['Cédula de Identidad del titular', 'Papeleta de votación actualizada', 'Comprobante de pago de tasa de trámite ($2.00)'],
+    responseTime: '24 horas hábiles',
+    cost: '$2.00 USD',
+    isOnline: true
+  },
+  {
+    id: 'trm-cat-2',
+    code: 'TRM-CAT-02',
+    name: 'Solicitud de Conexión y Medidor de Agua Potable',
+    department: 'Dirección de Agua Potable y Saneamiento',
+    category: 'agua',
+    categoryLabel: 'Agua y Alcantarillado',
+    description: 'Trámite para solicitar la instalación del servicio de agua potable y medidor domiciliario en sectores urbanos y rurales del cantón Logroño.',
+    requirements: ['Copia de escritura del predio o certificado de posesión', 'Cédula del propietario', 'Inspección técnica previa en el lugar'],
+    responseTime: '3 a 5 días hábiles',
+    cost: '$25.00 USD',
+    isOnline: true
+  },
+  {
+    id: 'trm-cat-3',
+    code: 'TRM-CAT-03',
+    name: 'Licencia de Construcción Menor y Cerramientos Prediales',
+    department: 'Planificación Urbano-Rural y Obras Públicas',
+    category: 'obras',
+    categoryLabel: 'Obras y Planificación',
+    description: 'Aprobación municipal para la edificación de cerramientos, remodelaciones o construcciones de un solo piso.',
+    requirements: ['Croquis o plano arquitectónico de la obra', 'Certificado de Línea de Fábrica', 'Copias de cédula y papeleta de votación'],
+    responseTime: '48 a 72 horas',
+    cost: '$15.00 USD',
+    isOnline: true
+  },
+  {
+    id: 'trm-cat-4',
+    code: 'TRM-CAT-04',
+    name: 'Licencia Única de Funcionamiento y Patente Municipal (LUAE)',
+    department: 'Rentas y Comisaría Municipal',
+    category: 'patentes',
+    categoryLabel: 'Patentes y Comercio',
+    description: 'Permiso anual obligatorio para el funcionamiento de establecimientos comerciales, artesanales e industriales en el Cantón Logroño.',
+    requirements: ['RUC activo del establecimiento', 'Formulario de declaración de patrimonio/activos', 'Inspección de prevención de incendios'],
+    responseTime: '2 a 4 días hábiles',
+    cost: 'Según activos ($10 - $50)',
+    isOnline: true
+  },
+  {
+    id: 'trm-cat-5',
+    code: 'TRM-CAT-05',
+    name: 'Certificado de Avalúos y Propiedad Catastral',
+    department: 'Dirección de Avalúos y Catastros',
+    category: 'avaluos',
+    categoryLabel: 'Avalúos y Catastros',
+    description: 'Emisión de certificado catastral que acredita los linderos, avalúo comercial y superficie del predio urbano o rural.',
+    requirements: ['Número de clave catastral o dirección del predio', 'Cédula de identidad', 'Comprobante de pago de especies'],
+    responseTime: '24 a 48 horas',
+    cost: '$5.00 USD',
+    isOnline: true
+  },
+  {
+    id: 'trm-cat-6',
+    code: 'TRM-CAT-06',
+    name: 'Ingreso de Petición, Queja o Sugerencia (PQRS Ciudadana)',
+    department: 'Secretaría General & Participación Ciudadana',
+    category: 'pqrs',
+    categoryLabel: 'PQRS y Atenciones',
+    description: 'Canal de recepción de peticiones formales, quejas sobre servicios, solicitudes comunitarias o reclamos dirigidos a la Alcaldía.',
+    requirements: ['Nombres completos y número de cédula', 'Detalle redactado del requerimiento', 'Documentación o fotos de respaldo (opcional)'],
+    responseTime: '2 a 3 días hábiles',
+    cost: 'Gratuito ($0.00)',
+    isOnline: true
+  }
+];
+
+export const INITIAL_USER_TRAMITES: UserTramiteRecord[] = [
+  {
+    id: 'usr-trm-1',
+    code: 'TRM-2026-0811',
+    type: 'Certificado de No Adeudar al Municipio',
+    subject: 'Solicitud de Certificado de Solvencia Tributaria para Trámite Bancario',
+    department: 'Tesorería Municipal',
+    date: '11/08/2026',
+    status: 'aprobado',
+    applicant: 'María Fernanda Shakaim',
+    observation: 'Trámite aprobado y firmado digitalmente. Certificado oficial disponible para descarga.',
+    downloadUrl: '#'
+  },
+  {
+    id: 'usr-trm-2',
+    code: 'TRM-2026-0792',
+    type: 'Conexión de Agua Potable',
+    subject: 'Inspección técnica para acometida domiciliaria en Yaupi',
+    department: 'Agua Potable y Saneamiento',
+    date: '05/08/2026',
+    status: 'en_proceso',
+    applicant: 'María Fernanda Shakaim',
+    observation: 'Brigada técnica programada para inspección en territorio el 14/08/2026.'
+  },
+  {
+    id: 'usr-trm-3',
+    code: 'TRM-2026-0640',
+    type: 'Licencia de Cerramiento Predial',
+    subject: 'Solicitud de construcción de muro perimetral en Barrio Central',
+    department: 'Planificación Urbano-Rural',
+    date: '20/07/2026',
+    status: 'en_revision',
+    applicant: 'María Fernanda Shakaim',
+    observation: 'En revisión técnica de planos por el Comisario de Obras Públicas.'
   }
 ];
 
@@ -199,24 +342,9 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
   const [misReportesFilter, setMisReportesFilter] = useState<'todos' | 'en_proceso' | 'solucionados'>('todos');
   const [misReportesSortBy, setMisReportesSortBy] = useState<'fecha_desc' | 'fecha_asc' | 'prioridad_desc' | 'prioridad_asc'>('fecha_desc');
   const [noticiasFilter, setNoticiasFilter] = useState<'todos' | 'comunicados' | 'obras' | 'eventos'>('todos');
-  
-  // Municipal Services Online Container State
-  const [activeMunicipalTool, setActiveMunicipalTool] = useState<'no_adeudar' | 'deudas_tributarias' | 'deuda_ant' | 'quipux' | 'directorio' | 'registro_propiedad' | 'agua_potable' | 'compras_publicas' | null>(null);
-  const [toolQueryCedula, setToolQueryCedula] = useState<string>(currentUser?.id || '1400284912');
-  const [toolQueryResult, setToolQueryResult] = useState<any | null>(null);
-  const [directorySearchTerm, setDirectorySearchTerm] = useState<string>('');
-  const [toolLoading, setToolLoading] = useState<boolean>(false);
-  const [certificateNotice, setCertificateNotice] = useState<string | null>(null);
-
-  // Calculated Incident Resolution & Satisfaction Stats
-  const totalIncidentsCount = Math.max(incidents.length, 1);
-  const resolvedIncidentsCount = incidents.filter(i => i.status === 'resuelto').length;
-  const inProgressIncidentsCount = incidents.filter(i => i.status === 'en_proceso' || i.status === 'reportado' || i.status === 'asignado').length;
-  const resolvedPercentageNum = incidents.length > 0 
-    ? Math.min(100, Math.max(0, parseFloat(((resolvedIncidentsCount / totalIncidentsCount) * 100).toFixed(1))))
-    : 88.5;
-  const satisfactionPercentageNum = 96.4;
-
+  const [noticiasViewMode, setNoticiasViewMode] = useState<'tarjetas' | 'tabla'>('tarjetas');
+  const [noticiasSearchTerm, setNoticiasSearchTerm] = useState<string>('');
+  const [noticiasSortOrder, setNoticiasSortOrder] = useState<'recientes' | 'antiguas'>('recientes');
   const SPANISH_MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
   const [currentCalendarYear, setCurrentCalendarYear] = useState<number>(new Date().getFullYear());
@@ -446,6 +574,11 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
     }, 1000);
   };
 
+  // Agenda View Mode & Filter States
+  const [agendaViewMode, setAgendaViewMode] = useState<'calendario' | 'tabla'>('calendario');
+  const [agendaCategoryFilter, setAgendaCategoryFilter] = useState<'todos' | 'Minga' | 'Cabildo' | 'Cultura' | 'Deportes' | 'General'>('todos');
+  const [agendaSearchTerm, setAgendaSearchTerm] = useState<string>('');
+
   // Configuration Settings State (Mockup 18: CONFIGURACIÓN)
   const [configNotificaciones, setConfigNotificaciones] = useState(true);
   const [configTema, setConfigTema] = useState<'Claro' | 'Oscuro' | 'Sistema'>('Claro');
@@ -563,11 +696,221 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
   // Shuar Audio Simulation State
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
-  // PQRS Form state
-  const [pqrsType, setPqrsType] = useState<'Petición' | 'Queja' | 'Reclamo' | 'Sugerencia'>('Petición');
+  // PQRS & Trámites Form state
+  const [pqrsType, setPqrsType] = useState<'Petición' | 'Queja' | 'Reclamo' | 'Sugerencia' | 'Certificado' | 'Inspección'>('Petición');
   const [pqrsSubject, setPqrsSubject] = useState('');
   const [pqrsDetail, setPqrsDetail] = useState('');
   const [pqrsSuccess, setPqrsSuccess] = useState(false);
+
+  // Trámites & Servicios State
+  const [tramiteMainTab, setTramiteMainTab] = useState<'catalogo' | 'mis_tramites' | 'solicitar'>('catalogo');
+  const [tramiteCatFilter, setTramiteCatFilter] = useState<'todos' | 'avaluos' | 'obras' | 'agua' | 'patentes' | 'pqrs'>('todos');
+  const [tramiteSearch, setTramiteSearch] = useState<string>('');
+  const [tramiteCatalogViewMode, setTramiteCatalogViewMode] = useState<'tabla' | 'tarjetas'>('tabla');
+  const [selectedTramiteCatalog, setSelectedTramiteCatalog] = useState<TramiteCatalogItem | null>(null);
+  const [userTramitesList, setUserTramitesList] = useState<UserTramiteRecord[]>(INITIAL_USER_TRAMITES);
+  const [selectedUserTramite, setSelectedUserTramite] = useState<UserTramiteRecord | null>(null);
+
+  // Edit & Delete Tramite State
+  const [editingUserTramite, setEditingUserTramite] = useState<UserTramiteRecord | null>(null);
+  const [deletingUserTramite, setDeletingUserTramite] = useState<UserTramiteRecord | null>(null);
+  const [tramiteNoticeMsg, setTramiteNoticeMsg] = useState<string | null>(null);
+
+  // Edit form state
+  const [editType, setEditType] = useState<string>('');
+  const [editSubject, setEditSubject] = useState<string>('');
+  const [editDepartment, setEditDepartment] = useState<string>('');
+  const [editStatus, setEditStatus] = useState<'aprobado' | 'en_proceso' | 'en_revision' | 'rechazado'>('en_proceso');
+  const [editObservation, setEditObservation] = useState<string>('');
+
+  const handleOpenEditUserTramite = (tr: UserTramiteRecord) => {
+    setEditingUserTramite(tr);
+    setEditType(tr.type);
+    setEditSubject(tr.subject);
+    setEditDepartment(tr.department);
+    setEditStatus(tr.status);
+    setEditObservation(tr.observation || '');
+  };
+
+  const handleSaveEditedUserTramite = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUserTramite) return;
+
+    const updatedList = userTramitesList.map((tr) => {
+      if (tr.id === editingUserTramite.id) {
+        return {
+          ...tr,
+          type: editType,
+          subject: editSubject,
+          department: editDepartment,
+          status: editStatus,
+          observation: editObservation
+        };
+      }
+      return tr;
+    });
+
+    setUserTramitesList(updatedList);
+    if (selectedUserTramite && selectedUserTramite.id === editingUserTramite.id) {
+      setSelectedUserTramite({
+        ...selectedUserTramite,
+        type: editType,
+        subject: editSubject,
+        department: editDepartment,
+        status: editStatus,
+        observation: editObservation
+      });
+    }
+    setEditingUserTramite(null);
+    setTramiteNoticeMsg(`¡Trámite ${editingUserTramite.code} actualizado exitosamente!`);
+    setTimeout(() => setTramiteNoticeMsg(null), 4000);
+  };
+
+  const handleConfirmDeleteUserTramite = () => {
+    if (!deletingUserTramite) return;
+    const code = deletingUserTramite.code;
+    setUserTramitesList(userTramitesList.filter((tr) => tr.id !== deletingUserTramite.id));
+    if (selectedUserTramite?.id === deletingUserTramite.id) {
+      setSelectedUserTramite(null);
+    }
+    setDeletingUserTramite(null);
+    setTramiteNoticeMsg(`El trámite ${code} fue eliminado permanentemente.`);
+    setTimeout(() => setTramiteNoticeMsg(null), 4000);
+  };
+
+  // Catalog List State & Handlers
+  const [catalogList, setCatalogList] = useState<TramiteCatalogItem[]>(MOCK_TRAMITES_CATALOG);
+  const [editingCatalogItem, setEditingCatalogItem] = useState<TramiteCatalogItem | null>(null);
+  const [deletingCatalogItem, setDeletingCatalogItem] = useState<TramiteCatalogItem | null>(null);
+  const [isAddingCatalogItem, setIsAddingCatalogItem] = useState<boolean>(false);
+  const [catalogNoticeMsg, setCatalogNoticeMsg] = useState<string | null>(null);
+
+  // Form State for Adding / Editing Catalog Items
+  const [catCode, setCatCode] = useState<string>('');
+  const [catName, setCatName] = useState<string>('');
+  const [catDepartment, setCatDepartment] = useState<string>('');
+  const [catCategory, setCatCategory] = useState<'avaluos' | 'obras' | 'agua' | 'patentes' | 'pqrs'>('avaluos');
+  const [catCategoryLabel, setCatCategoryLabel] = useState<string>('Avalúos y Catastros');
+  const [catDescription, setCatDescription] = useState<string>('');
+  const [catResponseTime, setCatResponseTime] = useState<string>('24 horas hábiles');
+  const [catCost, setCatCost] = useState<string>('$2.00 USD');
+  const [catRequirementsStr, setCatRequirementsStr] = useState<string>('');
+
+  const handleOpenAddCatalogItem = () => {
+    setIsAddingCatalogItem(true);
+    setEditingCatalogItem(null);
+    setCatCode(`TRM-CAT-0${catalogList.length + 1}`);
+    setCatName('');
+    setCatDepartment('Dirección de Avalúos y Catastros');
+    setCatCategory('avaluos');
+    setCatCategoryLabel('Avalúos y Catastros');
+    setCatDescription('');
+    setCatResponseTime('24 a 48 horas');
+    setCatCost('$2.00 USD');
+    setCatRequirementsStr('Cédula de Identidad\nPapeleta de votación actualizada');
+  };
+
+  const handleOpenEditCatalogItem = (item: TramiteCatalogItem) => {
+    setEditingCatalogItem(item);
+    setIsAddingCatalogItem(false);
+    setCatCode(item.code);
+    setCatName(item.name);
+    setCatDepartment(item.department);
+    setCatCategory(item.category);
+    setCatCategoryLabel(item.categoryLabel);
+    setCatDescription(item.description);
+    setCatResponseTime(item.responseTime);
+    setCatCost(item.cost);
+    setCatRequirementsStr(item.requirements.join('\n'));
+  };
+
+  const handleSaveCatalogItem = (e: React.FormEvent) => {
+    e.preventDefault();
+    const reqsArray = catRequirementsStr
+      .split('\n')
+      .map((r) => r.trim())
+      .filter((r) => r.length > 0);
+
+    const categoryLabelsMap: Record<string, string> = {
+      avaluos: 'Avalúos y Catastros',
+      obras: 'Obras y Planificación',
+      agua: 'Agua y Alcantarillado',
+      patentes: 'Patentes y Comercio',
+      pqrs: 'Secretaría & PQRS'
+    };
+
+    if (editingCatalogItem) {
+      const updated = catalogList.map((item) => {
+        if (item.id === editingCatalogItem.id) {
+          return {
+            ...item,
+            code: catCode,
+            name: catName,
+            department: catDepartment,
+            category: catCategory,
+            categoryLabel: categoryLabelsMap[catCategory] || catCategoryLabel,
+            description: catDescription,
+            responseTime: catResponseTime,
+            cost: catCost,
+            requirements: reqsArray.length > 0 ? reqsArray : ['Sin requisitos adicionales']
+          };
+        }
+        return item;
+      });
+      setCatalogList(updated);
+
+      if (selectedTramiteCatalog && selectedTramiteCatalog.id === editingCatalogItem.id) {
+        setSelectedTramiteCatalog({
+          ...selectedTramiteCatalog,
+          code: catCode,
+          name: catName,
+          department: catDepartment,
+          category: catCategory,
+          categoryLabel: categoryLabelsMap[catCategory] || catCategoryLabel,
+          description: catDescription,
+          responseTime: catResponseTime,
+          cost: catCost,
+          requirements: reqsArray.length > 0 ? reqsArray : ['Sin requisitos adicionales']
+        });
+      }
+
+      setEditingCatalogItem(null);
+      setCatalogNoticeMsg(`¡Trámite de catálogo ${catCode} actualizado exitosamente!`);
+    } else if (isAddingCatalogItem) {
+      const newItem: TramiteCatalogItem = {
+        id: 'trm-cat-' + Date.now(),
+        code: catCode || `TRM-CAT-0${catalogList.length + 1}`,
+        name: catName,
+        department: catDepartment,
+        category: catCategory,
+        categoryLabel: categoryLabelsMap[catCategory] || 'Servicio Municipal',
+        description: catDescription,
+        responseTime: catResponseTime,
+        cost: catCost,
+        requirements: reqsArray.length > 0 ? reqsArray : ['Sin requisitos registrados'],
+        isOnline: true
+      };
+      setCatalogList([newItem, ...catalogList]);
+      setIsAddingCatalogItem(false);
+      setCatalogNoticeMsg(`¡Nuevo trámite ${newItem.code} agregado al catálogo municipal!`);
+    }
+
+    setTimeout(() => setCatalogNoticeMsg(null), 4000);
+  };
+
+  const handleConfirmDeleteCatalogItem = () => {
+    if (!deletingCatalogItem) return;
+    const code = deletingCatalogItem.code;
+    setCatalogList(catalogList.filter((item) => item.id !== deletingCatalogItem.id));
+
+    if (selectedTramiteCatalog && selectedTramiteCatalog.id === deletingCatalogItem.id) {
+      setSelectedTramiteCatalog(null);
+    }
+
+    setDeletingCatalogItem(null);
+    setCatalogNoticeMsg(`El trámite de catálogo ${code} ha sido eliminado.`);
+    setTimeout(() => setCatalogNoticeMsg(null), 4000);
+  };
 
   // Categories list
   const categories: IncidentCategory[] = [
@@ -786,7 +1129,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
         )}
 
         {/* Screen Content Wrapper */}
-        <div className={`bg-slate-100 dark:bg-slate-900 shadow-xl overflow-hidden flex flex-col min-h-[720px] relative border border-slate-200 dark:border-slate-800 ${
+        <div className={`bg-gradient-to-b from-slate-100 via-blue-50/40 to-slate-200 dark:from-slate-900 dark:via-slate-900/95 dark:to-slate-950 shadow-2xl overflow-hidden flex flex-col min-h-[720px] relative border-2 border-slate-300 dark:border-slate-800 ${
           isPhoneFrame ? "rounded-[32px]" : "rounded-3xl"
         }`}>
           
@@ -829,7 +1172,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
           </div>
 
           {/* ==================== 2. MAIN SCREEN CONTENT AREA ==================== */}
-          <div className="flex-1 bg-white dark:bg-slate-900 rounded-t-[32px] -mt-7 relative z-20 px-4 pt-5 pb-20 overflow-y-auto">
+          <div className="flex-1 bg-gradient-to-b from-slate-50 via-blue-50/20 to-slate-100 dark:from-slate-900 dark:via-slate-900/95 dark:to-slate-950 rounded-t-[32px] -mt-7 relative z-20 px-3 sm:px-4 pt-5 pb-20 overflow-y-auto">
             
             {/* SCREEN 14: DETALLE DE REPORTE (MATCHES MOCKUP 14 EXACTLY WHEN AN INCIDENT IS SELECTED) */}
             {selectedIncident ? (
@@ -1069,89 +1412,138 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
               </div>
             ) : (
               <>
-                {/* TAB 1: HOME / INICIO VIEW (MATCHES SCREENSHOT EXACTLY) */}
+                {/* TAB 1: HOME / INICIO VIEW (PERSONALIZADO CON COLORES COMBINADOS, BOTONES PROFESIONALES Y TABLA) */}
                 {citizenTab === 'inicio' && (
               <div className="space-y-5">
                 
-                {/* Greeting Section */}
-                <div className="space-y-0.5">
-                  <h2 className="text-2xl font-black text-slate-900 dark:text-white flex items-center space-x-2 font-serif">
-                    <span>¡Hola, {userFirstName}!</span>
-                    <span className="text-2xl">👋</span>
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    ¿Cómo podemos ayudarte hoy?
-                  </p>
+                {/* Greeting & Quick Stats Bar */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-[#0A4191]/10 via-blue-50 to-emerald-50 dark:from-slate-800 dark:via-slate-800/80 dark:to-slate-900 p-4 rounded-3xl border-2 border-blue-200 dark:border-slate-700 shadow-xs">
+                  <div className="space-y-0.5">
+                    <h2 className="text-2xl font-black text-slate-900 dark:text-white flex items-center space-x-2 font-serif">
+                      <span>¡Hola, {userFirstName}!</span>
+                      <span className="text-2xl">👋</span>
+                    </h2>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 font-bold">
+                      Bienvenido al Portal Ciudadano de Logroño
+                    </p>
+                  </div>
+
+                  {/* KPI Stat Pills */}
+                  <div className="flex items-center space-x-2 shrink-0">
+                    <div className="bg-gradient-to-br from-[#0A4191] to-[#0D4FB0] text-white px-3 py-1.5 rounded-2xl border border-blue-400/40 shadow-xs flex items-center space-x-1.5">
+                      <FileText className="w-3.5 h-3.5 text-blue-200" />
+                      <div>
+                        <div className="text-[9px] font-extrabold uppercase tracking-wider text-blue-200">Activos</div>
+                        <div className="text-xs font-black leading-none">{incidents.length}</div>
+                      </div>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-amber-500 to-orange-600 text-slate-950 px-3 py-1.5 rounded-2xl border border-amber-300/50 shadow-xs flex items-center space-x-1.5">
+                      <Clock className="w-3.5 h-3.5 text-slate-950" />
+                      <div>
+                        <div className="text-[9px] font-extrabold uppercase tracking-wider text-slate-900">En Proceso</div>
+                        <div className="text-xs font-black leading-none">
+                          {incidents.filter((i) => i.status === 'en_proceso' || i.status === 'asignado').length || 2}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-[#159A44] to-emerald-800 text-white px-3 py-1.5 rounded-2xl border border-emerald-400/40 shadow-xs flex items-center space-x-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-200" />
+                      <div>
+                        <div className="text-[9px] font-extrabold uppercase tracking-wider text-emerald-200">Resueltos</div>
+                        <div className="text-xs font-black leading-none">
+                          {incidents.filter((i) => i.status === 'resuelto').length || 1}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Primary Action Button: "Registrar Incidencia" - White background with Dark Blue Outlines & Text */}
+                {/* Primary Professional Action Hero Button: "Registrar Nueva Incidencia" */}
                 <button
                   type="button"
                   onClick={() => {
                     setReportStep('category');
                     setCitizenTab('reportar');
                   }}
-                  className="w-full relative overflow-hidden bg-white text-[#0A4191] p-3 sm:p-3.5 rounded-2xl shadow-md hover:shadow-lg border-2 border-[#0A4191] transition-all duration-300 cursor-pointer group text-left hover:scale-[1.005] active:scale-[0.99]"
+                  className="w-full relative overflow-hidden bg-gradient-to-r from-[#083578] via-[#0A4191] to-[#0C51B6] hover:from-[#06295d] hover:via-[#083578] hover:to-[#0A4191] text-white p-4 sm:p-5 rounded-3xl shadow-xl hover:shadow-2xl border-2 border-blue-400/80 transition-all duration-300 cursor-pointer group text-left hover:scale-[1.005] active:scale-[0.99]"
                 >
+                  {/* Background Radial Glow */}
+                  <div className="absolute -top-12 -right-12 w-48 h-48 bg-blue-400/20 rounded-full blur-2xl pointer-events-none" />
+                  <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none" />
+
                   <div className="flex items-center justify-between gap-3 relative z-10">
-                    <div className="flex items-center space-x-3">
-                      {/* Square Icon Container with White Background & Large Icon */}
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border-2 border-[#0A4191] flex items-center justify-center text-[#0A4191] group-hover:bg-[#0A4191] group-hover:text-white transition-all duration-300 shadow-xs shrink-0">
-                        <PlusCircle className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5]" />
+                    <div className="flex items-center space-x-3.5">
+                      {/* Square Icon Container with Vibrant Gradient & Icon */}
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-white via-blue-50 to-blue-100 text-[#0A4191] border-2 border-white flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shadow-md shrink-0">
+                        <PlusCircle className="w-8 h-8 sm:w-9 sm:h-9 text-[#0A4191] stroke-[2.5]" />
                       </div>
 
-                      <div className="space-y-0.5">
+                      <div className="space-y-1">
                         <div className="flex items-center space-x-2">
-                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-blue-100 text-[#0A4191] border border-blue-300 font-mono shadow-2xs flex items-center space-x-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping inline-block" />
-                            <span>GAD Logroño • En Línea</span>
+                          <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/90 text-white border border-emerald-300 font-mono shadow-2xs flex items-center space-x-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping inline-block" />
+                            <span>GAD Logroño • Portal En Línea 24/7</span>
                           </span>
                         </div>
-                        <h3 className="text-sm sm:text-base font-black tracking-tight text-[#0A4191] leading-tight font-sans uppercase">
+                        <h3 className="text-base sm:text-lg font-black tracking-tight text-white leading-tight font-sans uppercase">
                           Registrar Nueva Incidencia
                         </h3>
-                        <p className="text-[10px] sm:text-[11px] font-medium text-slate-600 line-clamp-1">
-                          Notifica baches, alumbrado, agua potable o residuos en tiempo real
+                        <p className="text-[11px] sm:text-xs font-semibold text-blue-100/90 line-clamp-1">
+                          Notifica baches, alumbrado, agua potable o gestión de residuos en tiempo real
                         </p>
                       </div>
                     </div>
 
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white border-2 border-[#0A4191] group-hover:bg-[#0A4191] group-hover:text-white text-[#0A4191] flex items-center justify-center transition-all duration-300 shrink-0 shadow-2xs">
-                      <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform stroke-[2.5]" />
+                    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 group-hover:bg-white group-hover:text-[#0A4191] text-white flex items-center justify-center transition-all duration-300 shrink-0 shadow-sm">
+                      <ChevronRight className="w-6 h-6 group-hover:translate-x-0.5 transition-transform stroke-[3]" />
                     </div>
                   </div>
                 </button>
 
                 {/* Shuar Culture Audio Assist Banner */}
-                <div className="bg-white text-[#0A4191] p-2.5 rounded-2xl border-2 border-[#0A4191] flex items-center justify-between text-xs shadow-xs">
-                  <div className="flex items-center space-x-2">
-                    <Sparkles className="w-4 h-4 text-amber-600" />
-                    <span className="font-extrabold text-[11px] sm:text-xs text-[#0A4191]">Shuar Chicham Audio-Guía</span>
+                <div className="bg-gradient-to-r from-amber-500/15 via-amber-100/80 to-amber-50 dark:from-amber-950/40 dark:via-slate-800 dark:to-slate-900 text-[#0A4191] dark:text-amber-200 p-3 rounded-2xl border-2 border-amber-400 flex items-center justify-between text-xs shadow-xs">
+                  <div className="flex items-center space-x-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-extrabold shadow-2xs">
+                      <Sparkles className="w-4 h-4 text-slate-950" />
+                    </div>
+                    <div>
+                      <span className="font-black text-xs text-slate-900 dark:text-amber-300 block leading-none">
+                        Shuar Chicham Audio-Guía
+                      </span>
+                      <span className="text-[10px] text-slate-600 dark:text-slate-400 font-medium">
+                        Asistente de audio e interculturalidad para la ciudadanía
+                      </span>
+                    </div>
                   </div>
                   <button
                     type="button"
                     onClick={playShuarAudio}
-                    className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-3 py-1 rounded-xl text-[10px] sm:text-xs flex items-center space-x-1 cursor-pointer transition-colors border-2 border-amber-500 shadow-2xs"
+                    className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black px-3.5 py-1.5 rounded-xl text-[11px] flex items-center space-x-1.5 cursor-pointer transition-all border-2 border-amber-500 shadow-xs active:scale-95 shrink-0"
                   >
-                    <Volume2 className="w-3.5 h-3.5" />
-                    <span>{isPlayingAudio ? 'Escuchando...' : 'Escuchar'}</span>
+                    <Volume2 className="w-4 h-4" />
+                    <span>{isPlayingAudio ? 'Escuchando...' : 'Escuchar Audio'}</span>
                   </button>
                 </div>
 
-                {/* 6 ACTION CARDS WITH WHITE SQUARE CONTAINERS & LARGE ICONS */}
-                <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+                {/* 6 PROFESSIONAL ACTION CARDS WITH VIBRANT COMBINED COLORS */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   
                   {/* Card 1: Mis reportes */}
                   <button
                     type="button"
                     onClick={() => setCitizenTab('mis_reportes')}
-                    className="bg-white border-2 border-[#0A4191] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
+                    className="bg-gradient-to-br from-blue-50/90 via-slate-50 to-indigo-100/70 dark:from-slate-800 dark:via-slate-800/90 dark:to-slate-900 border-2 border-blue-300 dark:border-blue-800 hover:border-[#0A4191] rounded-2xl p-3.5 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group hover:scale-[1.02]"
                   >
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 shadow-xs shrink-0 group-hover:bg-[#0A4191] group-hover:text-white transition-all duration-300">
-                      <FileText className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-[#0A4191] group-hover:text-white" />
+                    <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl bg-gradient-to-br from-[#0A4191] to-blue-700 text-white flex items-center justify-center mb-2 shadow-md shrink-0 group-hover:scale-105 transition-transform duration-300">
+                      <FileText className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
                     </div>
-                    <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
-                      Mis reportes
+                    <span className="text-xs sm:text-sm font-black text-[#0A4191] dark:text-blue-300 leading-tight">
+                      Mis Reportes
+                    </span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-0.5">
+                      Historial & Estado
                     </span>
                   </button>
 
@@ -1162,13 +1554,16 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       setSelectedIncident(null);
                       setCitizenTab('noticias');
                     }}
-                    className="bg-white border-2 border-[#0A4191] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
+                    className="bg-gradient-to-br from-indigo-50/90 via-slate-50 to-blue-100/70 dark:from-slate-800 dark:via-slate-800/90 dark:to-slate-900 border-2 border-indigo-300 dark:border-indigo-800 hover:border-indigo-600 rounded-2xl p-3.5 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group hover:scale-[1.02]"
                   >
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 shadow-xs shrink-0 group-hover:bg-[#0A4191] group-hover:text-white transition-all duration-300">
-                      <Newspaper className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-[#0A4191] group-hover:text-white" />
+                    <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-800 text-white flex items-center justify-center mb-2 shadow-md shrink-0 group-hover:scale-105 transition-transform duration-300">
+                      <Newspaper className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
                     </div>
-                    <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
+                    <span className="text-xs sm:text-sm font-black text-indigo-900 dark:text-indigo-300 leading-tight">
                       Noticias
+                    </span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-0.5">
+                      Comunicados GAD
                     </span>
                   </button>
 
@@ -1179,13 +1574,16 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       setSelectedIncident(null);
                       setCitizenTab('agenda');
                     }}
-                    className="bg-white border-2 border-[#0A4191] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
+                    className="bg-gradient-to-br from-rose-50/90 via-slate-50 to-amber-100/70 dark:from-slate-800 dark:via-slate-800/90 dark:to-slate-900 border-2 border-rose-300 dark:border-rose-800 hover:border-rose-600 rounded-2xl p-3.5 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group hover:scale-[1.02]"
                   >
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 shadow-xs shrink-0 group-hover:bg-[#0A4191] group-hover:text-white transition-all duration-300">
-                      <Calendar className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-red-600 group-hover:text-white" />
+                    <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl bg-gradient-to-br from-rose-600 to-red-700 text-white flex items-center justify-center mb-2 shadow-md shrink-0 group-hover:scale-105 transition-transform duration-300">
+                      <Calendar className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
                     </div>
-                    <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
+                    <span className="text-xs sm:text-sm font-black text-rose-900 dark:text-rose-300 leading-tight">
                       Agenda
+                    </span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-0.5">
+                      Eventos Cantonales
                     </span>
                   </button>
 
@@ -1193,13 +1591,16 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowEmergencyModal(true)}
-                    className="bg-white border-2 border-[#0A4191] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
+                    className="bg-gradient-to-br from-red-100/90 via-rose-50 to-amber-100/80 dark:from-red-950/60 dark:via-slate-800 dark:to-slate-900 border-2 border-red-400 dark:border-red-700 hover:border-red-600 rounded-2xl p-3.5 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group hover:scale-[1.02]"
                   >
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 shadow-xs shrink-0 group-hover:bg-[#0A4191] group-hover:text-white transition-all duration-300">
-                      <Siren className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-red-600 group-hover:text-white" />
+                    <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl bg-gradient-to-br from-red-600 to-rose-800 text-white flex items-center justify-center mb-2 shadow-md shrink-0 group-hover:scale-105 transition-transform duration-300 animate-pulse">
+                      <Siren className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
                     </div>
-                    <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
+                    <span className="text-xs sm:text-sm font-black text-red-900 dark:text-red-300 leading-tight">
                       Emergencias
+                    </span>
+                    <span className="text-[10px] text-red-700 dark:text-red-400 font-bold mt-0.5">
+                      Contactos 911
                     </span>
                   </button>
 
@@ -1207,13 +1608,16 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   <button
                     type="button"
                     onClick={() => setCitizenTab('directorio')}
-                    className="bg-white border-2 border-[#0A4191] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
+                    className="bg-gradient-to-br from-emerald-50/90 via-slate-50 to-teal-100/70 dark:from-slate-800 dark:via-slate-800/90 dark:to-slate-900 border-2 border-emerald-300 dark:border-emerald-800 hover:border-emerald-600 rounded-2xl p-3.5 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group hover:scale-[1.02]"
                   >
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 shadow-xs shrink-0 group-hover:bg-[#0A4191] group-hover:text-white transition-all duration-300">
-                      <PhoneCall className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-emerald-600 group-hover:text-white" />
+                    <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center mb-2 shadow-md shrink-0 group-hover:scale-105 transition-transform duration-300">
+                      <PhoneCall className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
                     </div>
-                    <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
+                    <span className="text-xs sm:text-sm font-black text-emerald-950 dark:text-emerald-300 leading-tight">
                       Directorio
+                    </span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-0.5">
+                      Teléfonos GAD
                     </span>
                   </button>
 
@@ -1221,345 +1625,182 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   <button
                     type="button"
                     onClick={() => setCitizenTab('pqrs')}
-                    className="bg-white border-2 border-[#0A4191] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md hover:bg-blue-50/60 transition-all duration-200 cursor-pointer group"
+                    className="bg-gradient-to-br from-amber-50/90 via-slate-50 to-yellow-100/70 dark:from-slate-800 dark:via-slate-800/90 dark:to-slate-900 border-2 border-amber-300 dark:border-amber-800 hover:border-amber-600 rounded-2xl p-3.5 flex flex-col items-center justify-center text-center shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer group hover:scale-[1.02]"
                   >
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white border-2 border-[#0A4191] text-[#0A4191] flex items-center justify-center mb-2 shadow-xs shrink-0 group-hover:bg-[#0A4191] group-hover:text-white transition-all duration-300">
-                      <FileCheck className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.5] text-emerald-600 group-hover:text-white" />
+                    <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl bg-gradient-to-br from-amber-600 to-orange-700 text-white flex items-center justify-center mb-2 shadow-md shrink-0 group-hover:scale-105 transition-transform duration-300">
+                      <FileCheck className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
                     </div>
-                    <span className="text-xs sm:text-sm font-black text-[#0A4191] leading-tight">
+                    <span className="text-xs sm:text-sm font-black text-amber-950 dark:text-amber-300 leading-tight">
                       Trámites
+                    </span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-0.5">
+                      Catálogo PQRS
                     </span>
                   </button>
 
                 </div>
 
-                {/* Contenedor: Indicadores de Eficiencia y Satisfacción Cantonal */}
-                <div className="bg-white dark:bg-slate-900 border-2 border-[#0A4191] rounded-3xl p-3 sm:p-4 space-y-3 shadow-md">
+                {/* TABLA PERSONALIZADA DE ESTADO DE TRÁMITES Y REPORTES RECIENTES */}
+                <div className="bg-gradient-to-br from-slate-900 via-[#0A4191] to-slate-950 text-white rounded-3xl border-2 border-blue-400/80 shadow-xl overflow-hidden space-y-0">
+                  {/* Table Header Controls */}
+                  <div className="p-4 bg-slate-950/80 border-b border-blue-400/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-[#0A4191] text-white flex items-center justify-center shadow-xs shrink-0">
+                        <FileText className="w-5 h-5 stroke-[2.5]" />
+                      </div>
+                      <div>
+                        <h3 className="font-extrabold text-sm text-white leading-tight">
+                          Tabla de Seguimiento de Solicitudes y Trámites
+                        </h3>
+                        <p className="text-[10px] text-blue-200 font-medium">
+                          Monitoreo en tiempo real del progreso municipal
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setCitizenTab('mis_reportes')}
+                      className="px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/40 text-blue-200 hover:text-white border border-blue-400/40 rounded-xl font-extrabold text-xs transition-colors flex items-center space-x-1 cursor-pointer shrink-0"
+                    >
+                      <span>Ver Todos en Mis Reportes</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* Custom Styled Table */}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-slate-950/60 text-blue-200 font-extrabold uppercase text-[10px] tracking-wider border-b border-white/10">
+                          <th className="py-3 px-3.5">Código / Trámite</th>
+                          <th className="py-3 px-3.5 hidden md:table-cell">Categoría & Sector</th>
+                          <th className="py-3 px-3.5">Fecha</th>
+                          <th className="py-3 px-3.5">Estado & Avance</th>
+                          <th className="py-3 px-3.5 text-center">Gestión</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/10 text-slate-100 text-xs">
+                        {incidents.slice(0, 4).map((inc) => {
+                          let badgeBg = 'bg-amber-400 text-slate-950 font-black';
+                          let progressPercent = '65%';
+                          let statusLabel = 'En Proceso';
+
+                          if (inc.status === 'resuelto') {
+                            badgeBg = 'bg-emerald-400 text-slate-950 font-black';
+                            progressPercent = '100%';
+                            statusLabel = 'Solucionado';
+                          } else if (inc.status === 'reportado') {
+                            badgeBg = 'bg-blue-400 text-slate-950 font-black';
+                            progressPercent = '25%';
+                            statusLabel = 'Recibido';
+                          } else if (inc.status === 'asignado') {
+                            badgeBg = 'bg-amber-300 text-slate-950 font-black';
+                            progressPercent = '50%';
+                            statusLabel = 'Asignado';
+                          }
+
+                          return (
+                            <tr key={inc.id} className="hover:bg-white/10 transition-colors">
+                              <td className="py-3 px-3.5 font-bold">
+                                <div className="font-mono text-[10px] text-amber-300 bg-black/40 px-2 py-0.5 rounded-md inline-block border border-white/10 mb-0.5">
+                                  {inc.code}
+                                </div>
+                                <div className="text-white font-extrabold text-xs line-clamp-1">{inc.title}</div>
+                              </td>
+
+                              <td className="py-3 px-3.5 hidden md:table-cell text-slate-300 font-medium">
+                                <span className="text-blue-300 font-bold block">{inc.category}</span>
+                                <span className="text-[10px] text-slate-400">{inc.location.sector}</span>
+                              </td>
+
+                              <td className="py-3 px-3.5 font-mono text-[11px] text-blue-200">
+                                {inc.createdAt ? inc.createdAt.split('T')[0] : '12/08/2026'}
+                              </td>
+
+                              <td className="py-3 px-3.5">
+                                <div className="flex items-center space-x-2 mb-1">
+                                  <span className={`px-2 py-0.5 rounded-full text-[9px] uppercase font-black ${badgeBg}`}>
+                                    {statusLabel}
+                                  </span>
+                                  <span className="text-[10px] font-mono text-blue-200 font-bold">{progressPercent}</span>
+                                </div>
+                                <div className="w-24 sm:w-28 h-1.5 bg-black/50 rounded-full overflow-hidden border border-white/20">
+                                  <div
+                                    className={`h-full rounded-full ${
+                                      inc.status === 'resuelto'
+                                        ? 'bg-emerald-400'
+                                        : inc.status === 'reportado'
+                                        ? 'bg-blue-400'
+                                        : 'bg-amber-400'
+                                    }`}
+                                    style={{ width: progressPercent }}
+                                  />
+                                </div>
+                              </td>
+
+                              <td className="py-3 px-3.5 text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedIncident(inc)}
+                                  className="px-2.5 py-1.5 bg-white/15 hover:bg-white/30 text-white border border-white/30 rounded-xl font-extrabold text-[11px] transition-all cursor-pointer shadow-2xs inline-flex items-center space-x-1"
+                                >
+                                  <span>Seguimiento</span>
+                                  <ChevronRight className="w-3.5 h-3.5" />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Contenedor: Mapa Georreferenciado de Logroño */}
+                <div className="bg-gradient-to-br from-white via-slate-50 to-blue-50/50 dark:from-slate-900 dark:to-slate-900 border-2 border-[#0A4191] rounded-3xl p-3 sm:p-4 space-y-3 shadow-md">
                   <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
                     <div className="flex items-center space-x-2.5">
-                      <div className="w-10 h-10 rounded-xl bg-[#0A4191] text-white flex items-center justify-center shrink-0 shadow-sm">
-                        <BarChart3 className="w-5 h-5 stroke-[2.5]" />
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0A4191] to-blue-700 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <Map className="w-5 h-5 stroke-[2.5]" />
                       </div>
                       <div>
                         <h4 className="font-extrabold text-sm text-[#0A4191] dark:text-blue-400 leading-tight">
-                          Indicadores de Eficiencia y Satisfacción Cantonal
+                          Mapa Georreferenciado y Rutas de Logroño
                         </h4>
                         <p className="text-[10px] text-slate-500 font-bold">
-                          Estadísticas de Trámites, Incidencias y Nivel de Servicio GAD Logroño
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* SECCIÓN DE GRÁFICOS PORCENTUALES: INCIDENCIAS RESUELTAS & SATISFACCIÓN CIUDADANA */}
-                  <div className="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-3 sm:p-4 border border-blue-200 dark:border-slate-700 shadow-2xs space-y-3">
-                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
-                      <div className="flex items-center space-x-2">
-                        <BarChart3 className="w-4 h-4 text-[#0A4191] dark:text-blue-400" />
-                        <span className="font-extrabold text-xs text-[#0A4191] dark:text-blue-300 uppercase tracking-wide">
-                          Indicadores de Eficiencia Cantonal y Satisfacción
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-bold text-slate-500 bg-white dark:bg-slate-900 px-2.5 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">
-                        GAD Logroño 2026
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                      {/* DONUT CHART 1: INCIDENCIAS RESUELTAS */}
-                      <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-blue-100 dark:border-slate-800 flex items-center space-x-3.5 shadow-2xs">
-                        <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
-                          <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 80 80">
-                            {/* Track Circle */}
-                            <circle
-                              cx="40"
-                              cy="40"
-                              r="32"
-                              className="stroke-slate-100 dark:stroke-slate-800"
-                              strokeWidth="7"
-                              fill="transparent"
-                            />
-                            {/* Progress Circle */}
-                            <circle
-                              cx="40"
-                              cy="40"
-                              r="32"
-                              className="stroke-[#0A4191] dark:stroke-blue-500 transition-all duration-1000 ease-out"
-                              strokeWidth="7"
-                              strokeDasharray="201.06"
-                              strokeDashoffset={201.06 - (201.06 * resolvedPercentageNum) / 100}
-                              strokeLinecap="round"
-                              fill="transparent"
-                            />
-                          </svg>
-                          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                            <span className="text-sm font-black text-[#0A4191] dark:text-blue-300 leading-none">
-                              {resolvedPercentageNum}%
-                            </span>
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600 mt-0.5" />
-                          </div>
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <h5 className="font-extrabold text-xs text-[#0A4191] dark:text-blue-300 leading-snug">
-                            Incidencias Resueltas
-                          </h5>
-                          <p className="text-[10px] text-slate-500 font-medium mt-0.5">
-                            Porcentaje de trámites y alertas solucionadas exitosamente por el GAD.
-                          </p>
-                          <div className="mt-2 flex items-center justify-between text-[10px] font-bold border-t border-slate-100 dark:border-slate-800 pt-1 text-slate-700 dark:text-slate-300">
-                            <span>Resueltas: <strong className="text-emerald-600">{resolvedIncidentsCount}</strong></span>
-                            <span>En Proceso: <strong className="text-amber-600">{inProgressIncidentsCount}</strong></span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* DONUT CHART 2: SATISFACCIÓN CIUDADANA */}
-                      <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-blue-100 dark:border-slate-800 flex items-center space-x-3.5 shadow-2xs">
-                        <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
-                          <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 80 80">
-                            {/* Track Circle */}
-                            <circle
-                              cx="40"
-                              cy="40"
-                              r="32"
-                              className="stroke-slate-100 dark:stroke-slate-800"
-                              strokeWidth="7"
-                              fill="transparent"
-                            />
-                            {/* Progress Circle */}
-                            <circle
-                              cx="40"
-                              cy="40"
-                              r="32"
-                              className="stroke-emerald-600 dark:stroke-emerald-400 transition-all duration-1000 ease-out"
-                              strokeWidth="7"
-                              strokeDasharray="201.06"
-                              strokeDashoffset={201.06 - (201.06 * satisfactionPercentageNum) / 100}
-                              strokeLinecap="round"
-                              fill="transparent"
-                            />
-                          </svg>
-                          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                            <span className="text-sm font-black text-emerald-700 dark:text-emerald-400 leading-none">
-                              {satisfactionPercentageNum}%
-                            </span>
-                            <Star className="w-3 h-3 text-amber-500 fill-amber-400 mt-0.5" />
-                          </div>
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <h5 className="font-extrabold text-xs text-[#0A4191] dark:text-blue-300 leading-snug">
-                            Satisfacción Ciudadana
-                          </h5>
-                          <p className="text-[10px] text-slate-500 font-medium mt-0.5">
-                            Conformidad y valoración positiva en la resolución de servicios municipales.
-                          </p>
-                          <div className="mt-2 flex items-center justify-between text-[10px] font-bold border-t border-slate-100 dark:border-slate-800 pt-1 text-slate-700 dark:text-slate-300">
-                            <span>Valoración: <strong className="text-amber-600">4.9 / 5.0 ★</strong></span>
-                            <span>Encuestas: <strong className="text-[#0A4191]">1,420</strong></span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* CONTENEDOR: CONTADOR DE VISITAS Y CONTROL DE USO DE LA APP CIUDADANA */}
-                <div className="bg-white dark:bg-slate-900 border-2 border-[#0A4191] rounded-3xl p-4 sm:p-5 space-y-4 shadow-md relative overflow-hidden">
-                  
-                  {/* Toast notification feedback */}
-                  {visitToast && (
-                    <div className="absolute top-2 right-2 bg-emerald-600 text-white text-[11px] font-extrabold px-3 py-1.5 rounded-xl shadow-lg flex items-center space-x-1.5 animate-in fade-in slide-in-from-top-2 duration-200 z-20">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>{visitToast}</span>
-                    </div>
-                  )}
-
-                  {/* Header Row */}
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0A4191] to-[#083373] text-white flex items-center justify-center shrink-0 shadow-sm">
-                        <Activity className="w-5 h-5 stroke-[2.5]" />
-                      </div>
-                      <div>
-                        <h4 className="font-black text-sm text-[#0A4191] dark:text-blue-400 leading-tight">
-                          Contador de Visitas y Control de Uso de la App
-                        </h4>
-                        <p className="text-[10px] text-slate-500 font-bold">
-                          Monitoreo de Tráfico Ciudadano & Accesos Digitales Cantón Logroño
+                          Territorio Trazado • Atractivos Turísticos y Guía GPS en Tiempo Real
                         </p>
                       </div>
                     </div>
 
-                    {/* Period Selector Filter Buttons */}
-                    <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 self-stretch sm:self-auto justify-center">
-                      {(['hoy', 'semana', 'mes', 'año'] as const).map((period) => (
-                        <button
-                          key={period}
-                          type="button"
-                          onClick={() => setVisitPeriod(period)}
-                          className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold capitalize transition-all cursor-pointer ${
-                            visitPeriod === period
-                              ? 'bg-[#0A4191] text-white shadow-2xs'
-                              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
-                          }`}
-                        >
-                          {period}
-                        </button>
-                      ))}
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCitizenTab('mapa')}
+                      className="px-3 py-1.5 bg-gradient-to-r from-[#0A4191] to-[#0C51B6] text-white hover:from-[#083373] border border-blue-400 rounded-xl font-extrabold text-[11px] flex items-center space-x-1 transition-all cursor-pointer shrink-0 shadow-2xs"
+                    >
+                      <span>Ver Completo</span>
+                      <ChevronRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                    </button>
                   </div>
 
-                  {/* 3 Main Stat Counter Cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    
-                    {/* Stat Card 1: Total App Visits */}
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50/50 dark:from-slate-800 dark:to-slate-800/80 p-3.5 rounded-2xl border border-blue-200 dark:border-slate-700 flex flex-col justify-between space-y-2">
-                      <div className="flex justify-between items-start">
-                        <span className="text-[11px] font-bold text-[#0A4191] dark:text-blue-300">
-                          Visitas Acumuladas
-                        </span>
-                        <Eye className="w-4 h-4 text-[#0A4191]" />
-                      </div>
-
-                      <div>
-                        <span className="text-2xl font-black text-[#0A4191] dark:text-white font-mono tracking-tight block">
-                          {(visitPeriod === 'hoy' ? todayVisits : visitPeriod === 'semana' ? todayVisits * 6 : visitPeriod === 'mes' ? appVisits : appVisits * 4).toLocaleString('es-EC')}
-                        </span>
-                        <span className="text-[10px] text-slate-500 font-medium">
-                          {visitPeriod === 'hoy' ? 'Accesos registrados hoy' : 'Accesos en el período seleccionado'}
-                        </span>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={handleRegisterVisit}
-                        className="mt-1 w-full py-1.5 bg-[#0A4191] hover:bg-[#072e68] text-white rounded-xl text-[10px] font-extrabold flex items-center justify-center space-x-1 cursor-pointer transition-all shadow-2xs"
-                      >
-                        <MousePointerClick className="w-3.5 h-3.5" />
-                        <span>Registrar Interacción / Visita</span>
-                      </button>
-                    </div>
-
-                    {/* Stat Card 2: Active Citizens Connected */}
-                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50/50 dark:from-slate-800 dark:to-slate-800/80 p-3.5 rounded-2xl border border-emerald-200 dark:border-slate-700 flex flex-col justify-between space-y-2">
-                      <div className="flex justify-between items-start">
-                        <span className="text-[11px] font-bold text-emerald-900 dark:text-emerald-300">
-                          Usuarios Conectados Hoy
-                        </span>
-                        <Users className="w-4 h-4 text-emerald-600" />
-                      </div>
-
-                      <div>
-                        <span className="text-2xl font-black text-emerald-800 dark:text-emerald-300 font-mono tracking-tight block">
-                          {(visitPeriod === 'hoy' ? 142 : visitPeriod === 'semana' ? 890 : visitPeriod === 'mes' ? 3410 : 12850).toLocaleString('es-EC')}
-                        </span>
-                        <div className="flex items-center space-x-1.5 mt-0.5">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
-                          <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold">
-                            Actividad en vivo detectada
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="text-[10px] text-slate-600 dark:text-slate-400 font-semibold border-t border-emerald-200/60 pt-1">
-                        Pico de tráfico: <strong className="text-slate-900 dark:text-white">10:00 - 12:00</strong>
-                      </div>
-                    </div>
-
-                    {/* Stat Card 3: Top Preferred Module */}
-                    <div className="bg-gradient-to-br from-amber-50 to-orange-50/50 dark:from-slate-800 dark:to-slate-800/80 p-3.5 rounded-2xl border border-amber-200 dark:border-slate-700 flex flex-col justify-between space-y-2">
-                      <div className="flex justify-between items-start">
-                        <span className="text-[11px] font-bold text-amber-900 dark:text-amber-300">
-                          Módulo Más Utilizado
-                        </span>
-                        <PieChart className="w-4 h-4 text-amber-600" />
-                      </div>
-
-                      <div>
-                        <span className="text-2xl font-black text-amber-900 dark:text-amber-300 font-mono tracking-tight block">
-                          42.5%
-                        </span>
-                        <span className="text-[10px] text-slate-600 dark:text-slate-400 font-bold block">
-                          Reporte de Incidencias & Alertas GPS
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between text-[10px] text-amber-800 dark:text-amber-400 font-bold border-t border-amber-200/60 pt-1">
-                        <span className="flex items-center space-x-1">
-                          <TrendingUp className="w-3 h-3 text-emerald-600" />
-                          <span>+14.2% este mes</span>
-                        </span>
-                        <span>Módulo #1</span>
-                      </div>
-                    </div>
+                  {/* Direct Map Canvas Display 680px fitted container */}
+                  <div className="w-full h-[680px] max-w-full rounded-2xl overflow-hidden border border-slate-300 dark:border-slate-800 shadow-inner">
+                    <WelcomeTouristMap className="w-full h-[680px]" />
                   </div>
-
-                  {/* App Modules Usage Breakdown Bars */}
-                  <div className="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2.5">
-                    <span className="font-extrabold text-xs text-[#0A4191] dark:text-blue-300 block">
-                      Distribución Porcentual del Uso del App Ciudadana
-                    </span>
-
-                    <div className="space-y-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                      {/* Bar 1 */}
-                      <div>
-                        <div className="flex justify-between mb-0.5">
-                          <span>1. Reporte de Incidencias y Servicios</span>
-                          <span className="font-mono text-[#0A4191]">42.5%</span>
-                        </div>
-                        <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                          <div className="h-full bg-[#0A4191] rounded-full transition-all duration-500" style={{ width: '42.5%' }} />
-                        </div>
-                      </div>
-
-                      {/* Bar 2 */}
-                      <div>
-                        <div className="flex justify-between mb-0.5">
-                          <span>2. Mapa Georreferenciado y Rutas Turísticas</span>
-                          <span className="font-mono text-emerald-600">28.0%</span>
-                        </div>
-                        <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                          <div className="h-full bg-emerald-600 rounded-full transition-all duration-500" style={{ width: '28.0%' }} />
-                        </div>
-                      </div>
-
-                      {/* Bar 3 */}
-                      <div>
-                        <div className="flex justify-between mb-0.5">
-                          <span>3. Trámites Municipal y PQRS</span>
-                          <span className="font-mono text-amber-600">18.5%</span>
-                        </div>
-                        <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                          <div className="h-full bg-amber-500 rounded-full transition-all duration-500" style={{ width: '18.5%' }} />
-                        </div>
-                      </div>
-
-                      {/* Bar 4 */}
-                      <div>
-                        <div className="flex justify-between mb-0.5">
-                          <span>4. Noticias, Agenda y Directorio Cantonal</span>
-                          <span className="font-mono text-purple-600">11.0%</span>
-                        </div>
-                        <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                          <div className="h-full bg-purple-600 rounded-full transition-all duration-500" style={{ width: '11.0%' }} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
 
                 {/* Cantonal Alert Box */}
-                <div className="bg-amber-50 border border-amber-300 p-3 rounded-2xl flex items-start space-x-2 text-xs">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="bg-gradient-to-r from-amber-500/15 via-amber-100 to-amber-50 dark:from-amber-950/50 dark:to-slate-900 border-2 border-amber-400 p-3 rounded-2xl flex items-start space-x-2.5 text-xs shadow-xs">
+                  <div className="p-1.5 bg-amber-500 text-slate-950 rounded-xl shrink-0 mt-0.5">
+                    <AlertTriangle className="w-4 h-4 stroke-[2.5]" />
+                  </div>
                   <div>
-                    <span className="font-bold text-amber-900 block text-[11px]">
+                    <span className="font-extrabold text-amber-950 dark:text-amber-300 block text-xs">
                       Aviso de Prevención Cantonal
                     </span>
-                    <p className="text-slate-700 text-[10px] mt-0.5 font-medium">
-                      Vía Logroño - Yaupi habilitada con precaución por cuadrillas del GAD Municipal.
+                    <p className="text-slate-800 dark:text-slate-300 text-[11px] mt-0.5 font-semibold">
+                      Vía Logroño - Yaupi habilitada con precaución por trabajos de limpieza de cuadrillas del GAD Municipal.
                     </p>
                   </div>
                 </div>
@@ -2297,25 +2538,77 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
               </div>
             )}
 
-            {/* TAB 3: MIS REPORTES (MATCHES MOCKUP 13 EXACTLY) */}
+            {/* TAB 3: MIS REPORTES (PLANTILLA PERSONALIZADA) */}
             {citizenTab === 'mis_reportes' && (
-              <div className="bg-white border-2 border-[#0A4191] rounded-2xl p-4 sm:p-5 shadow-sm space-y-4 text-xs text-[#0A4191]">
-                {/* Header Row: Back Arrow + Centered Title */}
-                <div className="relative text-center pt-1 pb-1">
-                  <button
-                    type="button"
-                    onClick={() => setCitizenTab('inicio')}
-                    className="absolute left-0 top-0.5 p-1 text-[#0A4191] hover:bg-blue-50 rounded-full cursor-pointer transition-colors"
-                    title="Volver al inicio"
-                  >
-                    <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
-                  </button>
-                  <h2 className="text-base font-black text-[#0A4191] font-serif tracking-tight">
-                    Mis reportes
-                  </h2>
+              <div className="bg-gradient-to-br from-slate-50 via-blue-50/40 to-slate-100 border-2 border-[#0A4191] rounded-3xl p-4 sm:p-6 shadow-lg space-y-4 text-xs text-slate-800">
+                {/* Header Banner: Gradiente azul municipal con texto e insignias */}
+                <div className="bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] text-white p-4 rounded-2xl border-b-2 border-[#0A4191] shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 -mx-1 -mt-1">
+                  <div className="flex items-center space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => setCitizenTab('inicio')}
+                      className="p-1.5 text-white hover:bg-white/20 rounded-full cursor-pointer transition-colors border border-white/20 active:scale-95 shrink-0"
+                      title="Volver al inicio"
+                    >
+                      <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+                    </button>
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-[10px] font-black font-mono text-amber-300 bg-white/15 px-2 py-0.5 rounded border border-white/20 uppercase tracking-wider shadow-2xs">
+                          Gestión Ciudadana GAD
+                        </span>
+                      </div>
+                      <h2 className="text-base sm:text-lg font-black text-white font-serif tracking-tight mt-0.5">
+                        Mis Reportes & Trámites
+                      </h2>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2 self-end sm:self-auto text-[11px] font-bold">
+                    <span className="bg-white/15 text-blue-100 px-3 py-1 rounded-xl border border-white/25 backdrop-blur-xs flex items-center space-x-1.5 shadow-2xs">
+                      <FileText className="w-3.5 h-3.5 text-amber-300" />
+                      <span>Histórico Cantonal Logroño</span>
+                    </span>
+                  </div>
                 </div>
 
-                {/* Filter & Sort Bar */}
+                {/* Quick Stats Summary Ribbon */}
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                  <div className="bg-white/90 border border-slate-300 p-2.5 sm:p-3 rounded-2xl shadow-2xs flex items-center space-x-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-200 text-[#0A4191] flex items-center justify-center shrink-0">
+                      <ListFilter className="w-4 h-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wider">Total</span>
+                      <span className="text-sm font-black text-slate-900">{incidents.length}</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-50/90 border border-amber-200 p-2.5 sm:p-3 rounded-2xl shadow-2xs flex items-center space-x-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center shrink-0">
+                      <Clock className="w-4 h-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-amber-800 font-bold block uppercase tracking-wider">En Atención</span>
+                      <span className="text-sm font-black text-amber-950">
+                        {incidents.filter((i) => i.status !== 'resuelto').length}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="bg-emerald-50/90 border border-emerald-200 p-2.5 sm:p-3 rounded-2xl shadow-2xs flex items-center space-x-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-800 flex items-center justify-center shrink-0">
+                      <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-emerald-800 font-bold block uppercase tracking-wider">Solucionados</span>
+                      <span className="text-sm font-black text-emerald-950">
+                        {incidents.filter((i) => i.status === 'resuelto').length}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Filter & Sort Controls */}
                 <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between py-0.5">
                   {/* Status Filter Pills: Todos | En proceso | Solucionados */}
                   <div className="grid grid-cols-3 gap-2 flex-1">
@@ -2323,54 +2616,54 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       type="button"
                       onClick={() => setMisReportesFilter('todos')}
                       title="Ver todos los reportes"
-                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center space-x-1.5 border-2 border-[#0A4191] text-[#0A4191] ${
+                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center space-x-1.5 border active:scale-95 ${
                         misReportesFilter === 'todos'
-                          ? 'bg-blue-100 font-black shadow-xs'
-                          : 'bg-white font-extrabold hover:bg-blue-50'
+                          ? 'bg-gradient-to-r from-[#0A4191] to-[#0C51B6] text-white border-[#0A4191] shadow-md'
+                          : 'bg-white/90 hover:bg-white text-slate-700 border-slate-300 shadow-2xs'
                       }`}
                     >
-                      <ListFilter className="w-3.5 h-3.5 flex-shrink-0 text-[#0A4191]" />
+                      <ListFilter className="w-3.5 h-3.5 shrink-0" />
                       <span className="hidden xs:inline">Todos</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setMisReportesFilter('en_proceso')}
                       title="Ver reportes en proceso"
-                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center space-x-1.5 border-2 border-[#0A4191] text-[#0A4191] ${
+                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center space-x-1.5 border active:scale-95 ${
                         misReportesFilter === 'en_proceso'
-                          ? 'bg-blue-100 font-black shadow-xs'
-                          : 'bg-white font-extrabold hover:bg-blue-50'
+                          ? 'bg-gradient-to-r from-[#0A4191] to-[#0C51B6] text-white border-[#0A4191] shadow-md'
+                          : 'bg-white/90 hover:bg-white text-slate-700 border-slate-300 shadow-2xs'
                       }`}
                     >
-                      <Clock className="w-3.5 h-3.5 flex-shrink-0 text-[#0A4191]" />
+                      <Clock className="w-3.5 h-3.5 shrink-0" />
                       <span className="hidden xs:inline">En proceso</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setMisReportesFilter('solucionados')}
                       title="Ver reportes solucionados"
-                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center space-x-1.5 border-2 border-[#0A4191] text-[#0A4191] ${
+                      className={`py-2 px-2 sm:px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center space-x-1.5 border active:scale-95 ${
                         misReportesFilter === 'solucionados'
-                          ? 'bg-blue-100 font-black shadow-xs'
-                          : 'bg-white font-extrabold hover:bg-blue-50'
+                          ? 'bg-gradient-to-r from-[#0A4191] to-[#0C51B6] text-white border-[#0A4191] shadow-md'
+                          : 'bg-white/90 hover:bg-white text-slate-700 border-slate-300 shadow-2xs'
                       }`}
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-[#0A4191]" />
+                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                       <span className="hidden xs:inline">Solucionados</span>
                     </button>
                   </div>
 
                   {/* Dropdown Selector for Sorting */}
-                  <div className="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-xl border-2 border-[#0A4191]">
-                    <ArrowUpDown className="w-3.5 h-3.5 text-[#0A4191] flex-shrink-0" />
-                    <label htmlFor="select-mis-reportes-sort" className="text-[11px] font-black text-[#0A4191] whitespace-nowrap">
+                  <div className="flex items-center space-x-2 bg-white/90 px-3 py-1.5 rounded-xl border border-slate-300 shadow-2xs">
+                    <ArrowUpDown className="w-3.5 h-3.5 text-[#0A4191] shrink-0" />
+                    <label htmlFor="select-mis-reportes-sort" className="text-[11px] font-black text-slate-700 whitespace-nowrap">
                       Ordenar:
                     </label>
                     <select
                       id="select-mis-reportes-sort"
                       value={misReportesSortBy}
                       onChange={(e) => setMisReportesSortBy(e.target.value as any)}
-                      className="bg-white text-[#0A4191] text-xs font-extrabold rounded-lg px-2 py-1 border border-[#0A4191] focus:outline-none focus:ring-2 focus:ring-[#0A4191] cursor-pointer shadow-2xs"
+                      className="bg-slate-50 text-slate-800 text-xs font-extrabold rounded-lg px-2 py-1 border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0A4191]/40 cursor-pointer shadow-2xs"
                     >
                       <option value="fecha_desc">Fecha (Recientes primero)</option>
                       <option value="fecha_asc">Fecha (Antiguos primero)</option>
@@ -2382,17 +2675,17 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
                 {/* Custom Professional Data Table for Mis Reportes */}
                 <div className="pt-1">
-                  <div className="overflow-x-auto rounded-2xl border-2 border-[#0A4191] shadow-xs bg-white">
-                    <table className="w-full text-left border-collapse bg-white">
+                  <div className="overflow-x-auto rounded-2xl border-2 border-[#0A4191]/60 shadow-md bg-gradient-to-b from-white via-slate-50/80 to-blue-50/20">
+                    <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-blue-50 border-b-2 border-[#0A4191] text-[11px] font-black text-[#0A4191] uppercase tracking-wider">
-                          <th className="py-3 px-3.5 border-r border-[#0A4191]/40">Código</th>
-                          <th className="py-3 px-3.5 border-r border-[#0A4191]/40">Categoría / Asunto</th>
-                          <th className="py-3 px-3.5 border-r border-[#0A4191]/40">Ubicación / Sector</th>
+                        <tr className="bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] text-white text-[11px] font-black uppercase tracking-wider">
+                          <th className="py-3.5 px-3.5 border-r border-white/20">Código</th>
+                          <th className="py-3.5 px-3.5 border-r border-white/20">Categoría / Asunto</th>
+                          <th className="py-3.5 px-3.5 border-r border-white/20">Ubicación / Sector</th>
                           
                           {/* Column Header: Fecha (Interactive Sort) */}
                           <th
-                            className="py-3 px-3.5 border-r border-[#0A4191]/40 cursor-pointer select-none hover:bg-blue-100 transition-colors"
+                            className="py-3.5 px-3.5 border-r border-white/20 cursor-pointer select-none hover:bg-white/10 transition-colors"
                             onClick={() => {
                               if (misReportesSortBy === 'fecha_desc') {
                                 setMisReportesSortBy('fecha_asc');
@@ -2402,17 +2695,17 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                             }}
                             title="Haz clic para ordenar por fecha de creación"
                           >
-                            <div className="flex items-center space-x-1 text-[#0A4191]">
+                            <div className="flex items-center space-x-1 text-white">
                               <span>Fecha</span>
-                              {misReportesSortBy === 'fecha_desc' && <ArrowDown className="w-3.5 h-3.5 text-[#0A4191] stroke-[2.5]" />}
-                              {misReportesSortBy === 'fecha_asc' && <ArrowUp className="w-3.5 h-3.5 text-[#0A4191] stroke-[2.5]" />}
-                              {!misReportesSortBy.startsWith('fecha') && <ArrowUpDown className="w-3 h-3 text-[#0A4191]/60" />}
+                              {misReportesSortBy === 'fecha_desc' && <ArrowDown className="w-3.5 h-3.5 text-amber-300 stroke-[2.5]" />}
+                              {misReportesSortBy === 'fecha_asc' && <ArrowUp className="w-3.5 h-3.5 text-amber-300 stroke-[2.5]" />}
+                              {!misReportesSortBy.startsWith('fecha') && <ArrowUpDown className="w-3 h-3 text-white/60" />}
                             </div>
                           </th>
 
                           {/* Column Header: Días Transcurridos */}
                           <th
-                            className="py-3 px-3.5 border-r border-[#0A4191]/40 cursor-pointer select-none hover:bg-blue-100 transition-colors"
+                            className="py-3.5 px-3.5 border-r border-white/20 cursor-pointer select-none hover:bg-white/10 transition-colors"
                             onClick={() => {
                               if (misReportesSortBy === 'fecha_asc') {
                                 setMisReportesSortBy('fecha_desc');
@@ -2422,17 +2715,17 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                             }}
                             title="Haz clic para ordenar por días transcurridos"
                           >
-                            <div className="flex items-center space-x-1 text-[#0A4191]">
+                            <div className="flex items-center space-x-1 text-white">
                               <span>Días Transcurridos</span>
-                              {misReportesSortBy === 'fecha_asc' && <ArrowDown className="w-3.5 h-3.5 text-[#0A4191] stroke-[2.5]" />}
-                              {misReportesSortBy === 'fecha_desc' && <ArrowUp className="w-3.5 h-3.5 text-[#0A4191] stroke-[2.5]" />}
-                              {!misReportesSortBy.startsWith('fecha') && <ArrowUpDown className="w-3 h-3 text-[#0A4191]/60" />}
+                              {misReportesSortBy === 'fecha_asc' && <ArrowDown className="w-3.5 h-3.5 text-amber-300 stroke-[2.5]" />}
+                              {misReportesSortBy === 'fecha_desc' && <ArrowUp className="w-3.5 h-3.5 text-amber-300 stroke-[2.5]" />}
+                              {!misReportesSortBy.startsWith('fecha') && <ArrowUpDown className="w-3 h-3 text-white/60" />}
                             </div>
                           </th>
 
                           {/* Column Header: Prioridad (Interactive Sort) */}
                           <th
-                            className="py-3 px-3.5 border-r border-[#0A4191]/40 cursor-pointer select-none hover:bg-blue-100 transition-colors"
+                            className="py-3.5 px-3.5 border-r border-white/20 cursor-pointer select-none hover:bg-white/10 transition-colors"
                             onClick={() => {
                               if (misReportesSortBy === 'prioridad_desc') {
                                 setMisReportesSortBy('prioridad_asc');
@@ -2442,19 +2735,19 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                             }}
                             title="Haz clic para ordenar por nivel de prioridad"
                           >
-                            <div className="flex items-center space-x-1 text-[#0A4191]">
+                            <div className="flex items-center space-x-1 text-white">
                               <span>Prioridad</span>
-                              {misReportesSortBy === 'prioridad_desc' && <ArrowDown className="w-3.5 h-3.5 text-[#0A4191] stroke-[2.5]" />}
-                              {misReportesSortBy === 'prioridad_asc' && <ArrowUp className="w-3.5 h-3.5 text-[#0A4191] stroke-[2.5]" />}
-                              {!misReportesSortBy.startsWith('prioridad') && <ArrowUpDown className="w-3 h-3 text-[#0A4191]/60" />}
+                              {misReportesSortBy === 'prioridad_desc' && <ArrowDown className="w-3.5 h-3.5 text-amber-300 stroke-[2.5]" />}
+                              {misReportesSortBy === 'prioridad_asc' && <ArrowUp className="w-3.5 h-3.5 text-amber-300 stroke-[2.5]" />}
+                              {!misReportesSortBy.startsWith('prioridad') && <ArrowUpDown className="w-3 h-3 text-white/60" />}
                             </div>
                           </th>
 
-                          <th className="py-3 px-3.5 border-r border-[#0A4191]/40">Estado</th>
-                          <th className="py-3 px-3.5 text-center">Acción</th>
+                          <th className="py-3.5 px-3.5 border-r border-white/20">Estado</th>
+                          <th className="py-3.5 px-3.5 text-center">Acción</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#0A4191]/30 text-xs bg-white text-[#0A4191]">
+                      <tbody className="divide-y divide-slate-200 text-xs text-slate-800">
                         {incidents
                           .filter((inc) => {
                             if (misReportesFilter === 'en_proceso') {
@@ -2519,29 +2812,29 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                               switch (inc.priority) {
                                 case 'critica':
                                   return (
-                                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold inline-flex items-center space-x-1 bg-red-100 text-red-900 border border-red-300 shadow-2xs" title="Prioridad Crítica">
-                                      <Flame className="w-3.5 h-3.5 flex-shrink-0 text-red-600 fill-red-500 animate-pulse" />
+                                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold inline-flex items-center space-x-1 bg-red-100 text-red-950 border border-red-300 shadow-2xs" title="Prioridad Crítica">
+                                      <Flame className="w-3.5 h-3.5 shrink-0 text-red-600 fill-red-500 animate-pulse" />
                                       <span>Crítica</span>
                                     </span>
                                   );
                                 case 'alta':
                                   return (
-                                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold inline-flex items-center space-x-1 bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs" title="Prioridad Alta">
-                                      <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 text-amber-700" />
+                                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold inline-flex items-center space-x-1 bg-amber-100 text-amber-950 border border-amber-300 shadow-2xs" title="Prioridad Alta">
+                                      <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-700" />
                                       <span>Alta</span>
                                     </span>
                                   );
                                 case 'media':
                                   return (
                                     <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold inline-flex items-center space-x-1 bg-blue-100 text-[#0A4191] border border-blue-300 shadow-2xs" title="Prioridad Media">
-                                      <Clock className="w-3.5 h-3.5 flex-shrink-0 text-[#0A4191]" />
+                                      <Clock className="w-3.5 h-3.5 shrink-0 text-[#0A4191]" />
                                       <span>Media</span>
                                     </span>
                                   );
                                 default:
                                   return (
                                     <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold inline-flex items-center space-x-1 bg-slate-100 text-slate-800 border border-slate-300 shadow-2xs" title="Prioridad Baja">
-                                      <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-slate-600" />
+                                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-slate-600" />
                                       <span>Baja</span>
                                     </span>
                                   );
@@ -2552,50 +2845,52 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                               <tr
                                 key={inc.id}
                                 onClick={() => setSelectedIncident(inc)}
-                                className="hover:bg-blue-50/60 transition-colors cursor-pointer group bg-white text-[#0A4191]"
+                                className="odd:bg-white even:bg-slate-50/70 hover:bg-blue-50/80 transition-colors cursor-pointer group text-slate-800"
                               >
                                 {/* Code Column */}
-                                <td className="py-3 px-3.5 font-mono font-black text-[#0A4191] whitespace-nowrap border-r border-[#0A4191]/30">
-                                  {inc.code}
+                                <td className="py-3 px-3.5 whitespace-nowrap border-r border-slate-200">
+                                  <span className="font-mono font-black text-white bg-slate-800 px-2.5 py-0.5 rounded-md text-[10px] shadow-2xs">
+                                    {inc.code}
+                                  </span>
                                 </td>
 
                                 {/* Title / Category Column */}
-                                <td className="py-3 px-3.5 border-r border-[#0A4191]/30">
-                                  <div className="font-black text-[#0A4191] group-hover:underline line-clamp-1">
+                                <td className="py-3 px-3.5 border-r border-slate-200">
+                                  <div className="font-black text-slate-900 group-hover:text-[#0A4191] transition-colors line-clamp-1">
                                     {inc.title}
                                   </div>
-                                  <div className="text-[11px] font-bold text-[#0A4191]/80">
+                                  <div className="text-[11px] font-semibold text-slate-500">
                                     {inc.category}
                                   </div>
                                 </td>
 
                                 {/* Location Column */}
-                                <td className="py-3 px-3.5 border-r border-[#0A4191]/30">
-                                  <div className="font-bold text-[#0A4191]">
+                                <td className="py-3 px-3.5 border-r border-slate-200">
+                                  <div className="font-extrabold text-[#0A4191]">
                                     {inc.location.sector}
                                   </div>
-                                  <div className="text-[10px] text-[#0A4191]/80 line-clamp-1">
+                                  <div className="text-[10px] text-slate-500 line-clamp-1">
                                     {inc.location.address}
                                   </div>
                                 </td>
 
                                 {/* Date Column */}
-                                <td className="py-3 px-3.5 font-mono font-bold text-[11px] text-[#0A4191] whitespace-nowrap border-r border-[#0A4191]/30">
+                                <td className="py-3 px-3.5 font-mono font-extrabold text-[11px] text-slate-700 whitespace-nowrap border-r border-slate-200">
                                   {dateFormatted}
                                 </td>
 
                                 {/* Days Elapsed Column */}
-                                <td className="py-3 px-3.5 font-bold text-[11px] text-[#0A4191] whitespace-nowrap border-r border-[#0A4191]/30">
-                                  <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black inline-flex items-center space-x-1 border ${
+                                <td className="py-3 px-3.5 font-bold text-[11px] whitespace-nowrap border-r border-slate-200">
+                                  <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black inline-flex items-center space-x-1 border shadow-2xs ${
                                     daysElapsed === 0
-                                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                                      ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
                                       : daysElapsed <= 3
-                                      ? 'bg-blue-50 text-[#0A4191] border-blue-300'
+                                      ? 'bg-blue-100 text-blue-900 border-blue-300'
                                       : daysElapsed <= 7
-                                      ? 'bg-amber-50 text-amber-800 border-amber-300'
-                                      : 'bg-red-50 text-red-800 border-red-300'
+                                      ? 'bg-amber-100 text-amber-900 border-amber-300'
+                                      : 'bg-red-100 text-red-900 border-red-300'
                                   }`}>
-                                    <Clock className="w-3 h-3 flex-shrink-0" />
+                                    <Clock className="w-3 h-3 shrink-0" />
                                     <span>
                                       {daysElapsed === 0 ? 'Hoy (0 días)' : daysElapsed === 1 ? '1 día' : `${daysElapsed} días`}
                                     </span>
@@ -2603,18 +2898,18 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                                 </td>
 
                                 {/* Priority Column */}
-                                <td className="py-3 px-3.5 whitespace-nowrap border-r border-[#0A4191]/30">
+                                <td className="py-3 px-3.5 whitespace-nowrap border-r border-slate-200">
                                   {priorityBadge}
                                 </td>
 
                                 {/* Status Column */}
-                                <td className="py-3 px-3.5 whitespace-nowrap border-r border-[#0A4191]/30">
-                                  <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full inline-block ${
+                                <td className="py-3 px-3.5 whitespace-nowrap border-r border-slate-200">
+                                  <span className={`text-[10px] font-black px-2.5 py-1 rounded-full inline-block shadow-2xs ${
                                     inc.status === 'resuelto' 
-                                      ? 'bg-emerald-100 text-emerald-900 border border-emerald-400' 
+                                      ? 'bg-emerald-600 text-white border border-emerald-700' 
                                       : inc.status === 'reportado'
-                                      ? 'bg-blue-100 text-[#0A4191] border border-blue-400'
-                                      : 'bg-amber-100 text-amber-900 border border-amber-400'
+                                      ? 'bg-blue-600 text-white border border-blue-700'
+                                      : 'bg-amber-500 text-slate-950 border border-amber-600 font-black'
                                   }`}>
                                     {inc.status === 'resuelto' ? 'Solucionado' : inc.status === 'reportado' ? 'Recibido' : 'En proceso'}
                                   </span>
@@ -2628,9 +2923,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                                       e.stopPropagation();
                                       setSelectedIncident(inc);
                                     }}
-                                    className="px-2.5 py-1 text-[11px] font-black bg-white hover:bg-blue-50 text-[#0A4191] rounded-lg transition-all cursor-pointer shadow-2xs border-2 border-[#0A4191]"
+                                    className="px-3 py-1.5 text-[11px] font-black bg-gradient-to-r from-[#0A4191] to-[#0C51B6] hover:from-[#083373] hover:to-[#0A4191] text-white rounded-xl transition-all cursor-pointer shadow-xs active:scale-95 flex items-center justify-center space-x-1 mx-auto"
                                   >
-                                    Ver Detalle
+                                    <FileText className="w-3 h-3 text-blue-200" />
+                                    <span>Ver Detalle</span>
                                   </button>
                                 </td>
                               </tr>
@@ -2647,7 +2943,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           return true;
                         }).length === 0 && (
                           <tr>
-                            <td colSpan={8} className="text-center py-8 text-xs font-black text-[#0A4191] bg-white">
+                            <td colSpan={8} className="text-center py-8 text-xs font-black text-slate-600 bg-white">
                               No hay reportes registrados en esta categoría.
                             </td>
                           </tr>
@@ -2712,94 +3008,827 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
               </div>
             )}
 
-            {/* TAB 5: PQRS */}
+            {/* TAB 5: TRÁMITES & PQRS MUNICIPAL */}
             {citizenTab === 'pqrs' && (
-              <div className="space-y-3 text-xs">
-                <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-                  <h3 className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center space-x-1.5">
-                    <FileCheck className="w-4 h-4 text-[#159A44]" />
-                    <span>Trámites & PQRS Municipal</span>
-                  </h3>
-                  <p className="text-[11px] text-slate-500">Transparencia GAD Logroño</p>
+              <div className="bg-[#F8FAFC] dark:bg-slate-900 border-2 border-[#0A4191] rounded-3xl p-4 sm:p-6 shadow-xl space-y-5 text-xs text-slate-800 dark:text-slate-200 animate-in fade-in duration-200">
+                
+                {/* Header Banner Header Principal (Combined Colors) */}
+                <div className="bg-gradient-to-r from-[#0A4191] via-[#0D4EA8] to-[#083373] text-white p-4 sm:p-5 rounded-2xl border-2 border-[#0A4191] shadow-md flex flex-col md:flex-row md:items-center justify-between gap-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white shrink-0 shadow-inner">
+                      <FileCheck className="w-7 h-7 text-emerald-300 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <h3 className="font-black text-base sm:text-lg tracking-tight text-white leading-tight">
+                          Portal de Trámites & PQRS Municipal
+                        </h3>
+                        <span className="bg-emerald-500/30 border border-emerald-300/40 text-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">
+                          Ventanilla Única
+                        </span>
+                      </div>
+                      <p className="text-xs text-blue-100 font-medium mt-0.5">
+                        Gobierno Autónomo Descentralizado Municipal de Logroño • Cantón Intercultural 2026
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setCitizenTab('inicio')}
+                      className="px-3 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl text-white font-bold text-xs flex items-center space-x-1.5 transition-all cursor-pointer"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      <span>Inicio</span>
+                    </button>
+                    <div className="bg-emerald-500 text-slate-950 font-black text-[11px] px-3 py-1.5 rounded-xl border border-emerald-300 shadow-sm flex items-center space-x-1">
+                      <span className="w-2 h-2 rounded-full bg-slate-950 animate-ping"></span>
+                      <span>Atención 24/7</span>
+                    </div>
+                  </div>
                 </div>
 
-                {pqrsSuccess ? (
-                  <div className="bg-emerald-50 text-emerald-900 p-4 rounded-2xl border border-emerald-300 text-center space-y-2">
-                    <CheckCircle2 className="w-8 h-8 text-[#159A44] mx-auto" />
-                    <h4 className="font-bold">Trámite Ingresado</h4>
-                    <p>Su {pqrsType} ha sido enviada a la Secretaría del GAD Logroño.</p>
-                    <button 
+                {/* Ribbon Metrics (Combined Color Cards) */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div 
+                    onClick={() => setTramiteMainTab('catalogo')}
+                    className="bg-gradient-to-br from-blue-50 via-white to-blue-100/60 dark:from-slate-800 dark:to-slate-900 border-2 border-blue-200 dark:border-blue-900/60 rounded-2xl p-3.5 shadow-xs hover:shadow-md transition-all cursor-pointer group flex items-center justify-between"
+                  >
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-extrabold text-[#0A4191] dark:text-blue-300 uppercase tracking-wider">
+                        Catálogo Digital
+                      </p>
+                      <p className="text-2xl font-black text-slate-900 dark:text-white">
+                        {MOCK_TRAMITES_CATALOG.length} <span className="text-xs font-semibold text-slate-500">Servicios</span>
+                      </p>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-[#0A4191] text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                      <FileText className="w-5 h-5 stroke-[2.5]" />
+                    </div>
+                  </div>
+
+                  <div 
+                    onClick={() => setTramiteMainTab('mis_tramites')}
+                    className="bg-gradient-to-br from-amber-50 via-white to-amber-100/60 dark:from-slate-800 dark:to-slate-900 border-2 border-amber-200 dark:border-amber-900/60 rounded-2xl p-3.5 shadow-xs hover:shadow-md transition-all cursor-pointer group flex items-center justify-between"
+                  >
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-extrabold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
+                        Trámites en Proceso
+                      </p>
+                      <p className="text-2xl font-black text-slate-900 dark:text-white">
+                        {userTramitesList.filter(t => t.status === 'en_proceso' || t.status === 'en_revision').length} <span className="text-xs font-semibold text-slate-500">Solicitudes</span>
+                      </p>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                      <Clock className="w-5 h-5 stroke-[2.5]" />
+                    </div>
+                  </div>
+
+                  <div 
+                    onClick={() => setTramiteMainTab('mis_tramites')}
+                    className="bg-gradient-to-br from-emerald-50 via-white to-emerald-100/60 dark:from-slate-800 dark:to-slate-900 border-2 border-emerald-200 dark:border-emerald-900/60 rounded-2xl p-3.5 shadow-xs hover:shadow-md transition-all cursor-pointer group flex items-center justify-between"
+                  >
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-extrabold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">
+                        Trámites Aprobados
+                      </p>
+                      <p className="text-2xl font-black text-slate-900 dark:text-white">
+                        {userTramitesList.filter(t => t.status === 'aprobado').length} <span className="text-xs font-semibold text-slate-500">Listos</span>
+                      </p>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                      <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sub-Navigation Buttons (Combined Professional Aesthetic) */}
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-slate-200 dark:border-slate-800 pb-3">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <button
                       type="button"
-                      onClick={() => setPqrsSuccess(false)}
-                      className="bg-[#159A44] text-white px-3 py-1.5 rounded-xl font-bold cursor-pointer"
+                      onClick={() => setTramiteMainTab('catalogo')}
+                      className={`px-4 py-2 rounded-xl font-extrabold text-xs transition-all duration-200 flex items-center space-x-2 cursor-pointer shadow-xs ${
+                        tramiteMainTab === 'catalogo'
+                          ? 'bg-gradient-to-r from-[#0A4191] to-[#0C51B6] text-white border-2 border-[#0A4191] shadow-md ring-2 ring-blue-300/50'
+                          : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-2 border-slate-200 dark:border-slate-700 hover:border-[#0A4191]'
+                      }`}
                     >
-                      Nuevo Trámite
+                      <FileText className="w-4 h-4" />
+                      <span>Catálogo de Trámites Municipal</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setTramiteMainTab('mis_tramites')}
+                      className={`px-4 py-2 rounded-xl font-extrabold text-xs transition-all duration-200 flex items-center space-x-2 cursor-pointer shadow-xs ${
+                        tramiteMainTab === 'mis_tramites'
+                          ? 'bg-gradient-to-r from-[#0A4191] to-[#0C51B6] text-white border-2 border-[#0A4191] shadow-md ring-2 ring-blue-300/50'
+                          : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-2 border-slate-200 dark:border-slate-700 hover:border-[#0A4191]'
+                      }`}
+                    >
+                      <Table className="w-4 h-4 text-emerald-500" />
+                      <span>Mis Trámites Ingresados</span>
+                      <span className="ml-1 bg-emerald-100 text-emerald-800 text-[10px] font-black px-1.5 py-0.2 rounded-full border border-emerald-300">
+                        {userTramitesList.length}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setTramiteMainTab('solicitar')}
+                      className={`px-4 py-2 rounded-xl font-extrabold text-xs transition-all duration-200 flex items-center space-x-2 cursor-pointer shadow-xs ${
+                        tramiteMainTab === 'solicitar'
+                          ? 'bg-gradient-to-r from-[#159A44] to-emerald-700 text-white border-2 border-emerald-700 shadow-md ring-2 ring-emerald-300/50'
+                          : 'bg-emerald-50 dark:bg-slate-800 text-emerald-800 dark:text-emerald-300 border-2 border-emerald-300 dark:border-emerald-800 hover:bg-emerald-100'
+                      }`}
+                    >
+                      <PlusCircle className="w-4 h-4" />
+                      <span>Solicitar Nuevo Trámite / PQRS</span>
                     </button>
                   </div>
-                ) : (
-                  <form 
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      setPqrsSuccess(true);
-                    }}
-                    className="space-y-3"
-                  >
-                    <div>
-                      <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Tipo de Trámite</label>
-                      <div className="grid grid-cols-4 gap-1">
-                        {(['Petición', 'Queja', 'Reclamo', 'Sugerencia'] as const).map((t) => (
+
+                  {tramiteMainTab === 'catalogo' && (
+                    <div className="flex items-center space-x-1.5 bg-white dark:bg-slate-800 p-1 border-2 border-slate-200 dark:border-slate-700 rounded-xl">
+                      <button
+                        type="button"
+                        onClick={() => setTramiteCatalogViewMode('tabla')}
+                        className={`p-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center space-x-1 ${
+                          tramiteCatalogViewMode === 'tabla'
+                            ? 'bg-[#0A4191] text-white shadow-xs'
+                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+                        }`}
+                        title="Ver como Tabla Personalizada"
+                      >
+                        <Table className="w-4 h-4" />
+                        <span className="hidden sm:inline">Tabla</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTramiteCatalogViewMode('tarjetas')}
+                        className={`p-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center space-x-1 ${
+                          tramiteCatalogViewMode === 'tarjetas'
+                            ? 'bg-[#0A4191] text-white shadow-xs'
+                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+                        }`}
+                        title="Ver como Tarjetas"
+                      >
+                        <LayoutGrid className="w-4 h-4" />
+                        <span className="hidden sm:inline">Tarjetas</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* SUB-VIEW 1: CATÁLOGO DE TRÁMITES */}
+                {tramiteMainTab === 'catalogo' && (
+                  <div className="space-y-4">
+                    {/* Catalog Notice Banner */}
+                    {catalogNoticeMsg && (
+                      <div className="bg-emerald-100 dark:bg-emerald-950/80 border-2 border-emerald-400 text-emerald-900 dark:text-emerald-200 px-4 py-3 rounded-2xl flex items-center justify-between shadow-sm animate-in fade-in duration-200">
+                        <div className="flex items-center space-x-2 font-black text-xs">
+                          <CheckCircle2 className="w-5 h-5 text-[#159A44] shrink-0" />
+                          <span>{catalogNoticeMsg}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setCatalogNoticeMsg(null)}
+                          className="p-1 text-emerald-800 hover:text-emerald-950 dark:hover:text-white rounded-lg cursor-pointer"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Filter Pills & Search Bar & Add Button */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-gradient-to-r from-blue-50/80 via-white to-slate-50 dark:from-slate-800 dark:to-slate-900 p-3 rounded-2xl border-2 border-blue-100 dark:border-slate-800 shadow-xs">
+                      {/* Filter Pills */}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-[11px] font-black text-slate-500 uppercase mr-1">Filtrar:</span>
+                        {[
+                          { key: 'todos', label: 'Todos' },
+                          { key: 'avaluos', label: 'Avalúos y Catastros' },
+                          { key: 'agua', label: 'Agua & Saneamiento' },
+                          { key: 'obras', label: 'Obras Públicas' },
+                          { key: 'patentes', label: 'Patentes & LUAE' },
+                          { key: 'pqrs', label: 'PQRS & Atenciones' }
+                        ].map((cat) => (
                           <button
-                            key={t}
+                            key={cat.key}
                             type="button"
-                            onClick={() => setPqrsType(t)}
-                            className={`py-1.5 rounded-xl text-[10px] font-bold border transition-all ${
-                              pqrsType === t ? 'bg-[#159A44] text-white border-emerald-600' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                            onClick={() => setTramiteCatFilter(cat.key as any)}
+                            className={`px-3 py-1.5 rounded-xl text-[11px] font-black transition-all cursor-pointer border ${
+                              tramiteCatFilter === cat.key
+                                ? 'bg-[#0A4191] text-white border-[#0A4191] shadow-xs'
+                                : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-blue-50 dark:hover:bg-slate-700'
                             }`}
                           >
-                            {t}
+                            {cat.label}
                           </button>
                         ))}
                       </div>
+
+                      {/* Search Bar & Add Catalog Button */}
+                      <div className="flex items-center space-x-2 min-w-[220px]">
+                        <div className="relative flex-1">
+                          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                          <input
+                            type="text"
+                            placeholder="Buscar trámite o requisito..."
+                            value={tramiteSearch}
+                            onChange={(e) => setTramiteSearch(e.target.value)}
+                            className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#0A4191] transition-colors"
+                          />
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={handleOpenAddCatalogItem}
+                          className="px-3 py-2 bg-gradient-to-r from-[#159A44] to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-extrabold text-xs rounded-xl shadow-xs cursor-pointer transition-all flex items-center space-x-1 shrink-0"
+                          title="Agregar Nuevo Trámite al Catálogo"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span className="hidden sm:inline">Nuevo Trámite</span>
+                        </button>
+                      </div>
                     </div>
 
-                    <div>
-                      <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Asunto</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="Ej. Solicitud de certificado o consulta de obra"
-                        value={pqrsSubject}
-                        onChange={(e) => setPqrsSubject(e.target.value)}
-                        className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                      />
-                    </div>
+                    {/* Tabla Personalizada / Cards Container */}
+                    {(() => {
+                      const filteredCatalog = catalogList.filter((item) => {
+                        const matchesCategory = tramiteCatFilter === 'todos' || item.category === tramiteCatFilter;
+                        const matchesSearch =
+                          item.name.toLowerCase().includes(tramiteSearch.toLowerCase()) ||
+                          item.code.toLowerCase().includes(tramiteSearch.toLowerCase()) ||
+                          item.department.toLowerCase().includes(tramiteSearch.toLowerCase()) ||
+                          item.description.toLowerCase().includes(tramiteSearch.toLowerCase());
+                        return matchesCategory && matchesSearch;
+                      });
 
-                    <div>
-                      <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Detalle del Requerimiento</label>
-                      <textarea
-                        required
-                        rows={3}
-                        placeholder="Fundamente su solicitud dirigida al GAD Logroño..."
-                        value={pqrsDetail}
-                        onChange={(e) => setPqrsDetail(e.target.value)}
-                        className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                      />
-                    </div>
+                      if (filteredCatalog.length === 0) {
+                        return (
+                          <div className="bg-white dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-8 text-center space-y-2">
+                            <HelpCircle className="w-10 h-10 text-slate-400 mx-auto" />
+                            <p className="font-bold text-slate-700 dark:text-slate-300">No se encontraron trámites con ese criterio.</p>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setTramiteCatFilter('todos');
+                                setTramiteSearch('');
+                              }}
+                              className="px-3 py-1.5 bg-[#0A4191] text-white rounded-xl font-bold text-xs cursor-pointer"
+                            >
+                              Restablecer Filtros
+                            </button>
+                          </div>
+                        );
+                      }
 
-                    <div className="grid grid-cols-2 gap-2.5 pt-1">
+                      if (tramiteCatalogViewMode === 'tabla') {
+                        return (
+                          <div className="overflow-x-auto rounded-2xl border-2 border-[#0A4191] shadow-md bg-white dark:bg-slate-800">
+                            <table className="w-full text-left border-collapse">
+                              <thead>
+                                <tr className="bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] text-white text-[11px] font-black uppercase tracking-wider">
+                                  <th className="py-3 px-3.5 border-r border-white/20">Código</th>
+                                  <th className="py-3 px-3.5 border-r border-white/20">Trámite & Servicio Municipal</th>
+                                  <th className="py-3 px-3.5 border-r border-white/20">Departamento</th>
+                                  <th className="py-3 px-3.5 border-r border-white/20">Costo</th>
+                                  <th className="py-3 px-3.5 border-r border-white/20">Tiempo Est.</th>
+                                  <th className="py-3 px-3.5 text-center">Acciones & Gestión</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-200 dark:divide-slate-700 text-xs text-slate-800 dark:text-slate-200">
+                                {filteredCatalog.map((item, idx) => (
+                                  <tr
+                                    key={item.id}
+                                    className={`transition-colors hover:bg-blue-50/90 dark:hover:bg-slate-700/80 ${
+                                      idx % 2 === 0 ? 'bg-white dark:bg-slate-800' : 'bg-slate-50/80 dark:bg-slate-800/60'
+                                    }`}
+                                  >
+                                    <td className="py-3 px-3.5 font-extrabold text-[#0A4191] dark:text-blue-400 whitespace-nowrap border-r border-slate-200 dark:border-slate-700">
+                                      <span className="bg-blue-50 dark:bg-slate-900 border border-blue-200 dark:border-blue-800 px-2 py-0.5 rounded-lg">
+                                        {item.code}
+                                      </span>
+                                    </td>
+
+                                    <td className="py-3 px-3.5 border-r border-slate-200 dark:border-slate-700">
+                                      <div className="font-extrabold text-slate-900 dark:text-white leading-snug">
+                                        {item.name}
+                                      </div>
+                                      <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                                        {item.description}
+                                      </p>
+                                    </td>
+
+                                    <td className="py-3 px-3.5 font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                                      <div className="flex items-center space-x-1.5">
+                                        <Building2 className="w-3.5 h-3.5 text-[#0A4191] shrink-0" />
+                                        <span>{item.department}</span>
+                                      </div>
+                                    </td>
+
+                                    <td className="py-3 px-3.5 font-black text-emerald-800 dark:text-emerald-300 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                                      <span className="bg-emerald-50 dark:bg-slate-900 border border-emerald-300 dark:border-emerald-800 px-2 py-0.5 rounded-lg">
+                                        {item.cost}
+                                      </span>
+                                    </td>
+
+                                    <td className="py-3 px-3.5 font-bold text-slate-600 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                                      <div className="flex items-center space-x-1">
+                                        <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                                        <span>{item.responseTime}</span>
+                                      </div>
+                                    </td>
+
+                                    <td className="py-3 px-3.5 text-center whitespace-nowrap">
+                                      <div className="flex items-center justify-center space-x-1.5">
+                                        <button
+                                          type="button"
+                                          onClick={() => setSelectedTramiteCatalog(item)}
+                                          className="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-[#0A4191] dark:text-blue-300 border border-blue-300 dark:border-slate-600 rounded-xl font-extrabold text-[11px] transition-all cursor-pointer flex items-center space-x-1"
+                                          title="Ver Requisitos"
+                                        >
+                                          <FileText className="w-3.5 h-3.5" />
+                                          <span>Requisitos</span>
+                                        </button>
+
+                                        <button
+                                          type="button"
+                                          onClick={() => handleOpenEditCatalogItem(item)}
+                                          className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl font-extrabold text-[11px] cursor-pointer transition-colors shadow-xs flex items-center space-x-1"
+                                          title="Editar Trámite del Catálogo"
+                                        >
+                                          <Edit3 className="w-3.5 h-3.5" />
+                                          <span>Editar</span>
+                                        </button>
+
+                                        <button
+                                          type="button"
+                                          onClick={() => setDeletingCatalogItem(item)}
+                                          className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-extrabold text-[11px] cursor-pointer transition-colors shadow-xs flex items-center space-x-1"
+                                          title="Eliminar Trámite del Catálogo"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                          <span>Eliminar</span>
+                                        </button>
+
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setPqrsSubject(`Solicitud: ${item.name}`);
+                                            setPqrsDetail(`Requerimiento para el trámite ${item.code} - ${item.name}.`);
+                                            setTramiteMainTab('solicitar');
+                                          }}
+                                          className="px-3 py-1.5 bg-gradient-to-r from-[#0A4191] to-[#0C51B6] hover:from-[#083373] hover:to-[#0A4191] text-white rounded-xl font-extrabold text-[11px] shadow-xs cursor-pointer transition-all flex items-center space-x-1"
+                                        >
+                                          <span>Iniciar</span>
+                                          <ChevronRight className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        );
+                      }
+
+                      // Tarjetas View
+                      return (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {filteredCatalog.map((item) => (
+                            <div
+                              key={item.id}
+                              className="bg-white dark:bg-slate-800 border-2 border-[#0A4191]/40 rounded-2xl p-4 shadow-xs hover:shadow-md hover:border-[#0A4191] transition-all flex flex-col justify-between space-y-3"
+                            >
+                              <div className="space-y-2">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div>
+                                    <span className="bg-blue-50 dark:bg-slate-900 text-[#0A4191] dark:text-blue-300 font-extrabold text-[10px] px-2 py-0.5 rounded-lg border border-blue-200 dark:border-blue-800">
+                                      {item.code}
+                                    </span>
+                                    <h4 className="font-extrabold text-sm text-slate-900 dark:text-white leading-tight mt-1">
+                                      {item.name}
+                                    </h4>
+                                  </div>
+                                  <span className="bg-emerald-50 text-emerald-800 dark:bg-slate-900 dark:text-emerald-300 font-black text-xs px-2.5 py-1 rounded-xl border border-emerald-300 dark:border-emerald-800 shrink-0">
+                                    {item.cost}
+                                  </span>
+                                </div>
+
+                                <p className="text-slate-600 dark:text-slate-300 text-xs line-clamp-2">
+                                  {item.description}
+                                </p>
+
+                                <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 pt-1">
+                                  <span className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-lg">
+                                    <Building2 className="w-3 h-3 text-[#0A4191]" />
+                                    <span>{item.department}</span>
+                                  </span>
+                                  <span className="flex items-center space-x-1 bg-amber-50 dark:bg-slate-700 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-lg">
+                                    <Clock className="w-3 h-3" />
+                                    <span>{item.responseTime}</span>
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="pt-2 border-t border-slate-100 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedTramiteCatalog(item)}
+                                  className="text-[#0A4191] dark:text-blue-400 font-extrabold text-xs hover:underline cursor-pointer"
+                                >
+                                  Ver {item.requirements.length} Requisitos →
+                                </button>
+
+                                <div className="flex items-center space-x-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenEditCatalogItem(item)}
+                                    className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl font-extrabold text-[11px] cursor-pointer transition-colors shadow-xs flex items-center space-x-1"
+                                    title="Editar Trámite del Catálogo"
+                                  >
+                                    <Edit3 className="w-3.5 h-3.5" />
+                                    <span>Editar</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => setDeletingCatalogItem(item)}
+                                    className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-extrabold text-[11px] cursor-pointer transition-colors shadow-xs flex items-center space-x-1"
+                                    title="Eliminar Trámite del Catálogo"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Eliminar</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setPqrsSubject(`Solicitud: ${item.name}`);
+                                      setPqrsDetail(`Requerimiento para el trámite ${item.code} - ${item.name}.`);
+                                      setTramiteMainTab('solicitar');
+                                    }}
+                                    className="px-3 py-1.5 bg-gradient-to-r from-[#0A4191] to-[#0C51B6] hover:from-[#083373] text-white font-extrabold rounded-xl text-xs cursor-pointer shadow-xs transition-all flex items-center space-x-1"
+                                  >
+                                    <span>Solicitar</span>
+                                    <ChevronRight className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+
+                {/* SUB-VIEW 2: MIS TRÁMITES INGRESADOS (TABLA PERSONALIZADA DE SEGUIMIENTO) */}
+                {tramiteMainTab === 'mis_tramites' && (
+                  <div className="space-y-4">
+                    {/* Notice Toast Banner */}
+                    {tramiteNoticeMsg && (
+                      <div className="bg-emerald-100 dark:bg-emerald-950/80 border-2 border-emerald-400 text-emerald-900 dark:text-emerald-200 px-4 py-3 rounded-2xl flex items-center justify-between shadow-sm animate-in fade-in duration-200">
+                        <div className="flex items-center space-x-2 font-black text-xs">
+                          <CheckCircle2 className="w-5 h-5 text-[#159A44] shrink-0" />
+                          <span>{tramiteNoticeMsg}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setTramiteNoticeMsg(null)}
+                          className="p-1 text-emerald-800 hover:text-emerald-950 dark:hover:text-white rounded-lg cursor-pointer"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 via-white to-slate-50 dark:from-slate-800 dark:to-slate-900 p-3.5 rounded-2xl border-2 border-blue-200 dark:border-slate-800 shadow-xs">
+                      <div>
+                        <h4 className="font-extrabold text-sm text-[#0A4191] dark:text-blue-300">
+                          Tabla Personalizada de Seguimiento de Trámites
+                        </h4>
+                        <p className="text-[11px] text-slate-500 font-medium">
+                          Historial y estado en tiempo real con opciones de gestión, edición y eliminación de solicitudes.
+                        </p>
+                      </div>
+
                       <button
                         type="button"
-                        onClick={() => handleTriggerCancelTramite('pqrs')}
-                        className="w-full py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-2xl border border-slate-300 dark:border-slate-700 cursor-pointer transition-colors"
+                        onClick={() => setTramiteMainTab('solicitar')}
+                        className="px-3.5 py-2 bg-[#159A44] hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-xs cursor-pointer transition-colors flex items-center space-x-1.5"
                       >
-                        Cancelar Trámite
-                      </button>
-                      <button type="submit" className="w-full py-3 bg-[#159A44] hover:bg-emerald-700 text-white font-bold text-xs rounded-2xl shadow cursor-pointer transition-colors">
-                        REGISTRAR TRÁMITE
+                        <PlusCircle className="w-4 h-4" />
+                        <span>Nuevo Trámite</span>
                       </button>
                     </div>
-                  </form>
+
+                    {userTramitesList.length === 0 ? (
+                      <div className="bg-white dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-8 text-center space-y-3">
+                        <FileText className="w-10 h-10 text-slate-400 mx-auto" />
+                        <h5 className="font-black text-slate-800 dark:text-slate-200 text-sm">No tiene trámites registrados en este momento.</h5>
+                        <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                          Puede ingresar un nuevo trámite o PQRS haciendo clic en el botón inferior.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setTramiteMainTab('solicitar')}
+                          className="px-4 py-2 bg-[#0A4191] text-white rounded-xl font-extrabold text-xs cursor-pointer shadow-xs"
+                        >
+                          Solicitar Trámite Ahora
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto rounded-2xl border-2 border-[#0A4191] shadow-md bg-white dark:bg-slate-800">
+                        <table className="w-full text-left border-collapse">
+                          <thead>
+                            <tr className="bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] text-white text-[11px] font-black uppercase tracking-wider">
+                              <th className="py-3.5 px-3.5 border-r border-white/20">Código Trámite</th>
+                              <th className="py-3.5 px-3.5 border-r border-white/20">Tipo & Asunto</th>
+                              <th className="py-3.5 px-3.5 border-r border-white/20">Departamento</th>
+                              <th className="py-3.5 px-3.5 border-r border-white/20">Fecha</th>
+                              <th className="py-3.5 px-3.5 border-r border-white/20">Estado</th>
+                              <th className="py-3.5 px-3.5 text-center">Acciones & Gestión</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-200 dark:divide-slate-700 text-xs text-slate-800 dark:text-slate-200">
+                            {userTramitesList.map((tr, idx) => (
+                              <tr
+                                key={tr.id}
+                                className={`transition-colors hover:bg-blue-50/90 dark:hover:bg-slate-700/80 ${
+                                  idx % 2 === 0 ? 'bg-white dark:bg-slate-800' : 'bg-slate-50/80 dark:bg-slate-800/60'
+                                }`}
+                              >
+                                <td className="py-3.5 px-3.5 font-black text-[#0A4191] dark:text-blue-400 whitespace-nowrap border-r border-slate-200 dark:border-slate-700">
+                                  <span className="bg-blue-50 dark:bg-slate-900 border border-blue-200 dark:border-blue-800 px-2.5 py-1 rounded-xl">
+                                    {tr.code}
+                                  </span>
+                                </td>
+
+                                <td className="py-3.5 px-3.5 border-r border-slate-200 dark:border-slate-700">
+                                  <div className="font-extrabold text-slate-900 dark:text-white leading-snug">
+                                    {tr.type}
+                                  </div>
+                                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+                                    {tr.subject}
+                                  </p>
+                                </td>
+
+                                <td className="py-3.5 px-3.5 font-bold text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                                  <div className="flex items-center space-x-1.5">
+                                    <Building2 className="w-3.5 h-3.5 text-[#0A4191] shrink-0" />
+                                    <span>{tr.department}</span>
+                                  </div>
+                                </td>
+
+                                <td className="py-3.5 px-3.5 font-bold text-slate-600 dark:text-slate-300 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                                  {tr.date}
+                                </td>
+
+                                <td className="py-3.5 px-3.5 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                                  {tr.status === 'aprobado' && (
+                                    <span className="bg-emerald-600 text-white font-black text-[11px] px-2.5 py-1 rounded-xl shadow-xs inline-flex items-center space-x-1">
+                                      <CheckCircle2 className="w-3.5 h-3.5" />
+                                      <span>Aprobado</span>
+                                    </span>
+                                  )}
+                                  {tr.status === 'en_proceso' && (
+                                    <span className="bg-[#0A4191] text-white font-black text-[11px] px-2.5 py-1 rounded-xl shadow-xs inline-flex items-center space-x-1">
+                                      <Clock className="w-3.5 h-3.5 text-amber-300" />
+                                      <span>En Proceso</span>
+                                    </span>
+                                  )}
+                                  {tr.status === 'en_revision' && (
+                                    <span className="bg-amber-500 text-slate-950 font-black text-[11px] px-2.5 py-1 rounded-xl shadow-xs inline-flex items-center space-x-1">
+                                      <AlertTriangle className="w-3.5 h-3.5 text-slate-950" />
+                                      <span>En Revisión</span>
+                                    </span>
+                                  )}
+                                  {tr.status === 'rechazado' && (
+                                    <span className="bg-rose-600 text-white font-black text-[11px] px-2.5 py-1 rounded-xl shadow-xs inline-flex items-center space-x-1">
+                                      <X className="w-3.5 h-3.5" />
+                                      <span>Rechazado</span>
+                                    </span>
+                                  )}
+                                </td>
+
+                                <td className="py-3.5 px-3.5 text-center whitespace-nowrap">
+                                  <div className="flex items-center justify-center space-x-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => setSelectedUserTramite(tr)}
+                                      className="px-2.5 py-1.5 bg-[#0A4191] hover:bg-blue-800 text-white rounded-xl font-extrabold text-[11px] cursor-pointer transition-colors shadow-xs flex items-center space-x-1"
+                                      title="Ver Detalle"
+                                    >
+                                      <FileText className="w-3.5 h-3.5" />
+                                      <span>Detalle</span>
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenEditUserTramite(tr)}
+                                      className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl font-extrabold text-[11px] cursor-pointer transition-colors shadow-xs flex items-center space-x-1"
+                                      title="Editar Trámite"
+                                    >
+                                      <Edit3 className="w-3.5 h-3.5" />
+                                      <span>Editar</span>
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => setDeletingUserTramite(tr)}
+                                      className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-extrabold text-[11px] cursor-pointer transition-colors shadow-xs flex items-center space-x-1"
+                                      title="Eliminar Trámite"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                      <span>Eliminar</span>
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
                 )}
+
+                {/* SUB-VIEW 3: SOLICITAR NUEVO TRÁMITE / PQRS FORM */}
+                {tramiteMainTab === 'solicitar' && (
+                  <div className="space-y-4">
+                    {pqrsSuccess ? (
+                      <div className="bg-gradient-to-br from-emerald-50 via-white to-emerald-100 border-2 border-emerald-400 text-emerald-950 p-6 rounded-3xl text-center space-y-3 shadow-md">
+                        <CheckCircle2 className="w-12 h-12 text-[#159A44] mx-auto animate-bounce" />
+                        <h4 className="font-black text-base sm:text-lg">¡Trámite Registrado Exitosamente!</h4>
+                        <p className="text-xs text-emerald-800 font-medium max-w-lg mx-auto">
+                          Su requerimiento de tipo <strong className="font-extrabold text-emerald-900">{pqrsType}</strong> ha sido derivado a la Secretaría del GAD Logroño para su atención prioritaria.
+                        </p>
+                        <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPqrsSuccess(false);
+                              setPqrsSubject('');
+                              setPqrsDetail('');
+                              setTramiteMainTab('mis_tramites');
+                            }}
+                            className="bg-[#0A4191] text-white px-4 py-2 rounded-xl font-extrabold text-xs cursor-pointer shadow-sm hover:bg-blue-800 transition-colors"
+                          >
+                            Ver en Mis Trámites Ingresados
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPqrsSuccess(false);
+                              setPqrsSubject('');
+                              setPqrsDetail('');
+                            }}
+                            className="bg-[#159A44] text-white px-4 py-2 rounded-xl font-extrabold text-xs cursor-pointer shadow-sm hover:bg-emerald-700 transition-colors"
+                          >
+                            Registrar Otro Trámite
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          const newRecord: UserTramiteRecord = {
+                            id: 'usr-trm-' + Date.now(),
+                            code: `TRM-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+                            type: pqrsType,
+                            subject: pqrsSubject || 'Solicitud de Trámite Municipal',
+                            department: 'Secretaría General / Participación Ciudadana',
+                            date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+                            status: 'en_proceso',
+                            applicant: citizenName || 'María Fernanda Shakaim',
+                            observation: 'Su solicitud ha sido ingresada en el sistema del GAD Logroño y se le asignó técnico responsable.'
+                          };
+                          setUserTramitesList([newRecord, ...userTramitesList]);
+                          setPqrsSuccess(true);
+                        }}
+                        className="bg-white dark:bg-slate-800 border-2 border-[#0A4191]/60 rounded-3xl p-5 sm:p-6 shadow-md space-y-4"
+                      >
+                        <div className="border-b border-slate-200 dark:border-slate-700 pb-3 flex items-center justify-between">
+                          <div>
+                            <h4 className="font-extrabold text-sm text-[#0A4191] dark:text-blue-300">
+                              Formulario Oficial de Solicitud de Trámite / PQRS
+                            </h4>
+                            <p className="text-[11px] text-slate-500">
+                              Complete los campos requeridos para la gestión ante el GAD Municipal de Logroño.
+                            </p>
+                          </div>
+                          <span className="bg-blue-50 text-[#0A4191] dark:bg-slate-900 dark:text-blue-300 font-extrabold text-[10px] px-2.5 py-1 rounded-xl border border-blue-200 dark:border-blue-800">
+                            Paso 1 de 1
+                          </span>
+                        </div>
+
+                        {/* Tipo de Trámite Selector Chips */}
+                        <div>
+                          <label className="block font-black text-slate-800 dark:text-slate-200 mb-1.5">
+                            Seleccione el Tipo de Requerimiento:
+                          </label>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+                            {(['Petición', 'Queja', 'Reclamo', 'Sugerencia', 'Certificado', 'Inspección'] as const).map((t) => (
+                              <button
+                                key={t}
+                                type="button"
+                                onClick={() => setPqrsType(t)}
+                                className={`py-2 px-2.5 rounded-xl text-xs font-black border transition-all cursor-pointer ${
+                                  pqrsType === t
+                                    ? 'bg-gradient-to-r from-[#0A4191] to-[#0C51B6] text-white border-[#0A4191] shadow-xs'
+                                    : 'bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600 hover:border-[#0A4191]'
+                                }`}
+                              >
+                                {t}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Asunto Input */}
+                        <div>
+                          <label className="block font-black text-slate-800 dark:text-slate-200 mb-1">
+                            Asunto o Nombre del Trámite:
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="Ej. Solicitud de Certificado de No Adeudar o Permiso de Construcción"
+                            value={pqrsSubject}
+                            onChange={(e) => setPqrsSubject(e.target.value)}
+                            className="w-full p-3 rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium focus:outline-none focus:border-[#0A4191] transition-colors"
+                          />
+                        </div>
+
+                        {/* Detalle Textarea */}
+                        <div>
+                          <label className="block font-black text-slate-800 dark:text-slate-200 mb-1">
+                            Fundamentación y Detalle del Requerimiento:
+                          </label>
+                          <textarea
+                            required
+                            rows={4}
+                            placeholder="Describa con claridad su solicitud, predio involucrado, antecedentes o ubicación en el Cantón Logroño..."
+                            value={pqrsDetail}
+                            onChange={(e) => setPqrsDetail(e.target.value)}
+                            className="w-full p-3 rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium focus:outline-none focus:border-[#0A4191] transition-colors"
+                          />
+                        </div>
+
+                        {/* Solicitante Info (Pre-filled) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700">
+                          <div>
+                            <label className="block font-bold text-slate-600 dark:text-slate-400 text-[11px] mb-0.5">
+                              Nombres del Solicitante:
+                            </label>
+                            <input
+                              type="text"
+                              value={citizenName}
+                              onChange={(e) => setCitizenName(e.target.value)}
+                              className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg font-bold text-slate-900 dark:text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block font-bold text-slate-600 dark:text-slate-400 text-[11px] mb-0.5">
+                              Cédula / Identificación:
+                            </label>
+                            <input
+                              type="text"
+                              value={citizenCedula}
+                              onChange={(e) => setCitizenCedula(e.target.value)}
+                              className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg font-bold text-slate-900 dark:text-white"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                          <button
+                            type="button"
+                            onClick={() => handleTriggerCancelTramite('pqrs')}
+                            className="w-full py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-extrabold text-xs rounded-xl border-2 border-slate-300 dark:border-slate-600 cursor-pointer transition-colors"
+                          >
+                            Cancelar Trámite
+                          </button>
+                          <button
+                            type="submit"
+                            className="w-full py-3 bg-gradient-to-r from-[#159A44] to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-black text-xs rounded-xl shadow-md cursor-pointer transition-all flex items-center justify-center space-x-2"
+                          >
+                            <Send className="w-4 h-4" />
+                            <span>REGISTRAR Y ENVIAR TRÁMITE</span>
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+                )}
+
               </div>
             )}
 
@@ -2835,119 +3864,392 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
               </div>
             )}
 
-            {/* TAB 7: NOTICIAS (MATCHES MOCKUP 15. NOTICIAS EXACTLY) */}
+            {/* TAB 7: NOTICIAS (PLANTILLA PERSONALIZADA DE NOTICIAS CON ESTÉTICA COMBINADA, TABLA Y BOTONES PROFESIONALES) */}
             {citizenTab === 'noticias' && (
-              <div className="bg-white border-2 border-[#0A4191] rounded-2xl p-4 sm:p-5 shadow-sm space-y-4 text-xs text-[#0A4191] animate-in fade-in duration-200 pb-2">
-                {/* Header Row: Back Arrow + Centered Title "Noticias" */}
-                <div className="relative text-center pt-1 pb-1">
-                  <button
-                    type="button"
-                    onClick={() => setCitizenTab('inicio')}
-                    className="absolute left-0 top-0.5 p-1 text-[#0A4191] hover:bg-blue-50 rounded-full cursor-pointer transition-colors"
-                    title="Volver a Inicio"
-                  >
-                    <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
-                  </button>
-                  <h2 className="text-base font-black text-[#0A4191] tracking-tight font-serif">
-                    Noticias
-                  </h2>
-                </div>
-
-                {/* Filter Pills Row: Todos | Comunicados | Obras | Eventos */}
-                <div className="grid grid-cols-4 gap-1.5 py-0.5">
-                  {(['todos', 'comunicados', 'obras', 'eventos'] as const).map((filter) => {
-                    const labels: Record<string, string> = {
-                      todos: 'Todos',
-                      comunicados: 'Comunicados',
-                      obras: 'Obras',
-                      eventos: 'Eventos'
-                    };
-                    const icons: Record<string, React.ReactNode> = {
-                      todos: <ListFilter className="w-3.5 h-3.5 flex-shrink-0 text-[#0A4191]" />,
-                      comunicados: <Megaphone className="w-3.5 h-3.5 flex-shrink-0 text-[#0A4191]" />,
-                      obras: <HardHat className="w-3.5 h-3.5 flex-shrink-0 text-[#0A4191]" />,
-                      eventos: <Calendar className="w-3.5 h-3.5 flex-shrink-0 text-[#0A4191]" />
-                    };
-                    const isActive = noticiasFilter === filter;
-                    return (
-                      <button
-                        key={filter}
-                        type="button"
-                        onClick={() => setNoticiasFilter(filter)}
-                        title={`Filtrar por ${labels[filter]}`}
-                        className={`py-2 px-1 rounded-xl text-[11px] font-black transition-all cursor-pointer flex items-center justify-center space-x-1 truncate border-2 border-[#0A4191] text-[#0A4191] ${
-                          isActive
-                            ? 'bg-blue-100 font-extrabold shadow-xs'
-                            : 'bg-white font-bold hover:bg-blue-50'
-                        }`}
-                      >
-                        {icons[filter]}
-                        <span className="hidden sm:inline truncate">{labels[filter]}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* List of News Cards (Responsive Grid) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-                  {MOCK_NEWS.filter((item) => {
-                    if (noticiasFilter === 'todos') return true;
-                    return item.category === noticiasFilter;
-                  }).map((news) => (
-                    <div
-                      key={news.id}
-                      onClick={() => setSelectedNews(news)}
-                      className="bg-white border-2 border-[#0A4191] rounded-2xl p-3 flex items-center space-x-3 shadow-xs hover:shadow-md hover:bg-blue-50/60 cursor-pointer transition-all group text-[#0A4191]"
-                    >
-                      {/* Left Thumbnail Image */}
-                      <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 bg-white border-2 border-[#0A4191]">
-                        <img
-                          src={news.image}
-                          alt={news.title}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                        />
-                      </div>
-
-                      {/* Middle Title & Date */}
-                      <div className="flex-1 min-w-0 pr-1">
-                        <h4 className="font-black text-[#0A4191] text-xs leading-tight line-clamp-2">
-                          {news.title}
-                        </h4>
-                        <p className="text-[11px] font-mono text-[#0A4191]/80 font-bold mt-1">
-                          {news.date}
-                        </p>
-                      </div>
-
-                      {/* Right Chevron */}
-                      <div className="flex-shrink-0 pr-1">
-                        <ChevronRight className="w-4 h-4 text-[#0A4191] stroke-[2.5] group-hover:translate-x-0.5 transition-transform" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* TAB 8: AGENDA MUNICIPAL (COMPLETE INTERACTIVE IMPLEMENTATION) */}
-            {citizenTab === 'agenda' && (
-              <div className="bg-white border-2 border-[#0A4191] rounded-2xl p-4 sm:p-5 shadow-sm space-y-4 text-xs text-[#0A4191] animate-in fade-in duration-200 pb-2">
-                {/* Header Row: Back Arrow + Centered Title "Agenda Municipal" + Action Buttons */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1 pb-1 border-b-2 border-[#0A4191]/20 pb-3">
-                  <div className="flex items-center space-x-2">
+              <div className="bg-gradient-to-br from-slate-50 via-blue-50/40 to-slate-100 border-2 border-[#0A4191] rounded-3xl p-4 sm:p-6 shadow-lg space-y-4 text-xs text-slate-800 animate-in fade-in duration-200">
+                {/* Header Banner: Gradiente azul municipal con texto e insignias */}
+                <div className="bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] text-white p-4 rounded-2xl border-b-2 border-[#0A4191] shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 -mx-1 -mt-1">
+                  <div className="flex items-center space-x-3">
                     <button
                       type="button"
                       onClick={() => setCitizenTab('inicio')}
-                      className="p-1.5 text-[#0A4191] hover:bg-blue-50 rounded-full cursor-pointer transition-colors"
+                      className="p-1.5 text-white hover:bg-white/20 rounded-full cursor-pointer transition-colors border border-white/20 active:scale-95 shrink-0"
                       title="Volver a Inicio"
                     >
                       <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
                     </button>
                     <div>
-                      <h2 className="text-base font-black text-[#0A4191] tracking-tight font-serif">
-                        Agenda Municipal
+                      <div className="flex items-center space-x-2">
+                        <span className="text-[10px] font-black font-mono text-amber-300 bg-white/15 px-2 py-0.5 rounded border border-white/20 uppercase tracking-wider shadow-2xs">
+                          Comunicación Oficial GAD
+                        </span>
+                      </div>
+                      <h2 className="text-base sm:text-lg font-black text-white font-serif tracking-tight mt-0.5">
+                        Noticias & Comunicados Cantonales
                       </h2>
-                      <p className="text-[11px] text-[#0A4191]/80 font-extrabold">
-                        Logroño • Morona Santiago
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2 self-end sm:self-auto text-[11px] font-bold">
+                    <span className="bg-white/15 text-blue-100 px-3 py-1 rounded-xl border border-white/25 backdrop-blur-xs flex items-center space-x-1.5 shadow-2xs">
+                      <Newspaper className="w-3.5 h-3.5 text-amber-300" />
+                      <span>Informativo Logroño 2026</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Quick Summary Ribbon */}
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                  <div className="bg-white/90 border border-slate-300 p-2.5 sm:p-3 rounded-2xl shadow-2xs flex items-center space-x-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-200 text-[#0A4191] flex items-center justify-center shrink-0">
+                      <Newspaper className="w-4 h-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wider">Publicaciones</span>
+                      <span className="text-sm font-black text-slate-900">{MOCK_NEWS.length}</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-50/90 border border-amber-200 p-2.5 sm:p-3 rounded-2xl shadow-2xs flex items-center space-x-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center shrink-0">
+                      <Megaphone className="w-4 h-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-amber-800 font-bold block uppercase tracking-wider">Comunicados</span>
+                      <span className="text-sm font-black text-amber-950">
+                        {MOCK_NEWS.filter((n) => n.category === 'comunicados').length}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="bg-emerald-50/90 border border-emerald-200 p-2.5 sm:p-3 rounded-2xl shadow-2xs flex items-center space-x-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-800 flex items-center justify-center shrink-0">
+                      <HardHat className="w-4 h-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-emerald-800 font-bold block uppercase tracking-wider">Obras & Eventos</span>
+                      <span className="text-sm font-black text-emerald-950">
+                        {MOCK_NEWS.filter((n) => n.category === 'obras' || n.category === 'eventos').length}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Filter Pills Row & Search/View Controls */}
+                <div className="space-y-2.5">
+                  {/* Top Filter Buttons: Todos | Comunicados | Obras | Eventos */}
+                  <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
+                    {(['todos', 'comunicados', 'obras', 'eventos'] as const).map((filter) => {
+                      const labels: Record<string, string> = {
+                        todos: 'Todos',
+                        comunicados: 'Comunicados',
+                        obras: 'Obras',
+                        eventos: 'Eventos'
+                      };
+                      const icons: Record<string, React.ReactNode> = {
+                        todos: <ListFilter className="w-3.5 h-3.5 shrink-0" />,
+                        comunicados: <Megaphone className="w-3.5 h-3.5 shrink-0" />,
+                        obras: <HardHat className="w-3.5 h-3.5 shrink-0" />,
+                        eventos: <Calendar className="w-3.5 h-3.5 shrink-0" />
+                      };
+                      const isActive = noticiasFilter === filter;
+                      return (
+                        <button
+                          key={filter}
+                          type="button"
+                          onClick={() => setNoticiasFilter(filter)}
+                          title={`Filtrar por ${labels[filter]}`}
+                          className={`py-2 px-1.5 sm:px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center space-x-1.5 border active:scale-95 shadow-2xs ${
+                            isActive
+                              ? 'bg-gradient-to-r from-[#0A4191] to-[#0C51B6] text-white border-[#0A4191] shadow-md'
+                              : 'bg-white/90 hover:bg-white text-slate-700 border-slate-300'
+                          }`}
+                        >
+                          {icons[filter]}
+                          <span className="truncate">{labels[filter]}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Secondary Bar: Search Input + View Toggle (Tarjetas vs Tabla) + Sort Dropdown */}
+                  <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-between pt-1">
+                    {/* Search Bar */}
+                    <div className="relative flex-1">
+                      <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
+                      <input
+                        type="text"
+                        value={noticiasSearchTerm}
+                        onChange={(e) => setNoticiasSearchTerm(e.target.value)}
+                        placeholder="Buscar noticias o publicaciones..."
+                        className="w-full pl-9 pr-8 py-2 bg-white/90 border border-slate-300 rounded-xl text-slate-800 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#0A4191]/40 shadow-2xs"
+                      />
+                      {noticiasSearchTerm && (
+                        <button
+                          type="button"
+                          onClick={() => setNoticiasSearchTerm('')}
+                          className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* View Mode Switcher (Tarjetas vs Tabla) */}
+                    <div className="flex items-center space-x-2">
+                      <div className="bg-slate-200/80 p-1 rounded-xl border border-slate-300 flex items-center space-x-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setNoticiasViewMode('tarjetas')}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center space-x-1 cursor-pointer ${
+                            noticiasViewMode === 'tarjetas'
+                              ? 'bg-[#0A4191] text-white shadow-xs'
+                              : 'text-slate-700 hover:bg-slate-300/60'
+                          }`}
+                          title="Vista Cuadrícula de Tarjetas"
+                        >
+                          <LayoutGrid className="w-3.5 h-3.5" />
+                          <span className="hidden xs:inline">Tarjetas</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setNoticiasViewMode('tabla')}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center space-x-1 cursor-pointer ${
+                            noticiasViewMode === 'tabla'
+                              ? 'bg-[#0A4191] text-white shadow-xs'
+                              : 'text-slate-700 hover:bg-slate-300/60'
+                          }`}
+                          title="Vista Tabla Personalizada"
+                        >
+                          <Table className="w-3.5 h-3.5" />
+                          <span className="hidden xs:inline">Tabla</span>
+                        </button>
+                      </div>
+
+                      {/* Sort Selector */}
+                      <div className="flex items-center space-x-1.5 bg-white/90 px-2.5 py-1.5 rounded-xl border border-slate-300 shadow-2xs">
+                        <ArrowUpDown className="w-3.5 h-3.5 text-[#0A4191] shrink-0" />
+                        <select
+                          value={noticiasSortOrder}
+                          onChange={(e) => setNoticiasSortOrder(e.target.value as any)}
+                          className="bg-transparent text-slate-800 text-xs font-extrabold focus:outline-none cursor-pointer"
+                        >
+                          <option value="recientes">Recientes</option>
+                          <option value="antiguas">Antiguas</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content Display: Cards vs Custom Table */}
+                {(() => {
+                  const filteredNews = MOCK_NEWS.filter((item) => {
+                    if (noticiasFilter !== 'todos' && item.category !== noticiasFilter) return false;
+                    if (noticiasSearchTerm.trim() !== '') {
+                      const term = noticiasSearchTerm.toLowerCase();
+                      return (
+                        item.title.toLowerCase().includes(term) ||
+                        item.summary.toLowerCase().includes(term) ||
+                        item.content.toLowerCase().includes(term)
+                      );
+                    }
+                    return true;
+                  }).sort((a, b) => {
+                    if (noticiasSortOrder === 'recientes') {
+                      return b.date.localeCompare(a.date);
+                    }
+                    return a.date.localeCompare(b.date);
+                  });
+
+                  if (filteredNews.length === 0) {
+                    return (
+                      <div className="bg-white/80 border border-slate-300 rounded-2xl p-8 text-center space-y-2">
+                        <Newspaper className="w-8 h-8 text-slate-400 mx-auto" />
+                        <p className="font-bold text-slate-700">No se encontraron noticias con los criterios seleccionados.</p>
+                        <p className="text-[11px] text-slate-500">Prueba ajustando el término de búsqueda o cambiando el filtro de categoría.</p>
+                      </div>
+                    );
+                  }
+
+                  if (noticiasViewMode === 'tabla') {
+                    return (
+                      <div className="overflow-x-auto rounded-2xl border-2 border-[#0A4191]/60 shadow-md bg-gradient-to-b from-white via-slate-50/80 to-blue-50/20">
+                        <table className="w-full text-left border-collapse">
+                          <thead>
+                            <tr className="bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] text-white text-[11px] font-black uppercase tracking-wider">
+                              <th className="py-3.5 px-3.5 border-r border-white/20">Portada</th>
+                              <th className="py-3.5 px-3.5 border-r border-white/20">Título & Resumen</th>
+                              <th className="py-3.5 px-3.5 border-r border-white/20">Categoría</th>
+                              <th className="py-3.5 px-3.5 border-r border-white/20">Fecha</th>
+                              <th className="py-3.5 px-3.5 text-center">Acción</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-200 text-xs text-slate-800">
+                            {filteredNews.map((news) => (
+                              <tr
+                                key={news.id}
+                                onClick={() => setSelectedNews(news)}
+                                className="odd:bg-white even:bg-slate-50/70 hover:bg-blue-50/80 transition-colors cursor-pointer group"
+                              >
+                                {/* Thumbnail Column */}
+                                <td className="py-3 px-3.5 whitespace-nowrap border-r border-slate-200">
+                                  <div className="w-14 h-14 rounded-xl overflow-hidden border border-slate-300 shadow-2xs group-hover:border-[#0A4191] transition-colors bg-slate-100">
+                                    <img src={news.image} alt={news.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                                  </div>
+                                </td>
+
+                                {/* Title & Summary Column */}
+                                <td className="py-3 px-3.5 border-r border-slate-200 max-w-xs sm:max-w-md">
+                                  <h4 className="font-black text-slate-900 group-hover:text-[#0A4191] transition-colors line-clamp-1 text-xs">
+                                    {news.title}
+                                  </h4>
+                                  <p className="text-[11px] text-slate-600 line-clamp-2 mt-0.5 leading-snug">
+                                    {news.summary}
+                                  </p>
+                                </td>
+
+                                {/* Category Column */}
+                                <td className="py-3 px-3.5 whitespace-nowrap border-r border-slate-200">
+                                  {news.category === 'comunicados' && (
+                                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-black inline-flex items-center space-x-1 bg-blue-100 text-blue-900 border border-blue-300 shadow-2xs">
+                                      <Megaphone className="w-3 h-3 text-[#0A4191]" />
+                                      <span>Comunicado</span>
+                                    </span>
+                                  )}
+                                  {news.category === 'obras' && (
+                                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-black inline-flex items-center space-x-1 bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs">
+                                      <HardHat className="w-3 h-3 text-amber-800" />
+                                      <span>Obra Pública</span>
+                                    </span>
+                                  )}
+                                  {news.category === 'eventos' && (
+                                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-black inline-flex items-center space-x-1 bg-emerald-100 text-emerald-900 border border-emerald-300 shadow-2xs">
+                                      <Calendar className="w-3 h-3 text-emerald-800" />
+                                      <span>Evento</span>
+                                    </span>
+                                  )}
+                                </td>
+
+                                {/* Date Column */}
+                                <td className="py-3 px-3.5 font-mono font-extrabold text-[11px] text-slate-700 whitespace-nowrap border-r border-slate-200">
+                                  <span className="bg-slate-100 px-2 py-0.5 rounded border border-slate-300 text-slate-800">
+                                    {news.date}
+                                  </span>
+                                </td>
+
+                                {/* Action Column */}
+                                <td className="py-3 px-3.5 text-center whitespace-nowrap">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedNews(news);
+                                    }}
+                                    className="px-3 py-1.5 text-[11px] font-black bg-gradient-to-r from-[#0A4191] to-[#0C51B6] hover:from-[#083373] hover:to-[#0A4191] text-white rounded-xl transition-all cursor-pointer shadow-xs active:scale-95 flex items-center justify-center space-x-1 mx-auto"
+                                  >
+                                    <FileText className="w-3 h-3 text-blue-200" />
+                                    <span>Leer Noticia</span>
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  }
+
+                  {/* Grid of News Cards with Combined Colors */}
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-1">
+                      {filteredNews.map((news) => (
+                        <div
+                          key={news.id}
+                          onClick={() => setSelectedNews(news)}
+                          className="bg-white/95 hover:bg-white border-2 border-slate-300 hover:border-[#0A4191] rounded-2xl p-3.5 flex flex-col sm:flex-row items-stretch gap-3 shadow-2xs hover:shadow-md transition-all cursor-pointer group text-slate-800 relative"
+                        >
+                          {/* Thumbnail Image with Category Badge */}
+                          <div className="w-full sm:w-28 h-32 sm:h-auto rounded-xl overflow-hidden shrink-0 border border-slate-200 relative bg-slate-100">
+                            <img
+                              src={news.image}
+                              alt={news.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute top-1.5 left-1.5">
+                              <span className="text-[9px] font-black bg-slate-900/80 text-white px-2 py-0.5 rounded-md backdrop-blur-xs border border-white/20 uppercase">
+                                {news.categoryLabel}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Title, Summary & Footer Action */}
+                          <div className="flex-1 flex flex-col justify-between min-w-0">
+                            <div>
+                              <div className="flex items-center justify-between gap-2 mb-1">
+                                <span className="text-[10px] font-mono font-bold text-slate-500 flex items-center space-x-1">
+                                  <Clock className="w-3 h-3 text-[#0A4191]" />
+                                  <span>{news.date}</span>
+                                </span>
+                              </div>
+                              <h4 className="font-black text-slate-900 group-hover:text-[#0A4191] text-xs leading-tight transition-colors line-clamp-2">
+                                {news.title}
+                              </h4>
+                              <p className="text-[11px] text-slate-600 line-clamp-2 mt-1 leading-snug">
+                                {news.summary}
+                              </p>
+                            </div>
+
+                            <div className="pt-2 flex items-center justify-between mt-2 border-t border-slate-200">
+                              <span className="text-[10px] font-bold text-[#0A4191] flex items-center space-x-1 group-hover:underline">
+                                <span>Leer Noticia Completa</span>
+                                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                              </span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedNews(news);
+                                }}
+                                className="p-1.5 bg-blue-50 text-[#0A4191] hover:bg-[#0A4191] hover:text-white rounded-lg transition-colors border border-blue-200"
+                                title="Ver detalle"
+                              >
+                                <FileText className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+
+            {/* TAB 8: AGENDA MUNICIPAL (REDESIGNED COMBINED COLORS WITH CUSTOM TABLE AND PROFESSIONAL BUTTONS) */}
+            {citizenTab === 'agenda' && (
+              <div className="bg-gradient-to-br from-slate-50 via-blue-50/40 to-slate-100 border-2 border-[#0A4191] rounded-3xl p-4 sm:p-6 shadow-lg space-y-4 text-xs text-slate-800 animate-in fade-in duration-200 pb-3">
+                {/* Header Banner: Combined colors gradient with official badges & professional action buttons */}
+                <div className="bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] text-white p-4 rounded-2xl border-b-2 border-[#0A4191] shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 -mx-1 -mt-1">
+                  <div className="flex items-center space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => setCitizenTab('inicio')}
+                      className="p-1.5 text-white hover:bg-white/20 rounded-full cursor-pointer transition-colors border border-white/20 active:scale-95 shrink-0"
+                      title="Volver a Inicio"
+                    >
+                      <ArrowLeft className="w-5 h-5 stroke-[2.5]" />
+                    </button>
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-[10px] font-black font-mono text-amber-300 bg-white/15 px-2 py-0.5 rounded border border-white/20 uppercase tracking-wider shadow-2xs">
+                          Agenda Cantonal Municipal 2026
+                        </span>
+                      </div>
+                      <h2 className="text-base sm:text-lg font-black text-white font-serif tracking-tight mt-0.5">
+                        Agenda & Eventos Municipales
+                      </h2>
+                      <p className="text-[11px] text-blue-100 font-extrabold">
+                        Gobierno Autónomo Descentralizado Municipal de Logroño
                       </p>
                     </div>
                   </div>
@@ -2958,17 +4260,17 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                       type="button"
                       onClick={handleSyncAgenda}
                       disabled={isSyncingAgenda}
-                      className="px-3 py-1.5 bg-white hover:bg-blue-50 text-[#0A4191] border-2 border-[#0A4191] rounded-xl font-black text-[11px] flex items-center space-x-1.5 transition-all cursor-pointer active:scale-95 disabled:opacity-60 shadow-2xs"
+                      className="px-3.5 py-2 bg-white/15 hover:bg-white/25 text-white border border-white/30 rounded-xl font-extrabold text-xs flex items-center space-x-1.5 transition-all cursor-pointer active:scale-95 disabled:opacity-60 shadow-xs backdrop-blur-xs"
                       title="Sincronizar información de la agenda con el servidor"
                     >
-                      <RefreshCw className={`w-3.5 h-3.5 text-[#0A4191] ${isSyncingAgenda ? 'animate-spin' : ''}`} />
+                      <RefreshCw className={`w-3.5 h-3.5 text-amber-300 ${isSyncingAgenda ? 'animate-spin' : ''}`} />
                       <span>{isSyncingAgenda ? 'Sincronizando...' : 'Sincronizar'}</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => handleOpenCreateAgenda()}
-                      className="px-3 py-1.5 bg-white hover:bg-blue-50 text-[#0A4191] border-2 border-[#0A4191] rounded-xl font-black text-[11px] flex items-center space-x-1.5 shadow-xs transition-all cursor-pointer active:scale-95"
+                      className="px-3.5 py-2 bg-gradient-to-r from-[#159A44] to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-black text-xs rounded-xl shadow-md transition-all cursor-pointer flex items-center space-x-1.5 active:scale-95 border border-emerald-400/40"
                       title="Crear nueva agenda o evento municipal"
                     >
                       <Plus className="w-4 h-4 stroke-[3]" />
@@ -2977,24 +4279,298 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   </div>
                 </div>
 
-                {/* Toast Notification Banner */}
+                {/* Toast Notification Banners */}
                 {agendaSyncToast && (
-                  <div className="bg-blue-50 border-2 border-[#0A4191] text-[#0A4191] p-2.5 rounded-2xl flex items-center space-x-2 text-xs font-black animate-in slide-in-from-top-2 shadow-xs">
+                  <div className="bg-blue-50 border-2 border-[#0A4191] text-[#0A4191] p-3 rounded-2xl flex items-center space-x-2 text-xs font-black animate-in slide-in-from-top-2 shadow-xs">
                     <RefreshCw className={`w-4 h-4 text-[#0A4191] flex-shrink-0 ${isSyncingAgenda ? 'animate-spin' : ''}`} />
                     <span className="flex-1">{agendaSyncToast}</span>
                   </div>
                 )}
 
                 {agendaToast && (
-                  <div className="bg-emerald-50 border-2 border-emerald-600 text-emerald-900 p-2.5 rounded-2xl flex items-center space-x-2 text-xs font-black animate-in slide-in-from-top-2 shadow-xs">
+                  <div className="bg-emerald-50 border-2 border-emerald-600 text-emerald-900 p-3 rounded-2xl flex items-center space-x-2 text-xs font-black animate-in slide-in-from-top-2 shadow-xs">
                     <CheckCircle2 className="w-4 h-4 text-emerald-700 flex-shrink-0" />
                     <span className="flex-1">{agendaToast}</span>
                   </div>
                 )}
 
-                {/* Dynamic Real Calendar View Container */}
+                {/* Quick Summary Stats Ribbon (Combined Colors KPI Cards) */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                  <div className="bg-gradient-to-br from-white via-blue-50/60 to-slate-50 border-2 border-[#0A4191]/30 p-3 rounded-2xl shadow-xs flex items-center space-x-3">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#0A4191] to-[#0C51B6] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                      <Calendar className="w-4 h-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 font-extrabold block uppercase tracking-wider">Total Agendas</span>
+                      <span className="text-sm font-black text-slate-900">{agendaEvents.length}</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-amber-50 via-amber-100/40 to-amber-50/80 border-2 border-amber-300/60 p-3 rounded-2xl shadow-xs flex items-center space-x-3">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-slate-950 flex items-center justify-center shrink-0 shadow-2xs font-black">
+                      <Clock className="w-4 h-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-amber-900 font-extrabold block uppercase tracking-wider">Mes Actual</span>
+                      <span className="text-sm font-black text-amber-950">
+                        {agendaEvents.filter(ev => ev.month === SPANISH_MONTHS[currentCalendarMonth]).length}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-emerald-50 via-emerald-100/40 to-emerald-50/80 border-2 border-emerald-300/60 p-3 rounded-2xl shadow-xs flex items-center space-x-3">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                      <Users className="w-4 h-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-emerald-900 font-extrabold block uppercase tracking-wider">Mingas & Cabildos</span>
+                      <span className="text-sm font-black text-emerald-950">
+                        {agendaEvents.filter(ev => ev.category === 'Minga' || ev.category === 'Cabildo').length}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-purple-50 via-purple-100/40 to-purple-50/80 border-2 border-purple-300/60 p-3 rounded-2xl shadow-xs flex items-center space-x-3">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-700 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                      <Sparkles className="w-4 h-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-purple-900 font-extrabold block uppercase tracking-wider">Cultura & Deportes</span>
+                      <span className="text-sm font-black text-purple-950">
+                        {agendaEvents.filter(ev => ev.category === 'Cultura' || ev.category === 'Deportes').length}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Filter Chips, Search Bar & View Toggle (Calendario vs Tabla Personalizada) */}
+                <div className="space-y-2.5 pt-1">
+                  {/* Category Filter Chips */}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-[11px] font-black text-slate-600 uppercase mr-1">Categoría:</span>
+                    {(['todos', 'Minga', 'Cabildo', 'Cultura', 'Deportes', 'General'] as const).map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setAgendaCategoryFilter(cat)}
+                        className={`px-3 py-1.5 rounded-xl text-[11px] font-black transition-all cursor-pointer border active:scale-95 shadow-2xs ${
+                          agendaCategoryFilter === cat
+                            ? 'bg-gradient-to-r from-[#0A4191] to-[#0C51B6] text-white border-[#0A4191] shadow-xs'
+                            : 'bg-white/90 hover:bg-white text-slate-700 border-slate-300 hover:border-[#0A4191]'
+                        }`}
+                      >
+                        {cat === 'todos' ? 'Todas' : cat}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Search Bar & View Switcher */}
+                  <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-between">
+                    {/* Search Input */}
+                    <div className="relative flex-1">
+                      <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
+                      <input
+                        type="text"
+                        value={agendaSearchTerm}
+                        onChange={(e) => setAgendaSearchTerm(e.target.value)}
+                        placeholder="Buscar por título, lugar o descripción..."
+                        className="w-full pl-9 pr-8 py-2 bg-white/95 border border-slate-300 rounded-xl text-slate-800 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[#0A4191]/40 shadow-2xs"
+                      />
+                      {agendaSearchTerm && (
+                        <button
+                          type="button"
+                          onClick={() => setAgendaSearchTerm('')}
+                          className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* View Switcher: Calendario vs Tabla Personalizada */}
+                    <div className="bg-slate-200/90 p-1 rounded-xl border border-slate-300 flex items-center space-x-1 shrink-0 self-end sm:self-auto shadow-2xs">
+                      <button
+                        type="button"
+                        onClick={() => setAgendaViewMode('calendario')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all flex items-center space-x-1.5 cursor-pointer active:scale-95 ${
+                          agendaViewMode === 'calendario'
+                            ? 'bg-gradient-to-r from-[#0A4191] to-[#0C51B6] text-white shadow-xs'
+                            : 'text-slate-700 hover:bg-slate-300/60'
+                        }`}
+                        title="Vista Calendario interactivo"
+                      >
+                        <Calendar className="w-3.5 h-3.5" />
+                        <span>Calendario</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAgendaViewMode('tabla')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all flex items-center space-x-1.5 cursor-pointer active:scale-95 ${
+                          agendaViewMode === 'tabla'
+                            ? 'bg-gradient-to-r from-[#0A4191] to-[#0C51B6] text-white shadow-xs'
+                            : 'text-slate-700 hover:bg-slate-300/60'
+                        }`}
+                        title="Vista Tabla Personalizada"
+                      >
+                        <Table className="w-3.5 h-3.5" />
+                        <span>Tabla Personalizada</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Main Content Render: Calendario vs Tabla Personalizada */}
                 {(() => {
                   const currentMonthName = SPANISH_MONTHS[currentCalendarMonth];
+
+                  // Filtered events master list
+                  const filteredEventsMaster = agendaEvents.filter((ev) => {
+                    const matchesCategory = agendaCategoryFilter === 'todos' || ev.category === agendaCategoryFilter;
+                    const term = agendaSearchTerm.toLowerCase().trim();
+                    const matchesSearch =
+                      !term ||
+                      ev.title.toLowerCase().includes(term) ||
+                      ev.location.toLowerCase().includes(term) ||
+                      (ev.description && ev.description.toLowerCase().includes(term));
+                    return matchesCategory && matchesSearch;
+                  });
+
+                  if (agendaViewMode === 'tabla') {
+                    return (
+                      <div className="space-y-3 pt-1">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-extrabold text-sm text-[#0A4191] flex items-center space-x-1.5">
+                            <Table className="w-4 h-4 text-[#0A4191]" />
+                            <span>Tabla Personalizada de Agendas y Eventos</span>
+                            <span className="text-[10px] font-bold text-slate-500 font-mono">
+                              ({filteredEventsMaster.length} registros)
+                            </span>
+                          </h3>
+                        </div>
+
+                        {filteredEventsMaster.length === 0 ? (
+                          <div className="bg-gradient-to-br from-white via-slate-50 to-blue-50/30 border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center space-y-2">
+                            <Calendar className="w-10 h-10 text-slate-400 mx-auto" />
+                            <p className="font-bold text-slate-700">No se encontraron eventos con los filtros aplicados.</p>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setAgendaCategoryFilter('todos');
+                                setAgendaSearchTerm('');
+                              }}
+                              className="px-3.5 py-1.5 bg-[#0A4191] text-white rounded-xl font-bold text-xs cursor-pointer hover:bg-blue-900 transition-colors shadow-xs"
+                            >
+                              Restablecer Filtros
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="overflow-x-auto rounded-2xl border-2 border-[#0A4191] shadow-lg bg-gradient-to-b from-white via-slate-50/80 to-blue-50/30">
+                            <table className="w-full text-left border-collapse">
+                              <thead>
+                                <tr className="bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] text-white text-[11px] font-black uppercase tracking-wider">
+                                  <th className="py-3.5 px-3.5 border-r border-white/20">Fecha & Hora</th>
+                                  <th className="py-3.5 px-3.5 border-r border-white/20">Categoría</th>
+                                  <th className="py-3.5 px-3.5 border-r border-white/20">Título & Descripción del Evento</th>
+                                  <th className="py-3.5 px-3.5 border-r border-white/20">Lugar / Ubicación</th>
+                                  <th className="py-3.5 px-3.5 text-center">Acciones & Gestión</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-200 text-xs text-slate-800">
+                                {filteredEventsMaster.map((ev, idx) => {
+                                  const categoryStyle =
+                                    ev.category === 'Minga'
+                                      ? 'bg-blue-100 text-[#0A4191] border border-blue-300'
+                                      : ev.category === 'Cabildo'
+                                      ? 'bg-[#0A4191] text-white border border-blue-900'
+                                      : ev.category === 'Cultura'
+                                      ? 'bg-purple-100 text-purple-900 border border-purple-300'
+                                      : ev.category === 'Deportes'
+                                      ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                                      : 'bg-amber-100 text-amber-900 border border-amber-300';
+
+                                  return (
+                                    <tr
+                                      key={ev.id}
+                                      className={`transition-colors hover:bg-amber-50/80 ${
+                                        idx % 2 === 0 ? 'bg-white/90' : 'bg-blue-50/40'
+                                      }`}
+                                    >
+                                      {/* Fecha & Hora */}
+                                      <td className="py-3.5 px-3.5 font-bold text-slate-800 whitespace-nowrap border-r border-slate-200">
+                                        <div className="flex flex-col space-y-0.5">
+                                          <span className="font-extrabold text-[#0A4191] text-xs">
+                                            {ev.day} {ev.month || currentMonthName} {ev.year || currentCalendarYear}
+                                          </span>
+                                          <span className="text-[10px] font-mono font-bold text-slate-500 flex items-center space-x-1">
+                                            <Clock className="w-3 h-3 text-amber-600" />
+                                            <span>{ev.time}</span>
+                                          </span>
+                                        </div>
+                                      </td>
+
+                                      {/* Categoría */}
+                                      <td className="py-3.5 px-3.5 whitespace-nowrap border-r border-slate-200">
+                                        <span className={`text-[10px] font-black px-2.5 py-1 rounded-xl uppercase tracking-wider inline-block shadow-2xs ${categoryStyle}`}>
+                                          {ev.category || 'General'}
+                                        </span>
+                                      </td>
+
+                                      {/* Título & Descripción */}
+                                      <td className="py-3.5 px-3.5 border-r border-slate-200 max-w-xs sm:max-w-md">
+                                        <div className="font-extrabold text-slate-900 leading-snug">
+                                          {ev.title}
+                                        </div>
+                                        {ev.description && (
+                                          <p className="text-[11px] text-slate-600 line-clamp-2 mt-0.5 leading-relaxed font-medium">
+                                            {ev.description}
+                                          </p>
+                                        )}
+                                      </td>
+
+                                      {/* Lugar / Ubicación */}
+                                      <td className="py-3.5 px-3.5 font-bold text-slate-700 border-r border-slate-200 whitespace-nowrap">
+                                        <div className="flex items-center space-x-1.5">
+                                          <MapPin className="w-3.5 h-3.5 text-[#0A4191] shrink-0" />
+                                          <span className="truncate">{ev.location}</span>
+                                        </div>
+                                      </td>
+
+                                      {/* Acciones & Gestión (Botones Profesionales) */}
+                                      <td className="py-3.5 px-3.5 text-center whitespace-nowrap">
+                                        <div className="flex items-center justify-center space-x-1.5">
+                                          <button
+                                            type="button"
+                                            onClick={() => handleOpenEditAgenda(ev)}
+                                            className="px-2.5 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 rounded-xl font-black text-[11px] cursor-pointer transition-all shadow-xs flex items-center space-x-1 border border-amber-400/40 active:scale-95"
+                                            title="Editar Agenda"
+                                          >
+                                            <Edit3 className="w-3.5 h-3.5" />
+                                            <span>Editar</span>
+                                          </button>
+
+                                          <button
+                                            type="button"
+                                            onClick={() => handleDeleteAgendaEvent(ev.id, ev.title)}
+                                            className="px-2.5 py-1.5 bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-700 hover:to-red-800 text-white rounded-xl font-black text-[11px] cursor-pointer transition-all shadow-xs flex items-center space-x-1 border border-red-400/40 active:scale-95"
+                                            title="Eliminar Agenda"
+                                          >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                            <span>Eliminar</span>
+                                          </button>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  // Calendario View Mode
                   const daysInMonth = new Date(currentCalendarYear, currentCalendarMonth + 1, 0).getDate();
                   const firstDayIndex = (new Date(currentCalendarYear, currentCalendarMonth, 1).getDay() + 6) % 7; // Mon=0 ... Sun=6
                   const prevMonthDaysCount = new Date(currentCalendarYear, currentCalendarMonth, 0).getDate();
@@ -3008,7 +4584,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   const isCurrentMonthReal = currentCalendarMonth === new Date().getMonth() && currentCalendarYear === new Date().getFullYear();
                   const todayDate = new Date().getDate();
 
-                  const dayEvents = agendaEvents.filter((ev) => {
+                  const dayEvents = filteredEventsMaster.filter((ev) => {
                     return ev.day === selectedAgendaDay && 
                            (ev.month === currentMonthName || !ev.month) && 
                            (ev.year === currentCalendarYear || !ev.year);
@@ -3016,14 +4592,14 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
                   return (
                     <div className="space-y-4">
-                      {/* Calendar Box with White Background & Dark Blue Border */}
-                      <div className="bg-white rounded-3xl p-4 sm:p-5 border-2 border-[#0A4191] shadow-sm space-y-4">
+                      {/* Calendar Box with Combined Colors Gradient & Dark Blue Border */}
+                      <div className="bg-gradient-to-br from-white via-blue-50/40 to-slate-50 rounded-3xl p-4 sm:p-5 border-2 border-[#0A4191]/70 shadow-md space-y-4">
                         {/* Month Header: < Agosto 2026 > + Today jump button */}
                         <div className="flex items-center justify-between px-1 sm:px-3 pt-1">
                           <button
                             type="button"
                             onClick={handlePrevCalendarMonth}
-                            className="p-2 text-[#0A4191] hover:bg-blue-100 rounded-2xl transition-colors cursor-pointer border border-[#0A4191]/30 active:scale-95"
+                            className="p-2 text-[#0A4191] hover:bg-blue-100/80 rounded-2xl transition-all cursor-pointer border border-[#0A4191]/30 active:scale-95 shadow-2xs"
                             title="Mes anterior"
                           >
                             <ChevronLeft className="w-6 h-6 stroke-[3]" />
@@ -3037,7 +4613,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                             <button
                               type="button"
                               onClick={handleJumpCalendarToToday}
-                              className="px-3 py-1 bg-white text-[#0A4191] font-black text-xs sm:text-sm rounded-xl border-2 border-[#0A4191] hover:bg-blue-50 transition-all cursor-pointer shadow-xs active:scale-95"
+                              className="px-3.5 py-1 bg-gradient-to-r from-[#0A4191] to-[#0C51B6] text-white font-black text-xs sm:text-sm rounded-xl border border-[#0A4191] hover:from-[#083373] hover:to-[#0A4191] transition-all cursor-pointer shadow-xs active:scale-95"
                               title="Ir al día de hoy"
                             >
                               Hoy
@@ -3047,15 +4623,15 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           <button
                             type="button"
                             onClick={handleNextCalendarMonth}
-                            className="p-2 text-[#0A4191] hover:bg-blue-100 rounded-2xl transition-colors cursor-pointer border border-[#0A4191]/30 active:scale-95"
+                            className="p-2 text-[#0A4191] hover:bg-blue-100/80 rounded-2xl transition-all cursor-pointer border border-[#0A4191]/30 active:scale-95 shadow-2xs"
                             title="Mes siguiente"
                           >
                             <ChevronRight className="w-6 h-6 stroke-[3]" />
                           </button>
                         </div>
 
-                        {/* Days of week header: Lun  Mar  Mié  Jue  Vie  Sáb  Dom */}
-                        <div className="grid grid-cols-7 text-center font-black text-[#0A4191] text-xs sm:text-sm py-2 bg-blue-50/80 rounded-2xl border border-[#0A4191]/30">
+                        {/* Days of week header */}
+                        <div className="grid grid-cols-7 text-center font-black text-[#0A4191] text-xs sm:text-sm py-2 bg-gradient-to-r from-blue-100/90 via-blue-50/80 to-blue-100/90 rounded-2xl border border-[#0A4191]/30 shadow-2xs">
                           <span>Lun</span>
                           <span>Mar</span>
                           <span>Mié</span>
@@ -3069,7 +4645,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                         <div className="grid grid-cols-7 gap-y-2.5 gap-x-1.5 text-center items-center pt-1">
                           {/* Previous Month Padding */}
                           {prevPaddingDays.map((pDay) => (
-                            <span key={`prev-p-${pDay}`} className="text-xs sm:text-sm font-extrabold text-[#0A4191]/30 py-2 select-none">
+                            <span key={`prev-p-${pDay}`} className="text-xs sm:text-sm font-extrabold text-slate-300 py-2 select-none">
                               {pDay}
                             </span>
                           ))}
@@ -3089,10 +4665,10 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                                 onClick={() => setSelectedAgendaDay(d)}
                                 className={`relative py-1 rounded-2xl text-sm sm:text-base transition-all cursor-pointer flex flex-col items-center justify-center mx-auto ${
                                   isSelected
-                                    ? 'w-10 h-10 sm:w-12 sm:h-12 bg-[#0A4191] text-white font-black shadow-md ring-2 ring-blue-300'
+                                    ? 'w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#0A4191] to-[#0C51B6] text-white font-black shadow-md ring-2 ring-blue-400 scale-105'
                                     : isToday
-                                    ? 'w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 text-[#0A4191] border-2 border-[#0A4191] font-black'
-                                    : 'w-10 h-10 sm:w-12 sm:h-12 text-[#0A4191] font-black hover:bg-blue-100/70 border border-[#0A4191]/15'
+                                    ? 'w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 text-[#0A4191] border-2 border-[#0A4191] font-black shadow-xs'
+                                    : 'w-10 h-10 sm:w-12 sm:h-12 text-[#0A4191] font-black hover:bg-blue-100/70 border border-slate-200 bg-white/90'
                                 }`}
                               >
                                 <span className="leading-none">{d}</span>
@@ -3108,14 +4684,14 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
                           {/* Next Month Padding */}
                           {nextPaddingDays.map((nDay) => (
-                            <span key={`next-p-${nDay}`} className="text-xs sm:text-sm font-extrabold text-[#0A4191]/30 py-2 select-none">
+                            <span key={`next-p-${nDay}`} className="text-xs sm:text-sm font-extrabold text-slate-300 py-2 select-none">
                               {nDay}
                             </span>
                           ))}
                         </div>
 
-                        {/* Visual Legend for User Clarity */}
-                        <div className="pt-2 border-t border-[#0A4191]/20 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-[11px] sm:text-xs font-black text-[#0A4191]">
+                        {/* Visual Legend */}
+                        <div className="pt-2 border-t border-slate-200 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-[11px] sm:text-xs font-black text-slate-700">
                           <div className="flex items-center space-x-1.5">
                             <span className="w-3.5 h-3.5 rounded-lg bg-[#0A4191] inline-block shadow-2xs" />
                             <span>Día Seleccionado</span>
@@ -3131,13 +4707,13 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                         </div>
                       </div>
 
-                      {/* Section Subtitle: Eventos del X de [mes] [año] */}
+                      {/* Section Subtitle & Event Cards */}
                       <div className="pt-1 space-y-3">
                         <div className="flex items-center justify-between">
                           <h3 className="font-black text-[#0A4191] text-xs tracking-tight flex items-center space-x-1.5">
                             <Calendar className="w-4 h-4 text-[#0A4191]" />
                             <span>Eventos del {selectedAgendaDay} de {currentMonthName.toLowerCase()} de {currentCalendarYear}</span>
-                            <span className="text-[10px] font-bold text-[#0A4191]/70 font-mono">
+                            <span className="text-[10px] font-bold text-slate-500 font-mono">
                               ({dayEvents.length})
                             </span>
                           </h3>
@@ -3152,107 +4728,107 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                           </button>
                         </div>
 
-                        {/* List of Event Cards for selected day */}
+                        {/* List of Event Cards */}
                         <div className="space-y-3">
                           {dayEvents.length > 0 ? (
                             dayEvents.map((ev) => {
-                          const categoryColor =
-                            ev.category === 'Minga'
-                              ? 'bg-blue-50 text-[#0A4191] border border-[#0A4191]'
-                              : ev.category === 'Cabildo'
-                              ? 'bg-[#0A4191] text-white'
-                              : ev.category === 'Cultura'
-                              ? 'bg-purple-100 text-[#0A4191] border border-[#0A4191]'
-                              : ev.category === 'Deportes'
-                              ? 'bg-emerald-100 text-[#0A4191] border border-[#0A4191]'
-                              : 'bg-amber-100 text-[#0A4191] border border-[#0A4191]';
+                              const categoryColor =
+                                ev.category === 'Minga'
+                                  ? 'bg-blue-100 text-[#0A4191] border border-blue-300'
+                                  : ev.category === 'Cabildo'
+                                  ? 'bg-[#0A4191] text-white border border-blue-900'
+                                  : ev.category === 'Cultura'
+                                  ? 'bg-purple-100 text-purple-900 border border-purple-300'
+                                  : ev.category === 'Deportes'
+                                  ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                                  : 'bg-amber-100 text-amber-900 border border-amber-300';
 
-                          return (
-                            <div
-                              key={ev.id}
-                              className="bg-white border-2 border-[#0A4191] rounded-2xl p-3.5 shadow-2xs hover:shadow-md transition-all space-y-2.5 relative overflow-hidden text-[#0A4191]"
-                            >
-                              {/* Top Bar: Category Badge + Time + Action Buttons */}
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-2">
-                                  <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${categoryColor}`}>
-                                    {ev.category || 'General'}
-                                  </span>
-                                  <span className="text-[11px] font-mono font-bold text-[#0A4191] flex items-center space-x-1">
-                                    <Clock className="w-3 h-3 text-[#0A4191]" />
-                                    <span>{ev.time}</span>
-                                  </span>
+                              return (
+                                <div
+                                  key={ev.id}
+                                  className="bg-gradient-to-br from-white via-slate-50 to-blue-50/30 border-2 border-slate-300 hover:border-[#0A4191] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all space-y-2.5 relative overflow-hidden text-slate-800"
+                                >
+                                  {/* Top Bar: Category Badge + Time + Action Buttons */}
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                      <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider ${categoryColor}`}>
+                                        {ev.category || 'General'}
+                                      </span>
+                                      <span className="text-[11px] font-mono font-bold text-slate-600 flex items-center space-x-1">
+                                        <Clock className="w-3 h-3 text-[#0A4191]" />
+                                        <span>{ev.time}</span>
+                                      </span>
+                                    </div>
+
+                                    {/* PROFESSIONAL EDIT AND DELETE BUTTONS */}
+                                    <div className="flex items-center space-x-1.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleOpenEditAgenda(ev)}
+                                        className="px-2.5 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 rounded-xl font-black text-[11px] cursor-pointer transition-all shadow-xs flex items-center space-x-1 border border-amber-400/40 active:scale-95"
+                                        title="Editar esta agenda"
+                                      >
+                                        <Edit3 className="w-3.5 h-3.5" />
+                                        <span>Editar</span>
+                                      </button>
+
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeleteAgendaEvent(ev.id, ev.title)}
+                                        className="px-2.5 py-1.5 bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-700 hover:to-red-800 text-white rounded-xl font-black text-[11px] cursor-pointer transition-all shadow-xs flex items-center space-x-1 border border-red-400/40 active:scale-95"
+                                        title="Eliminar esta agenda"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                        <span>Eliminar</span>
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  {/* Title & Description */}
+                                  <div>
+                                    <h4 className="font-extrabold text-slate-900 text-xs leading-snug">
+                                      {ev.title}
+                                    </h4>
+                                    {ev.description && (
+                                      <p className="text-[11px] text-slate-600 mt-1 leading-relaxed font-medium">
+                                        {ev.description}
+                                      </p>
+                                    )}
+                                  </div>
+
+                                  {/* Location */}
+                                  <div className="pt-2 border-t border-slate-200 flex items-center space-x-1.5 text-[11px] text-slate-700 font-bold">
+                                    <MapPin className="w-3.5 h-3.5 text-[#0A4191] flex-shrink-0" />
+                                    <span className="truncate">{ev.location}</span>
+                                  </div>
                                 </div>
-
-                                {/* EDIT AND DELETE BUTTONS */}
-                                <div className="flex items-center space-x-1">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleOpenEditAgenda(ev)}
-                                    className="p-1.5 text-[#0A4191] bg-white border border-[#0A4191] hover:bg-blue-50 rounded-lg transition-colors cursor-pointer flex items-center space-x-1 font-black text-[11px]"
-                                    title="Editar esta agenda"
-                                  >
-                                    <Edit3 className="w-3.5 h-3.5 stroke-[2.5]" />
-                                    <span className="hidden xs:inline">Editar</span>
-                                  </button>
-
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeleteAgendaEvent(ev.id, ev.title)}
-                                    className="p-1.5 text-red-600 bg-white border border-red-300 hover:bg-red-50 rounded-lg transition-colors cursor-pointer flex items-center space-x-1 font-black text-[11px]"
-                                    title="Eliminar esta agenda"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5 stroke-[2.5]" />
-                                    <span className="hidden xs:inline">Eliminar</span>
-                                  </button>
-                                </div>
-                              </div>
-
-                              {/* Title & Description */}
-                              <div>
-                                <h4 className="font-black text-[#0A4191] text-xs leading-snug">
-                                  {ev.title}
-                                </h4>
-                                {ev.description && (
-                                  <p className="text-[11px] text-[#0A4191]/90 mt-1 leading-relaxed font-semibold">
-                                    {ev.description}
-                                  </p>
-                                )}
-                              </div>
-
-                              {/* Location */}
-                              <div className="pt-1 border-t border-[#0A4191]/20 flex items-center space-x-1.5 text-[11px] text-[#0A4191] font-bold">
-                                <MapPin className="w-3.5 h-3.5 text-[#0A4191] flex-shrink-0" />
-                                <span className="truncate">{ev.location}</span>
-                              </div>
+                              );
+                            })
+                          ) : (
+                            <div className="bg-white/90 border-2 border-dashed border-slate-300 rounded-2xl p-6 text-center space-y-2">
+                              <p className="font-bold text-slate-800 text-xs">
+                                No hay agendas programadas para el {selectedAgendaDay} de {currentMonthName.toLowerCase()} de {currentCalendarYear}
+                              </p>
+                              <p className="text-[11px] text-slate-500 max-w-xs mx-auto font-medium">
+                                Puedes crear una nueva agenda municipal para esta fecha usando el botón a continuación.
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenCreateAgenda(selectedAgendaDay)}
+                                className="px-3.5 py-2 bg-gradient-to-r from-[#0A4191] to-[#0C51B6] hover:from-[#083373] hover:to-[#0A4191] text-white rounded-xl font-extrabold text-xs inline-flex items-center space-x-1.5 transition-all cursor-pointer shadow-xs active:scale-95 mt-1"
+                              >
+                                <Plus className="w-4 h-4 stroke-[3]" />
+                                <span>Crear agenda para esta fecha</span>
+                              </button>
                             </div>
-                          );
-                        })
-                    ) : (
-                      <div className="bg-white border-2 border-[#0A4191] rounded-2xl p-5 text-center space-y-2 text-[#0A4191]">
-                        <p className="font-black text-[#0A4191] text-xs">
-                          No hay agendas programadas para el {selectedAgendaDay} de {currentMonthName.toLowerCase()} de {currentCalendarYear}
-                        </p>
-                        <p className="text-[11px] text-[#0A4191]/80 max-w-xs mx-auto font-bold">
-                          Puedes crear una nueva agenda municipal para esta fecha usando el botón a continuación.
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => handleOpenCreateAgenda(selectedAgendaDay)}
-                          className="px-3.5 py-2 bg-white border-2 border-[#0A4191] hover:bg-blue-50 text-[#0A4191] rounded-xl font-black text-xs inline-flex items-center space-x-1.5 transition-all cursor-pointer shadow-xs active:scale-95 mt-1"
-                        >
-                          <Plus className="w-4 h-4 stroke-[3]" />
-                          <span>Crear agenda para esta fecha</span>
-                        </button>
+                          )}
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
+                    </div>
+                  );
+                })()}
               </div>
-            );
-          })()}
-        </div>
-      )}
+            )}
 
 
             {/* TAB 9: PERFIL (MATCHES MOCKUP 17. PERFIL EXACTLY) */}
@@ -4886,35 +6462,37 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
       {/* MODAL 3: CREAR NUEVA AGENDA MUNICIPAL */}
       {showCreateAgendaModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white border-2 border-[#0A4191] rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4 text-[#0A4191] relative text-left max-h-[90vh] overflow-y-auto text-xs">
+          <div className="bg-gradient-to-br from-slate-50 via-blue-50/60 to-slate-100 border-2 border-[#0A4191] rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4 text-slate-800 relative text-left max-h-[90vh] overflow-y-auto text-xs">
             <button
               type="button"
               onClick={() => setShowCreateAgendaModal(false)}
-              className="absolute top-3.5 right-3.5 p-1.5 text-[#0A4191] hover:bg-blue-50 rounded-full cursor-pointer transition-colors"
+              className="absolute top-4 right-4 p-1.5 text-white bg-white/20 hover:bg-white/30 rounded-full cursor-pointer transition-colors z-10 border border-white/20"
+              title="Cerrar modal"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center space-x-3 text-[#0A4191] pr-6">
-              <div className="w-10 h-10 rounded-2xl bg-blue-50 border-2 border-[#0A4191] flex items-center justify-center flex-shrink-0">
-                <Calendar className="w-5 h-5 stroke-[2.2] text-[#0A4191]" />
+            {/* Header Banner */}
+            <div className="bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] text-white p-4 rounded-2xl border-b-2 border-[#0A4191] shadow-sm flex items-center space-x-3 -mx-1 -mt-1 relative">
+              <div className="w-10 h-10 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center flex-shrink-0 shadow-2xs backdrop-blur-xs">
+                <Calendar className="w-5 h-5 stroke-[2.2] text-amber-300" />
               </div>
-              <div>
-                <h3 className="font-black text-base leading-tight text-[#0A4191] font-serif">Nueva Agenda Municipal</h3>
-                <p className="text-[11px] text-[#0A4191]/80 font-bold">Agregar evento al calendario del cantón</p>
+              <div className="pr-6">
+                <h3 className="font-extrabold text-base leading-tight text-white font-serif">Nueva Agenda Municipal</h3>
+                <p className="text-[11px] text-blue-100 font-bold">Agregar evento al calendario del cantón</p>
               </div>
             </div>
 
             {agendaFormError && (
-              <div className="p-2.5 bg-red-50 border-2 border-red-500 text-red-700 rounded-xl text-xs font-bold flex items-center space-x-2">
-                <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
+              <div className="p-3 bg-red-50 border border-red-300 text-red-800 rounded-2xl text-xs font-bold flex items-center space-x-2 shadow-2xs">
+                <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />
                 <span>{agendaFormError}</span>
               </div>
             )}
 
             <form onSubmit={handleSaveCreateAgenda} className="space-y-3">
               <div>
-                <label className="block text-[11px] font-black text-[#0A4191] mb-1">
+                <label className="block text-[11px] font-extrabold text-slate-700 mb-1">
                   Título de la Agenda / Evento *
                 </label>
                 <input
@@ -4922,31 +6500,31 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   value={agendaFormTitle}
                   onChange={(e) => setAgendaFormTitle(e.target.value)}
                   placeholder="Ej: Minga de Limpieza en Sector Río Upano"
-                  className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
+                  className="w-full px-3 py-2 bg-white/95 border border-slate-300 focus:border-[#0A4191] focus:ring-2 focus:ring-[#0A4191]/25 rounded-xl text-slate-800 text-xs font-extrabold focus:outline-none shadow-2xs"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[11px] font-black text-[#0A4191] mb-1">
-                    Día de Mayo *
+                  <label className="block text-[11px] font-extrabold text-slate-700 mb-1">
+                    Día ({SPANISH_MONTHS[currentCalendarMonth]}) *
                   </label>
                   <select
                     value={agendaFormDay}
                     onChange={(e) => setAgendaFormDay(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
+                    className="w-full px-3 py-2 bg-white/95 border border-slate-300 focus:border-[#0A4191] focus:ring-2 focus:ring-[#0A4191]/25 rounded-xl text-slate-800 text-xs font-extrabold focus:outline-none shadow-2xs"
                   >
-                    {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                    {Array.from({ length: new Date(currentCalendarYear, currentCalendarMonth + 1, 0).getDate() }, (_, i) => i + 1).map((d) => (
                       <option key={`opt-day-${d}`} value={d}>
-                        {d} de Mayo 2024
+                        {d} de {SPANISH_MONTHS[currentCalendarMonth]} {currentCalendarYear}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-black text-[#0A4191] mb-1">
+                  <label className="block text-[11px] font-extrabold text-slate-700 mb-1">
                     Horario *
                   </label>
                   <input
@@ -4954,7 +6532,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                     value={agendaFormTime}
                     onChange={(e) => setAgendaFormTime(e.target.value)}
                     placeholder="Ej: 09:00 AM"
-                    className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
+                    className="w-full px-3 py-2 bg-white/95 border border-slate-300 focus:border-[#0A4191] focus:ring-2 focus:ring-[#0A4191]/25 rounded-xl text-slate-800 text-xs font-extrabold focus:outline-none shadow-2xs"
                     required
                   />
                 </div>
@@ -4962,13 +6540,13 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[11px] font-black text-[#0A4191] mb-1">
+                  <label className="block text-[11px] font-extrabold text-slate-700 mb-1">
                     Categoría
                   </label>
                   <select
                     value={agendaFormCategory}
                     onChange={(e) => setAgendaFormCategory(e.target.value as any)}
-                    className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
+                    className="w-full px-3 py-2 bg-white/95 border border-slate-300 focus:border-[#0A4191] focus:ring-2 focus:ring-[#0A4191]/25 rounded-xl text-slate-800 text-xs font-extrabold focus:outline-none shadow-2xs"
                   >
                     <option value="Minga">Minga</option>
                     <option value="Cabildo">Cabildo</option>
@@ -4980,7 +6558,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-black text-[#0A4191] mb-1">
+                  <label className="block text-[11px] font-extrabold text-slate-700 mb-1">
                     Lugar / Ubicación *
                   </label>
                   <input
@@ -4988,14 +6566,14 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                     value={agendaFormLocation}
                     onChange={(e) => setAgendaFormLocation(e.target.value)}
                     placeholder="Ej: Parque Central Logroño"
-                    className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
+                    className="w-full px-3 py-2 bg-white/95 border border-slate-300 focus:border-[#0A4191] focus:ring-2 focus:ring-[#0A4191]/25 rounded-xl text-slate-800 text-xs font-extrabold focus:outline-none shadow-2xs"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-black text-[#0A4191] mb-1">
+                <label className="block text-[11px] font-extrabold text-slate-700 mb-1">
                   Descripción o Detalles
                 </label>
                 <textarea
@@ -5003,23 +6581,23 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   value={agendaFormDescription}
                   onChange={(e) => setAgendaFormDescription(e.target.value)}
                   placeholder="Detalles adicionales sobre el evento o convocatoria comunitaria..."
-                  className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none resize-none"
+                  className="w-full px-3 py-2 bg-white/95 border border-slate-300 focus:border-[#0A4191] focus:ring-2 focus:ring-[#0A4191]/25 rounded-xl text-slate-800 text-xs font-bold focus:outline-none resize-none shadow-2xs"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2 pt-2">
+              <div className="grid grid-cols-2 gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowCreateAgendaModal(false)}
-                  className="py-2.5 rounded-xl border-2 border-[#0A4191] bg-white hover:bg-blue-50 text-[#0A4191] font-black text-xs transition-colors cursor-pointer"
+                  className="py-2.5 rounded-xl border border-slate-300 bg-slate-200/90 hover:bg-slate-300 text-slate-800 font-extrabold text-xs transition-all cursor-pointer active:scale-95"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="py-2.5 rounded-xl border-2 border-[#0A4191] bg-white hover:bg-blue-50 text-[#0A4191] font-black text-xs shadow-xs transition-colors cursor-pointer flex items-center justify-center space-x-1"
+                  className="py-2.5 rounded-xl bg-gradient-to-r from-[#159A44] to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-extrabold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center space-x-1 border border-emerald-400/40 active:scale-95"
                 >
-                  <Plus className="w-4 h-4 stroke-[2.5]" />
+                  <Plus className="w-4 h-4 stroke-[3]" />
                   <span>Guardar Agenda</span>
                 </button>
               </div>
@@ -5031,76 +6609,78 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
       {/* MODAL 4: EDITAR AGENDA MUNICIPAL */}
       {showEditAgendaModal && editingAgendaEvent && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white border-2 border-[#0A4191] rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4 text-[#0A4191] relative text-left max-h-[90vh] overflow-y-auto text-xs">
+          <div className="bg-gradient-to-br from-slate-50 via-blue-50/60 to-slate-100 border-2 border-[#0A4191] rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4 text-slate-800 relative text-left max-h-[90vh] overflow-y-auto text-xs">
             <button
               type="button"
               onClick={() => {
                 setShowEditAgendaModal(false);
                 setEditingAgendaEvent(null);
               }}
-              className="absolute top-3.5 right-3.5 p-1.5 text-[#0A4191] hover:bg-blue-50 rounded-full cursor-pointer transition-colors"
+              className="absolute top-4 right-4 p-1.5 text-white bg-white/20 hover:bg-white/30 rounded-full cursor-pointer transition-colors z-10 border border-white/20"
+              title="Cerrar modal"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center space-x-3 text-[#0A4191] pr-6">
-              <div className="w-10 h-10 rounded-2xl bg-blue-50 border-2 border-[#0A4191] flex items-center justify-center flex-shrink-0">
-                <Edit3 className="w-5 h-5 stroke-[2.2] text-[#0A4191]" />
+            {/* Header Banner */}
+            <div className="bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] text-white p-4 rounded-2xl border-b-2 border-[#0A4191] shadow-sm flex items-center space-x-3 -mx-1 -mt-1 relative">
+              <div className="w-10 h-10 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center flex-shrink-0 shadow-2xs backdrop-blur-xs">
+                <Edit3 className="w-5 h-5 stroke-[2.2] text-amber-300" />
               </div>
-              <div>
-                <h3 className="font-black text-base leading-tight text-[#0A4191] font-serif">Editar Agenda</h3>
-                <p className="text-[11px] text-[#0A4191]/80 font-bold">Modificar datos del evento programado</p>
+              <div className="pr-6">
+                <h3 className="font-extrabold text-base leading-tight text-white font-serif">Editar Agenda</h3>
+                <p className="text-[11px] text-blue-100 font-bold">Modificar datos del evento programado</p>
               </div>
             </div>
 
             {agendaFormError && (
-              <div className="p-2.5 bg-red-50 border-2 border-red-500 text-red-700 rounded-xl text-xs font-bold flex items-center space-x-2">
-                <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
+              <div className="p-3 bg-red-50 border border-red-300 text-red-800 rounded-2xl text-xs font-bold flex items-center space-x-2 shadow-2xs">
+                <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />
                 <span>{agendaFormError}</span>
               </div>
             )}
 
             <form onSubmit={handleSaveEditAgenda} className="space-y-3">
               <div>
-                <label className="block text-[11px] font-black text-[#0A4191] mb-1">
+                <label className="block text-[11px] font-extrabold text-slate-700 mb-1">
                   Título de la Agenda / Evento *
                 </label>
                 <input
                   type="text"
                   value={agendaFormTitle}
                   onChange={(e) => setAgendaFormTitle(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
+                  className="w-full px-3 py-2 bg-white/95 border border-slate-300 focus:border-[#0A4191] focus:ring-2 focus:ring-[#0A4191]/25 rounded-xl text-slate-800 text-xs font-extrabold focus:outline-none shadow-2xs"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[11px] font-black text-[#0A4191] mb-1">
-                    Día de Mayo *
+                  <label className="block text-[11px] font-extrabold text-slate-700 mb-1">
+                    Día ({SPANISH_MONTHS[currentCalendarMonth]}) *
                   </label>
                   <select
                     value={agendaFormDay}
                     onChange={(e) => setAgendaFormDay(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
+                    className="w-full px-3 py-2 bg-white/95 border border-slate-300 focus:border-[#0A4191] focus:ring-2 focus:ring-[#0A4191]/25 rounded-xl text-slate-800 text-xs font-extrabold focus:outline-none shadow-2xs"
                   >
-                    {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                    {Array.from({ length: new Date(currentCalendarYear, currentCalendarMonth + 1, 0).getDate() }, (_, i) => i + 1).map((d) => (
                       <option key={`edit-opt-day-${d}`} value={d}>
-                        {d} de Mayo 2024
+                        {d} de {SPANISH_MONTHS[currentCalendarMonth]} {currentCalendarYear}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-black text-[#0A4191] mb-1">
+                  <label className="block text-[11px] font-extrabold text-slate-700 mb-1">
                     Horario *
                   </label>
                   <input
                     type="text"
                     value={agendaFormTime}
                     onChange={(e) => setAgendaFormTime(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
+                    className="w-full px-3 py-2 bg-white/95 border border-slate-300 focus:border-[#0A4191] focus:ring-2 focus:ring-[#0A4191]/25 rounded-xl text-slate-800 text-xs font-extrabold focus:outline-none shadow-2xs"
                     required
                   />
                 </div>
@@ -5108,13 +6688,13 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[11px] font-black text-[#0A4191] mb-1">
+                  <label className="block text-[11px] font-extrabold text-slate-700 mb-1">
                     Categoría
                   </label>
                   <select
                     value={agendaFormCategory}
                     onChange={(e) => setAgendaFormCategory(e.target.value as any)}
-                    className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
+                    className="w-full px-3 py-2 bg-white/95 border border-slate-300 focus:border-[#0A4191] focus:ring-2 focus:ring-[#0A4191]/25 rounded-xl text-slate-800 text-xs font-extrabold focus:outline-none shadow-2xs"
                   >
                     <option value="Minga">Minga</option>
                     <option value="Cabildo">Cabildo</option>
@@ -5126,51 +6706,790 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-black text-[#0A4191] mb-1">
+                  <label className="block text-[11px] font-extrabold text-slate-700 mb-1">
                     Lugar / Ubicación *
                   </label>
                   <input
                     type="text"
                     value={agendaFormLocation}
                     onChange={(e) => setAgendaFormLocation(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none"
+                    className="w-full px-3 py-2 bg-white/95 border border-slate-300 focus:border-[#0A4191] focus:ring-2 focus:ring-[#0A4191]/25 rounded-xl text-slate-800 text-xs font-extrabold focus:outline-none shadow-2xs"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-black text-[#0A4191] mb-1">
+                <label className="block text-[11px] font-extrabold text-slate-700 mb-1">
                   Descripción o Detalles
                 </label>
                 <textarea
                   rows={2.5}
                   value={agendaFormDescription}
                   onChange={(e) => setAgendaFormDescription(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border-2 border-[#0A4191]/40 focus:border-[#0A4191] rounded-xl text-[#0A4191] text-xs font-bold focus:outline-none resize-none"
+                  className="w-full px-3 py-2 bg-white/95 border border-slate-300 focus:border-[#0A4191] focus:ring-2 focus:ring-[#0A4191]/25 rounded-xl text-slate-800 text-xs font-bold focus:outline-none resize-none shadow-2xs"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2 pt-2">
+              <div className="grid grid-cols-2 gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => {
                     setShowEditAgendaModal(false);
                     setEditingAgendaEvent(null);
                   }}
-                  className="py-2.5 rounded-xl border-2 border-[#0A4191] bg-white hover:bg-blue-50 text-[#0A4191] font-black text-xs transition-colors cursor-pointer"
+                  className="py-2.5 rounded-xl border border-slate-300 bg-slate-200/90 hover:bg-slate-300 text-slate-800 font-extrabold text-xs transition-all cursor-pointer active:scale-95"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="py-2.5 rounded-xl border-2 border-[#0A4191] bg-white hover:bg-blue-50 text-[#0A4191] font-black text-xs shadow-xs transition-colors cursor-pointer flex items-center justify-center space-x-1"
+                  className="py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs shadow-md transition-all cursor-pointer flex items-center justify-center space-x-1 border border-amber-400/40 active:scale-95"
                 >
                   <Check className="w-4 h-4 stroke-[2.5]" />
                   <span>Guardar Cambios</span>
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 5: DETALLE DE NOTICIA SELECCIONADA */}
+      {selectedNews && (
+        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-gradient-to-br from-slate-50 via-white to-blue-50/30 border-2 border-[#0A4191] rounded-3xl p-5 max-w-lg w-full shadow-2xl space-y-4 text-slate-900 relative text-left max-h-[90vh] overflow-y-auto text-xs">
+            <button
+              type="button"
+              onClick={() => setSelectedNews(null)}
+              className="absolute top-3.5 right-3.5 p-1.5 text-white bg-slate-900/60 hover:bg-slate-900 rounded-full cursor-pointer transition-colors z-10 border border-white/20"
+              title="Cerrar noticia"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* High-res Hero Image Banner */}
+            <div className="relative -mx-5 -mt-5 h-48 sm:h-56 overflow-hidden rounded-t-3xl border-b-2 border-[#0A4191]">
+              <img
+                src={selectedNews.image}
+                alt={selectedNews.title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent" />
+              
+              <div className="absolute bottom-3 left-4 right-4 text-white">
+                <div className="flex items-center space-x-2 mb-1">
+                  <span className="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-[#0A4191] text-white border border-white/30 shadow-xs">
+                    {selectedNews.categoryLabel}
+                  </span>
+                  <span className="text-[11px] font-mono font-bold text-amber-300 bg-black/40 px-2 py-0.5 rounded border border-white/20 backdrop-blur-xs">
+                    {selectedNews.date}
+                  </span>
+                </div>
+                <h3 className="font-black text-base sm:text-lg font-serif leading-tight drop-shadow-md text-white">
+                  {selectedNews.title}
+                </h3>
+              </div>
+            </div>
+
+            {/* Content Body */}
+            <div className="space-y-3 pt-1">
+              <div className="bg-blue-50/80 border border-blue-200 p-3 rounded-2xl text-slate-800 font-bold text-xs leading-relaxed shadow-2xs">
+                {selectedNews.summary}
+              </div>
+
+              <div className="text-slate-700 space-y-2 text-xs leading-relaxed pt-1">
+                <p>{selectedNews.content}</p>
+                <p className="text-slate-500 italic text-[11px] border-l-2 border-[#0A4191] pl-2.5 mt-2">
+                  Publicación oficial emitida por la Dirección de Comunicación y Relaciones Públicas del GAD Cantonal de Logroño.
+                </p>
+              </div>
+
+              {/* Modal Footer Actions */}
+              <div className="pt-3 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2">
+                <span className="text-[10px] text-slate-500 font-bold flex items-center space-x-1">
+                  <Newspaper className="w-3.5 h-3.5 text-[#0A4191]" />
+                  <span>Gobierno Autónomo Descentralizado de Logroño</span>
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedNews(null)}
+                  className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-[#0A4191] to-[#0C51B6] hover:from-[#083373] hover:to-[#0A4191] text-white font-black text-xs rounded-xl shadow-md cursor-pointer transition-all active:scale-95 flex items-center justify-center space-x-1"
+                >
+                  <span>Cerrar Noticia</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal 22: Detalle de Trámite del Catálogo */}
+      {selectedTramiteCatalog && (
+        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-gradient-to-br from-slate-50 via-white to-blue-50/30 border-2 border-[#0A4191] rounded-3xl p-5 max-w-lg w-full shadow-2xl space-y-4 text-slate-900 relative text-left max-h-[90vh] overflow-y-auto text-xs">
+            <button
+              type="button"
+              onClick={() => setSelectedTramiteCatalog(null)}
+              className="absolute top-3.5 right-3.5 p-1.5 text-white bg-slate-900/60 hover:bg-slate-900 rounded-full cursor-pointer transition-colors z-10 border border-white/20"
+              title="Cerrar modal"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Header Banner */}
+            <div className="bg-gradient-to-r from-[#0A4191] via-[#0D4EA8] to-[#083373] text-white p-4 rounded-2xl border-2 border-[#0A4191] space-y-1">
+              <div className="flex items-center space-x-2">
+                <span className="bg-blue-400/30 text-blue-100 font-extrabold text-[10px] px-2 py-0.5 rounded-lg border border-white/20">
+                  {selectedTramiteCatalog.code}
+                </span>
+                <span className="bg-emerald-500/30 text-emerald-200 font-extrabold text-[10px] px-2 py-0.5 rounded-lg border border-white/20">
+                  {selectedTramiteCatalog.categoryLabel}
+                </span>
+              </div>
+              <h3 className="font-black text-base sm:text-lg text-white leading-tight">
+                {selectedTramiteCatalog.name}
+              </h3>
+              <p className="text-xs text-blue-100 font-medium flex items-center space-x-1">
+                <Building2 className="w-3.5 h-3.5 text-amber-300" />
+                <span>{selectedTramiteCatalog.department}</span>
+              </p>
+            </div>
+
+            {/* Content Details */}
+            <div className="space-y-3">
+              <div>
+                <h4 className="font-extrabold text-slate-900 text-xs mb-1">Descripción del Servicio:</h4>
+                <p className="text-slate-700 bg-blue-50/60 border border-blue-200 p-3 rounded-2xl font-medium leading-relaxed">
+                  {selectedTramiteCatalog.description}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 bg-slate-100 p-3 rounded-2xl border border-slate-200">
+                <div>
+                  <span className="text-[10px] font-extrabold text-slate-500 uppercase block">Costo del Trámite:</span>
+                  <span className="font-black text-emerald-800 text-sm">{selectedTramiteCatalog.cost}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] font-extrabold text-slate-500 uppercase block">Tiempo Estimado:</span>
+                  <span className="font-extrabold text-slate-900 text-xs">{selectedTramiteCatalog.responseTime}</span>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-extrabold text-slate-900 text-xs mb-2 flex items-center space-x-1">
+                  <CheckCircle2 className="w-4 h-4 text-[#159A44]" />
+                  <span>Requisitos Obligatorios:</span>
+                </h4>
+                <ul className="space-y-1.5 pl-1">
+                  {selectedTramiteCatalog.requirements.map((req, i) => (
+                    <li key={i} className="flex items-start space-x-2 text-slate-700 font-medium">
+                      <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-800 font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                        {i + 1}
+                      </span>
+                      <span>{req}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-3 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const itemToEdit = selectedTramiteCatalog;
+                      handleOpenEditCatalogItem(itemToEdit);
+                    }}
+                    className="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs rounded-xl shadow-xs cursor-pointer transition-colors flex items-center space-x-1"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                    <span>Editar Trámite</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDeletingCatalogItem(selectedTramiteCatalog);
+                    }}
+                    className="px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-xs cursor-pointer transition-colors flex items-center space-x-1"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Eliminar</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTramiteCatalog(null)}
+                    className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-xl border border-slate-300 cursor-pointer"
+                  >
+                    Cerrar
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPqrsSubject(`Solicitud: ${selectedTramiteCatalog.name}`);
+                      setPqrsDetail(`Requerimiento para el trámite ${selectedTramiteCatalog.code} - ${selectedTramiteCatalog.name}.`);
+                      setSelectedTramiteCatalog(null);
+                      setTramiteMainTab('solicitar');
+                    }}
+                    className="px-4 py-2 bg-gradient-to-r from-[#159A44] to-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer hover:bg-emerald-800 transition-all flex items-center space-x-1"
+                  >
+                    <span>Iniciar Trámite</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal 23: Detalle de Trámite del Usuario */}
+      {selectedUserTramite && (
+        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-gradient-to-br from-slate-50 via-white to-blue-50/30 border-2 border-[#0A4191] rounded-3xl p-5 max-w-lg w-full shadow-2xl space-y-4 text-slate-900 relative text-left max-h-[90vh] overflow-y-auto text-xs">
+            <button
+              type="button"
+              onClick={() => setSelectedUserTramite(null)}
+              className="absolute top-3.5 right-3.5 p-1.5 text-white bg-slate-900/60 hover:bg-slate-900 rounded-full cursor-pointer transition-colors z-10 border border-white/20"
+              title="Cerrar modal"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-[#0A4191] via-[#0D4EA8] to-[#083373] text-white p-4 rounded-2xl border-2 border-[#0A4191] space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="bg-white/20 text-white font-mono font-extrabold text-xs px-2.5 py-0.5 rounded-lg border border-white/30">
+                  {selectedUserTramite.code}
+                </span>
+                {selectedUserTramite.status === 'aprobado' && (
+                  <span className="bg-emerald-500 text-slate-950 font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase">
+                    Aprobado y Firmado
+                  </span>
+                )}
+                {selectedUserTramite.status === 'en_proceso' && (
+                  <span className="bg-amber-400 text-slate-950 font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase">
+                    En Proceso
+                  </span>
+                )}
+                {selectedUserTramite.status === 'en_revision' && (
+                  <span className="bg-blue-300 text-slate-950 font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase">
+                    En Revisión
+                  </span>
+                )}
+              </div>
+              <h3 className="font-black text-base text-white leading-tight pt-1">
+                {selectedUserTramite.type}
+              </h3>
+              <p className="text-xs text-blue-100 font-medium">
+                {selectedUserTramite.department} • Ingresado el {selectedUserTramite.date}
+              </p>
+            </div>
+
+            {/* Modal Body */}
+            <div className="space-y-3">
+              <div>
+                <span className="text-[10px] font-extrabold text-slate-500 uppercase block">Asunto / Solicitud:</span>
+                <p className="text-slate-800 font-extrabold bg-white p-3 rounded-2xl border border-slate-200">
+                  {selectedUserTramite.subject}
+                </p>
+              </div>
+
+              <div>
+                <span className="text-[10px] font-extrabold text-slate-500 uppercase block">Observación del Funcionario Responsable:</span>
+                <p className="text-slate-800 bg-blue-50/80 border border-blue-200 p-3 rounded-2xl font-medium leading-relaxed">
+                  {selectedUserTramite.observation}
+                </p>
+              </div>
+
+              <div className="bg-slate-100 p-3 rounded-2xl border border-slate-200 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-extrabold text-slate-500 uppercase block">Solicitante:</span>
+                  <span className="font-extrabold text-slate-900">{selectedUserTramite.applicant}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] font-extrabold text-slate-500 uppercase block">Estado:</span>
+                  <span className="font-black text-[#0A4191] uppercase">{selectedUserTramite.status}</span>
+                </div>
+              </div>
+
+              {selectedUserTramite.status === 'aprobado' && (
+                <div className="bg-emerald-50 border-2 border-emerald-300 p-3.5 rounded-2xl text-emerald-950 flex items-center justify-between">
+                  <div>
+                    <h5 className="font-black text-xs text-emerald-900">Documento Oficial Disponible</h5>
+                    <p className="text-[11px] text-emerald-700 font-medium">Certificado con firma electrónica del GAD Logroño.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => alert(`Descargando documento oficial para el trámite ${selectedUserTramite.code}...`)}
+                    className="px-3 py-1.5 bg-[#159A44] hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs cursor-pointer transition-colors shrink-0"
+                  >
+                    Descargar PDF
+                  </button>
+                </div>
+              )}
+
+              <div className="pt-3 border-t border-slate-200 flex items-center justify-between gap-2">
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenEditUserTramite(selectedUserTramite)}
+                    className="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs rounded-xl shadow-xs cursor-pointer transition-colors flex items-center space-x-1"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                    <span>Editar Trámite</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDeletingUserTramite(selectedUserTramite)}
+                    className="px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-xs cursor-pointer transition-colors flex items-center space-x-1"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Eliminar</span>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedUserTramite(null)}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-xl border border-slate-300 cursor-pointer"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal 24: Editar Trámite */}
+      {editingUserTramite && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-gradient-to-br from-slate-50 via-white to-blue-50/30 border-2 border-amber-500 rounded-3xl p-5 max-w-md w-full shadow-2xl space-y-4 text-slate-900 relative text-left max-h-[90vh] overflow-y-auto text-xs">
+            <button
+              type="button"
+              onClick={() => setEditingUserTramite(null)}
+              className="absolute top-3.5 right-3.5 p-1.5 text-white bg-slate-900/60 hover:bg-slate-900 rounded-full cursor-pointer transition-colors z-10 border border-white/20"
+              title="Cerrar modal"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Header Banner */}
+            <div className="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 text-slate-950 p-4 rounded-2xl border border-amber-400 space-y-1">
+              <div className="flex items-center space-x-2">
+                <Edit3 className="w-5 h-5 text-slate-950" />
+                <span className="font-mono font-black text-xs bg-slate-950 text-amber-300 px-2 py-0.5 rounded-lg">
+                  {editingUserTramite.code}
+                </span>
+              </div>
+              <h3 className="font-black text-base text-slate-950 leading-tight">
+                Editar Trámite o PQRS
+              </h3>
+              <p className="text-[11px] font-bold text-slate-900">
+                Modifique los campos correspondientes a la solicitud del ciudadano.
+              </p>
+            </div>
+
+            {/* Edit Form */}
+            <form onSubmit={handleSaveEditedUserTramite} className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-extrabold text-slate-700 uppercase mb-1">
+                  Tipo de Trámite / Requerimiento:
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editType}
+                  onChange={(e) => setEditType(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-extrabold text-slate-700 uppercase mb-1">
+                  Asunto / Descripción General:
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  value={editSubject}
+                  onChange={(e) => setEditSubject(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-extrabold text-slate-700 uppercase mb-1">
+                    Departamento:
+                  </label>
+                  <select
+                    value={editDepartment}
+                    onChange={(e) => setEditDepartment(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  >
+                    <option value="Avalúos y Catastros">Avalúos y Catastros</option>
+                    <option value="Agua Potable y Alcantarillado">Agua Potable & Saneamiento</option>
+                    <option value="Obras Públicas">Obras Públicas</option>
+                    <option value="Planificación Territorial">Planificación Territorial</option>
+                    <option value="Rentas y Comisarías">Rentas y Comisarías</option>
+                    <option value="Secretaría General">Secretaría General</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-extrabold text-slate-700 uppercase mb-1">
+                    Estado Actual:
+                  </label>
+                  <select
+                    value={editStatus}
+                    onChange={(e) => setEditStatus(e.target.value as any)}
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-black text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  >
+                    <option value="en_proceso">En Proceso</option>
+                    <option value="en_revision">En Revisión</option>
+                    <option value="aprobado">Aprobado</option>
+                    <option value="rechazado">Rechazado</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-extrabold text-slate-700 uppercase mb-1">
+                  Observaciones / Respuesta Técnica:
+                </label>
+                <textarea
+                  rows={2}
+                  value={editObservation}
+                  onChange={(e) => setEditObservation(e.target.value)}
+                  placeholder="Escriba comentarios u observaciones del trámite..."
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-slate-200 flex items-center justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingUserTramite(null)}
+                  className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-xl border border-slate-300 cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs rounded-xl shadow-md cursor-pointer transition-all"
+                >
+                  Guardar Cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal 25: Confirmación de Eliminar Trámite */}
+      {deletingUserTramite && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-gradient-to-br from-slate-50 via-white to-rose-50/40 border-2 border-rose-600 rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4 text-slate-900 relative text-left">
+            <button
+              type="button"
+              onClick={() => setDeletingUserTramite(null)}
+              className="absolute top-3.5 right-3.5 p-1.5 text-white bg-slate-900/60 hover:bg-slate-900 rounded-full cursor-pointer transition-colors z-10 border border-white/20"
+              title="Cerrar modal"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Header Banner */}
+            <div className="bg-gradient-to-r from-rose-600 via-rose-700 to-rose-800 text-white p-4 rounded-2xl border border-rose-500 space-y-1">
+              <div className="flex items-center space-x-2">
+                <Trash2 className="w-5 h-5 text-white" />
+                <span className="font-mono font-black text-xs bg-slate-950 text-white px-2 py-0.5 rounded-lg">
+                  {deletingUserTramite.code}
+                </span>
+              </div>
+              <h3 className="font-black text-base text-white leading-tight">
+                Eliminar Trámite
+              </h3>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <p className="text-slate-700 font-medium leading-relaxed">
+                ¿Está seguro de que desea eliminar permanentemente este trámite del sistema?
+              </p>
+
+              <div className="bg-rose-50 border border-rose-200 p-3 rounded-2xl space-y-1">
+                <div className="font-extrabold text-rose-950">{deletingUserTramite.type}</div>
+                <div className="text-[11px] text-rose-800">{deletingUserTramite.subject}</div>
+                <div className="text-[10px] text-slate-500 font-bold">Ingresado: {deletingUserTramite.date}</div>
+              </div>
+
+              <p className="text-[11px] text-rose-600 font-bold flex items-center space-x-1">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                <span>Esta acción es irreversible.</span>
+              </p>
+
+              <div className="pt-2 border-t border-slate-200 flex items-center justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setDeletingUserTramite(null)}
+                  className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-xl border border-slate-300 cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDeleteUserTramite}
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer transition-colors"
+                >
+                  Sí, Eliminar Trámite
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal 26: Editar / Crear Trámite de Catálogo */}
+      {(editingCatalogItem || isAddingCatalogItem) && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-gradient-to-br from-slate-50 via-white to-blue-50/30 border-2 border-[#0A4191] rounded-3xl p-5 max-w-lg w-full shadow-2xl space-y-4 text-slate-900 relative text-left max-h-[90vh] overflow-y-auto text-xs">
+            <button
+              type="button"
+              onClick={() => {
+                setEditingCatalogItem(null);
+                setIsAddingCatalogItem(false);
+              }}
+              className="absolute top-3.5 right-3.5 p-1.5 text-white bg-slate-900/60 hover:bg-slate-900 rounded-full cursor-pointer transition-colors z-10 border border-white/20"
+              title="Cerrar modal"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Header Banner */}
+            <div className="bg-gradient-to-r from-[#0A4191] via-[#0C51B6] to-[#083373] text-white p-4 rounded-2xl border border-blue-400 space-y-1">
+              <div className="flex items-center space-x-2">
+                <Edit3 className="w-5 h-5 text-amber-300" />
+                <span className="font-mono font-black text-xs bg-black/40 text-blue-200 px-2 py-0.5 rounded-lg border border-white/20">
+                  {editingCatalogItem ? catCode : 'NUEVO TRÁMITE'}
+                </span>
+              </div>
+              <h3 className="font-black text-base text-white leading-tight">
+                {editingCatalogItem ? 'Editar Trámite del Catálogo Municipal' : 'Agregar Trámite al Catálogo Municipal'}
+              </h3>
+            </div>
+
+            <form onSubmit={handleSaveCatalogItem} className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-black text-slate-700 dark:text-slate-300 mb-1">
+                    Código de Trámite *
+                  </label>
+                  <input
+                    type="text"
+                    value={catCode}
+                    onChange={(e) => setCatCode(e.target.value)}
+                    placeholder="Ej: TRM-CAT-07"
+                    className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl font-bold text-xs focus:outline-none focus:border-[#0A4191]"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-black text-slate-700 dark:text-slate-300 mb-1">
+                    Categoría Municipal *
+                  </label>
+                  <select
+                    value={catCategory}
+                    onChange={(e) => setCatCategory(e.target.value as any)}
+                    className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl font-bold text-xs focus:outline-none focus:border-[#0A4191]"
+                  >
+                    <option value="avaluos">Avalúos y Catastros</option>
+                    <option value="agua">Agua y Alcantarillado</option>
+                    <option value="obras">Obras y Planificación</option>
+                    <option value="patentes">Patentes y Comercio (LUAE)</option>
+                    <option value="pqrs">Secretaría & PQRS</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-black text-slate-700 dark:text-slate-300 mb-1">
+                  Nombre del Trámite / Servicio *
+                </label>
+                <input
+                  type="text"
+                  value={catName}
+                  onChange={(e) => setCatName(e.target.value)}
+                  placeholder="Ej: Certificado de Borde y Línea de Fábrica"
+                  className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl font-bold text-xs focus:outline-none focus:border-[#0A4191]"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="sm:col-span-1">
+                  <label className="block text-[11px] font-black text-slate-700 dark:text-slate-300 mb-1">
+                    Costo (USD) *
+                  </label>
+                  <input
+                    type="text"
+                    value={catCost}
+                    onChange={(e) => setCatCost(e.target.value)}
+                    placeholder="Ej: $5.00 USD"
+                    className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl font-bold text-xs focus:outline-none focus:border-[#0A4191]"
+                    required
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-[11px] font-black text-slate-700 dark:text-slate-300 mb-1">
+                    Tiempo de Respuesta Estimado *
+                  </label>
+                  <input
+                    type="text"
+                    value={catResponseTime}
+                    onChange={(e) => setCatResponseTime(e.target.value)}
+                    placeholder="Ej: 24 a 48 horas hábiles"
+                    className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl font-bold text-xs focus:outline-none focus:border-[#0A4191]"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-black text-slate-700 dark:text-slate-300 mb-1">
+                  Departamento / Dirección Responsable *
+                </label>
+                <input
+                  type="text"
+                  value={catDepartment}
+                  onChange={(e) => setCatDepartment(e.target.value)}
+                  placeholder="Ej: Dirección de Planificación Urbano-Rural"
+                  className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl font-bold text-xs focus:outline-none focus:border-[#0A4191]"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-black text-slate-700 dark:text-slate-300 mb-1">
+                  Descripción Corta del Servicio *
+                </label>
+                <textarea
+                  rows={2}
+                  value={catDescription}
+                  onChange={(e) => setCatDescription(e.target.value)}
+                  placeholder="Detalle claro de la utilidad o alcance de este servicio municipal..."
+                  className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl font-medium text-xs focus:outline-none focus:border-[#0A4191] resize-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-black text-slate-700 dark:text-slate-300 mb-1">
+                  Requisitos Obligatorios (Un requisito por línea) *
+                </label>
+                <textarea
+                  rows={3}
+                  value={catRequirementsStr}
+                  onChange={(e) => setCatRequirementsStr(e.target.value)}
+                  placeholder="Cédula de Identidad&#10;Papeleta de Votación&#10;Comprobante de Pago de Especie"
+                  className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl font-medium text-xs focus:outline-none focus:border-[#0A4191] resize-none"
+                  required
+                />
+              </div>
+
+              <div className="pt-3 border-t border-slate-200 flex items-center justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingCatalogItem(null);
+                    setIsAddingCatalogItem(false);
+                  }}
+                  className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-xl border border-slate-300 cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-gradient-to-r from-[#0A4191] to-[#0C51B6] hover:from-[#083373] text-white font-black text-xs rounded-xl shadow-md cursor-pointer transition-all"
+                >
+                  {editingCatalogItem ? 'Guardar Cambios en Catálogo' : 'Agregar al Catálogo'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal 27: Confirmación de Eliminar Trámite del Catálogo */}
+      {deletingCatalogItem && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-gradient-to-br from-slate-50 via-white to-rose-50/40 border-2 border-rose-600 rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4 text-slate-900 relative text-left">
+            <button
+              type="button"
+              onClick={() => setDeletingCatalogItem(null)}
+              className="absolute top-3.5 right-3.5 p-1.5 text-white bg-slate-900/60 hover:bg-slate-900 rounded-full cursor-pointer transition-colors z-10 border border-white/20"
+              title="Cerrar modal"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Header Banner */}
+            <div className="bg-gradient-to-r from-rose-600 via-rose-700 to-rose-800 text-white p-4 rounded-2xl border border-rose-500 space-y-1">
+              <div className="flex items-center space-x-2">
+                <Trash2 className="w-5 h-5 text-white" />
+                <span className="font-mono font-black text-xs bg-slate-950 text-white px-2 py-0.5 rounded-lg">
+                  {deletingCatalogItem.code}
+                </span>
+              </div>
+              <h3 className="font-black text-base text-white leading-tight">
+                Eliminar Trámite del Catálogo
+              </h3>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <p className="text-slate-700 font-medium leading-relaxed">
+                ¿Está seguro de que desea eliminar permanentemente este trámite del catálogo de servicios municipales?
+              </p>
+
+              <div className="bg-rose-50 border border-rose-200 p-3 rounded-2xl space-y-1">
+                <div className="font-extrabold text-rose-950">{deletingCatalogItem.name}</div>
+                <div className="text-[11px] text-rose-800">{deletingCatalogItem.department}</div>
+                <div className="text-[10px] text-slate-500 font-bold">Costo: {deletingCatalogItem.cost} | Tiempo: {deletingCatalogItem.responseTime}</div>
+              </div>
+
+              <p className="text-[11px] text-rose-600 font-bold flex items-center space-x-1">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                <span>Esta acción quitará el trámite de la oferta ciudadana.</span>
+              </p>
+
+              <div className="pt-2 border-t border-slate-200 flex items-center justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setDeletingCatalogItem(null)}
+                  className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-xl border border-slate-300 cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDeleteCatalogItem}
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer transition-colors"
+                >
+                  Sí, Eliminar del Catálogo
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
