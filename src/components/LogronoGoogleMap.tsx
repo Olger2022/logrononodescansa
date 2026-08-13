@@ -27,33 +27,178 @@ const LOGRONO_PARISHES = [
     color: '#0A4191',
     center: [-2.6280, -78.1760] as [number, number],
     coords: [
-      [-2.6180, -78.1820],
-      [-2.6180, -78.1680],
-      [-2.6360, -78.1680],
-      [-2.6360, -78.1820]
+      [-2.6150, -78.1900],
+      [-2.6150, -78.1600],
+      [-2.6400, -78.1600],
+      [-2.6400, -78.1900]
     ] as [number, number][]
   },
   {
     name: 'Parroquia Yaupi',
     color: '#159A44',
-    center: [-2.6315, -78.1824] as [number, number],
+    center: [-2.8250, -78.0350] as [number, number],
     coords: [
-      [-2.6250, -78.1950],
-      [-2.6250, -78.1750],
-      [-2.6500, -78.1750],
-      [-2.6500, -78.1950]
+      [-2.7700, -78.0900],
+      [-2.7700, -77.9700],
+      [-2.8900, -77.9700],
+      [-2.8900, -78.0900]
     ] as [number, number][]
   },
   {
     name: 'Parroquia Shimpis',
     color: '#D97706',
-    center: [-2.6102, -78.1450] as [number, number],
+    center: [-2.5250, -78.0950] as [number, number],
     coords: [
-      [-2.6000, -78.1550],
-      [-2.6000, -78.1350],
-      [-2.6220, -78.1350],
-      [-2.6220, -78.1550]
+      [-2.4600, -78.1500],
+      [-2.4600, -78.0300],
+      [-2.5800, -78.0300],
+      [-2.5800, -78.1500]
     ] as [number, number][]
+  }
+];
+
+export interface CommunityPoint {
+  id: string;
+  name: string;
+  sector: string;
+  type: 'cabecera' | 'comunidad' | 'equipamiento' | 'patrimonio';
+  coords: [number, number];
+  description: string;
+}
+
+export const LOGRONO_COMMUNITIES: CommunityPoint[] = [
+  // Logroño Centro
+  {
+    id: 'lc-1',
+    name: 'Palacio Municipal GAD Logroño',
+    sector: 'Logroño Centro (Cabecera)',
+    type: 'cabecera',
+    coords: [-2.6280, -78.1760],
+    description: 'Sede Principal del Gobierno Autónomo Descentralizado Municipal del Cantón Logroño'
+  },
+  {
+    id: 'lc-2',
+    name: 'Parque Central de Logroño',
+    sector: 'Logroño Centro (Cabecera)',
+    type: 'equipamiento',
+    coords: [-2.6292, -78.1752],
+    description: 'Plaza de la Interculturalidad y centro cívico cantonal'
+  },
+  {
+    id: 'lc-3',
+    name: 'Barrio Central',
+    sector: 'Logroño Centro (Cabecera)',
+    type: 'comunidad',
+    coords: [-2.6270, -78.1740],
+    description: 'Zona comercial y residencial urbana principal'
+  },
+  {
+    id: 'lc-4',
+    name: 'Centro de Salud Logroño',
+    sector: 'Logroño Centro (Cabecera)',
+    type: 'equipamiento',
+    coords: [-2.6265, -78.1775],
+    description: 'Atención médica cantonal MSP y emergencias 24h'
+  },
+  {
+    id: 'lc-5',
+    name: 'Mercado Municipal',
+    sector: 'Logroño Centro (Cabecera)',
+    type: 'equipamiento',
+    coords: [-2.6275, -78.1745],
+    description: 'Centro de abasto y feria de productos amazónicos'
+  },
+
+  // Parroquia Yaupi
+  {
+    id: 'yaupi-1',
+    name: 'Yaupi Centro (Cabecera Parroquial)',
+    sector: 'Parroquia Yaupi',
+    type: 'cabecera',
+    coords: [-2.8250, -78.0350],
+    description: 'Junta Parroquial y centro de servicios de Yaupi'
+  },
+  {
+    id: 'yaupi-2',
+    name: 'Comunidad Kankaim',
+    sector: 'Parroquia Yaupi',
+    type: 'comunidad',
+    coords: [-2.8400, -78.0500],
+    description: 'Comunidad Ancestral Shuar Kankaim - Territorio Parroquia Yaupi'
+  },
+  {
+    id: 'yaupi-3',
+    name: 'Comunidad Kimius',
+    sector: 'Parroquia Yaupi',
+    type: 'comunidad',
+    coords: [-2.8100, -78.0200],
+    description: 'Comunidad Ancestral Shuar Kimius - Territorio Parroquia Yaupi'
+  },
+  {
+    id: 'yaupi-4',
+    name: 'Comunidad San José',
+    sector: 'Parroquia Yaupi',
+    type: 'comunidad',
+    coords: [-2.8550, -78.0100],
+    description: 'Comunidad Shuar y Centro Agrícola San José'
+  },
+  {
+    id: 'yaupi-5',
+    name: 'Comunidad Yukutais',
+    sector: 'Parroquia Yaupi',
+    type: 'comunidad',
+    coords: [-2.7950, -78.0600],
+    description: 'Comunidad Shuar Yukutais - Producción Amazónica'
+  },
+
+  // Parroquia Shimpis
+  {
+    id: 'shimpis-1',
+    name: 'Shimpis Centro (Cabecera Parroquial)',
+    sector: 'Parroquia Shimpis',
+    type: 'cabecera',
+    coords: [-2.5250, -78.0950],
+    description: 'Junta Parroquial y centro comunitario de Shimpis'
+  },
+  {
+    id: 'shimpis-2',
+    name: 'Comunidad Ampama',
+    sector: 'Parroquia Shimpis',
+    type: 'comunidad',
+    coords: [-2.5400, -78.1100],
+    description: 'Comunidad Ancestral Shuar Ampama - Parroquia Shimpis'
+  },
+  {
+    id: 'shimpis-3',
+    name: 'Comunidad Wisui',
+    sector: 'Parroquia Shimpis',
+    type: 'comunidad',
+    coords: [-2.5050, -78.0800],
+    description: 'Comunidad Shuar Wisui - Cordillera del Kutukú'
+  },
+  {
+    id: 'shimpis-4',
+    name: 'Comunidad Yamanunka',
+    sector: 'Parroquia Shimpis',
+    type: 'comunidad',
+    coords: [-2.5500, -78.0700],
+    description: 'Comunidad Shuar Yamanunka - Artesanías y Naturaleza'
+  },
+  {
+    id: 'shimpis-5',
+    name: 'Comunidad Washapads',
+    sector: 'Parroquia Shimpis',
+    type: 'comunidad',
+    coords: [-2.4900, -78.1200],
+    description: 'Comunidad Shuar Washapads - Zona de Conservación'
+  },
+  {
+    id: 'shimpis-6',
+    name: 'Acceso Cueva de los Tayos',
+    sector: 'Parroquia Shimpis',
+    type: 'patrimonio',
+    coords: [-2.5150, -78.1300],
+    description: 'Ruta y acceso turístico a las místicas Cuevas de los Tayos'
   }
 ];
 
@@ -61,19 +206,18 @@ const LOGRONO_PARISHES = [
 const LIVE_PATROL_WAYPOINTS: [number, number][] = [
   [-2.6280, -78.1760], // Palacio Municipal GAD
   [-2.6295, -78.1780], // Av. Intercultural
-  [-2.6315, -78.1824], // Yaupi
-  [-2.6350, -78.1900], // Comunidad Kakaim
+  [-2.8250, -78.0350], // Parroquia Yaupi
+  [-2.8400, -78.0500], // Comunidad Kankaim
   [-2.6280, -78.1760], // Cabecera Centro
-  [-2.6180, -78.1600], // Vía Shimpis
-  [-2.6102, -78.1450]  // Shimpis
+  [-2.5250, -78.0950], // Parroquia Shimpis
+  [-2.5400, -78.1100]  // Comunidad Ampama
 ];
 
 export function getSectorFromCoords(lat: number, lng: number): { sector: LogronoSector; address: string } {
   const sectors: { name: LogronoSector; lat: number; lng: number; defaultStreet: string }[] = [
     { name: 'Logroño Centro (Cabecera)', lat: -2.6280, lng: -78.1760, defaultStreet: 'Calle 10 de Agosto y Av. Intercultural' },
-    { name: 'Parroquia Yaupi', lat: -2.6315, lng: -78.1824, defaultStreet: 'Barrio Central, Parroquia Yaupi' },
-    { name: 'Parroquia Shimpis', lat: -2.6102, lng: -78.1450, defaultStreet: 'Av. Principal, Parroquia Shimpis' },
-    { name: 'Comunidad Shuar Kakaim', lat: -2.6450, lng: -78.1980, defaultStreet: 'Vía Comunal Kakaim' },
+    { name: 'Parroquia Yaupi', lat: -2.8250, lng: -78.0350, defaultStreet: 'Barrio Central, Parroquia Yaupi' },
+    { name: 'Parroquia Shimpis', lat: -2.5250, lng: -78.0950, defaultStreet: 'Av. Principal, Parroquia Shimpis' }
   ];
 
   let closestSector = sectors[0];
@@ -104,6 +248,10 @@ export interface LogronoGoogleMapProps {
   onDispatchToGAD?: (routeData: { lat: number; lng: number; address: string; sector: string; distance: string; time: string }) => void;
   showRoutePanel?: boolean;
   className?: string;
+  defaultMapType?: 'hybrid' | 'roadmap';
+  zoomPosition?: 'topleft' | 'topright' | 'bottomleft' | 'bottomright';
+  categoryFilter?: string;
+  selectedSector?: string;
 }
 
 export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
@@ -118,7 +266,11 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
   onLocationSelect,
   onDispatchToGAD,
   showRoutePanel = true,
-  className = ''
+  className = '',
+  defaultMapType = 'roadmap',
+  zoomPosition = 'topleft',
+  categoryFilter = 'Todas',
+  selectedSector = 'Todos'
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -131,8 +283,9 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
   const userAccuracyCircleRef = useRef<L.Circle | null>(null);
   const routePolylineRef = useRef<L.Polyline | null>(null);
   const gadMarkerRef = useRef<L.Marker | null>(null);
+  const communitiesLayerGroupRef = useRef<L.LayerGroup | null>(null);
 
-  const [mapType, setMapType] = useState<'hybrid' | 'roadmap'>('hybrid');
+  const [mapType, setMapType] = useState<'hybrid' | 'roadmap'>(defaultMapType);
   const [isLocating, setIsLocating] = useState(false);
   const [gpsStatusMessage, setGpsStatusMessage] = useState<string | null>(null);
   const [showCantonBoundary, setShowCantonBoundary] = useState(true);
@@ -170,18 +323,27 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
   };
 
   const filteredIncidents = useMemo(() => {
-    return incidents.filter((inc) => selectedStatuses.includes(inc.status));
-  }, [incidents, selectedStatuses]);
+    return incidents.filter((inc) => {
+      const matchStatus = selectedStatuses.includes(inc.status);
+      const matchCategory =
+        !categoryFilter ||
+        categoryFilter === 'Todas' ||
+        categoryFilter === 'Todas las Categorías' ||
+        inc.category.toLowerCase().includes(categoryFilter.toLowerCase()) ||
+        categoryFilter.toLowerCase().includes(inc.category.toLowerCase());
+      return matchStatus && matchCategory;
+    });
+  }, [incidents, selectedStatuses, categoryFilter]);
 
   // Tile Layer URLs
   const tileUrls = {
     roadmap: {
       url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      attribution: 'Leaflet | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | GAD Logroño'
     },
     hybrid: {
       url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS | GAD Logroño'
     }
   };
 
@@ -196,8 +358,8 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
       zoomControl: false
     });
 
-    // Add Zoom Control at bottomright
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
+    // Add Zoom Control at requested position (e.g. topleft)
+    L.control.zoom({ position: zoomPosition as L.ControlPosition }).addTo(map);
 
     // Initial Tile Layer
     const layer = L.tileLayer(tileUrls[mapType].url, {
@@ -208,6 +370,7 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
     tileLayerRef.current = layer;
     incidentMarkersLayerRef.current = L.layerGroup().addTo(map);
     cantonLayerGroupRef.current = L.layerGroup().addTo(map);
+    communitiesLayerGroupRef.current = L.layerGroup().addTo(map);
     mapInstanceRef.current = map;
 
     // Handle map click for selecting location
@@ -250,6 +413,98 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
 
     tileLayerRef.current = newLayer;
   }, [mapType]);
+
+  // Handle Selected Sector Centering & Community Markers
+  useEffect(() => {
+    if (!mapInstanceRef.current || !communitiesLayerGroupRef.current) return;
+
+    communitiesLayerGroupRef.current.clearLayers();
+
+    // 1. Center map according to selected sector
+    if (selectedSector) {
+      const sec = selectedSector.toLowerCase();
+      if (sec.includes('yaupi')) {
+        mapInstanceRef.current.flyTo([-2.8250, -78.0350], 13, { duration: 1.2 });
+      } else if (sec.includes('shimpis')) {
+        mapInstanceRef.current.flyTo([-2.5250, -78.0950], 13, { duration: 1.2 });
+      } else if (sec.includes('logroño') || sec.includes('centro') || sec.includes('cabecera')) {
+        mapInstanceRef.current.flyTo([-2.6280, -78.1760], 15, { duration: 1.2 });
+      } else if (sec === 'todos' || sec === 'todas') {
+        mapInstanceRef.current.flyTo([-2.6500, -78.1200], 11, { duration: 1.2 });
+      }
+    }
+
+    // 2. Render Community Points
+    const filteredCommunities = LOGRONO_COMMUNITIES.filter((comm) => {
+      if (!selectedSector || selectedSector === 'Todos' || selectedSector === 'todos') return true;
+      const s = selectedSector.toLowerCase();
+      if (s.includes('yaupi')) return comm.sector.includes('Yaupi');
+      if (s.includes('shimpis')) return comm.sector.includes('Shimpis');
+      if (s.includes('centro') || s.includes('logroño')) return comm.sector.includes('Centro');
+      return true;
+    });
+
+    filteredCommunities.forEach((comm) => {
+      let badgeBg = '#0A4191';
+      let iconSvg = '📍';
+      if (comm.sector.includes('Yaupi')) {
+        badgeBg = '#159A44';
+        iconSvg = '🏞️';
+      } else if (comm.sector.includes('Shimpis')) {
+        badgeBg = '#D97706';
+        iconSvg = '🌳';
+      }
+
+      if (comm.type === 'cabecera') iconSvg = '🏛️';
+      else if (comm.type === 'patrimonio') iconSvg = '⛰️';
+      else if (comm.type === 'equipamiento') iconSvg = '🏥';
+
+      const communityIconHtml = `
+        <div style="
+          background: ${badgeBg};
+          color: #ffffff;
+          border: 2px solid #ffffff;
+          border-radius: 18px;
+          padding: 3px 8px;
+          font-size: 10px;
+          font-weight: 800;
+          white-space: nowrap;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          cursor: pointer;
+        ">
+          <span style="font-size:11px;">${iconSvg}</span>
+          <span>${comm.name}</span>
+        </div>
+      `;
+
+      const customIcon = L.divIcon({
+        html: communityIconHtml,
+        className: `community-pin-${comm.id}`,
+        iconSize: [130, 26],
+        iconAnchor: [65, 13]
+      });
+
+      const marker = L.marker(comm.coords, { icon: customIcon });
+
+      marker.bindPopup(`
+        <div style="padding:6px; font-family:sans-serif; min-width:180px;">
+          <span style="background:${badgeBg}; color:#fff; font-size:9px; font-weight:bold; padding:2px 6px; border-radius:4px; text-transform:uppercase;">
+            ${comm.sector}
+          </span>
+          <strong style="color:#0A4191; font-size:13px; display:block; margin-top:4px;">${comm.name}</strong>
+          <p style="font-size:11px; color:#475569; margin:4px 0 0 0; font-weight:500;">${comm.description}</p>
+          <div style="margin-top:6px; padding-top:4px; border-top:1px solid #e2e8f0; font-size:10px; color:#159A44; font-weight:bold;">
+            ✓ Ubicación Georreferenciada GAD Logroño
+          </div>
+        </div>
+      `);
+
+      communitiesLayerGroupRef.current?.addLayer(marker);
+    });
+  }, [selectedSector]);
 
   // Render Real-time Cantón Logroño Polygon Boundary & Parish Layers
   useEffect(() => {
@@ -888,15 +1143,6 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
           >
             <Navigation className="w-3 h-3 text-blue-400" />
             <span>Parroquia Shimpis</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleFlyToSector(-2.6450, -78.1980, 15)}
-            className="bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg border border-slate-700 transition-all cursor-pointer flex items-center space-x-1"
-          >
-            <Navigation className="w-3 h-3 text-purple-400" />
-            <span>Comunidad Kakaim</span>
           </button>
         </div>
 

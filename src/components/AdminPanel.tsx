@@ -395,8 +395,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   <option value="Logroño Centro (Cabecera)">Logroño Centro</option>
                   <option value="Parroquia Yaupi">Parroquia Yaupi</option>
                   <option value="Parroquia Shimpis">Parroquia Shimpis</option>
-                  <option value="Comunidad Shuar Kakaim">Comunidad Kakaim</option>
-                  <option value="Comunidad Shuar Kimius">Comunidad Kimius</option>
                 </select>
               </div>
 
@@ -744,7 +742,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   <option value="Logroño Centro (Cabecera)">Logroño Centro</option>
                   <option value="Parroquia Yaupi">Parroquia Yaupi</option>
                   <option value="Parroquia Shimpis">Parroquia Shimpis</option>
-                  <option value="Comunidad Shuar Kakaim">Comunidad Kakaim</option>
                   <option value="Comunidad Shuar Kimius">Comunidad Kimius</option>
                 </select>
               </div>

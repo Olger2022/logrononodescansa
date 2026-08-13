@@ -22,8 +22,6 @@ export type LogronoSector =
   | 'Logroño Centro (Cabecera)'
   | 'Parroquia Yaupi'
   | 'Parroquia Shimpis'
-  | 'Comunidad Shuar Kakaim'
-  | 'Comunidad Shuar Kimius'
   | 'Sector Río Upano'
   | 'Sector Transkutukú';
 

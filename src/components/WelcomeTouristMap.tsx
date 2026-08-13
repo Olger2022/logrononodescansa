@@ -214,7 +214,7 @@ export const LOGRONO_TOURIST_SPOTS: TouristSpot[] = [
       [-2.6281, -78.1762], // Parque Central de Logroño
       [-2.6320, -78.1800], // Av. Intercultural Sur
       [-2.6380, -78.1870], // Desvío Vía Trans-Kutukú
-      [-2.6450, -78.1950], // Sector Kakaim
+      [-2.6450, -78.1950], // Sector Trans-Kutukú
       [-2.6530, -78.2010], // Tramo Lastrado Kutukú
       [-2.6600, -78.2060], // Puente Río Kutukú
       [-2.6651, -78.2103]  // Acceso Cueva de los Tayos
@@ -222,7 +222,7 @@ export const LOGRONO_TOURIST_SPOTS: TouristSpot[] = [
     fallbackDirections: [
       'Salida desde el Parque Central por la arteria sur de Logroño',
       'Tomar el desvío señalizado Vía Trans-Kutukú',
-      'Avanzar por el camino carrozable atravesando el sector Kakaim',
+      'Avanzar por el camino carrozable hacia la Cordillera del Kutukú',
       'Cruzar el puente comunal sobre el río Kutukú',
       'Llegada a la estación de guías autóctonos e inicio de la caverna'
     ]
@@ -319,30 +319,6 @@ export const LOGRONO_TOURIST_SPOTS: TouristSpot[] = [
       'Partida desde el Parque Central de Logroño por Av. Intercultural Norte',
       'Desvío por la arteria interparroquial Logroño - Shimpis',
       'Recepción por guías Shuar en el centro comunitario e ingreso a la cascada'
-    ]
-  },
-  {
-    id: 'kakaim',
-    name: 'Centro Cultural Shuar Kakaim',
-    shuarName: 'Kakaim Arutam',
-    category: 'Cultura',
-    description: 'Comunidad nativa viva con muestras de danza guerrera, artesanías en semillas, plantas medicinales y gastronomía ancestral.',
-    lat: -2.6450,
-    lng: -78.1980,
-    sector: 'Comunidad Kakaim',
-    difficulty: 'Fácil',
-    photoUrl: 'https://images.unsplash.com/photo-1526772662000-3f88f10405ff?w=600&auto=format&fit=crop&q=80',
-    recommendedRoad: 'Ramal Sur Kakaim',
-    fallbackWaypoints: [
-      [-2.6281, -78.1762], // Parque Central
-      [-2.6325, -78.1810], // Av. Intercultural Sur
-      [-2.6380, -78.1890], // Ramal Sur Kakaim
-      [-2.6450, -78.1980]  // Centro Cultural Kakaim
-    ],
-    fallbackDirections: [
-      'Salida del Parque Central hacia la arteria vehicular sur',
-      'Tomar el ramal directo a la comunidad Kakaim',
-      'Llegada a las cabañas artesanales del Centro Cultural Shuar'
     ]
   },
   {

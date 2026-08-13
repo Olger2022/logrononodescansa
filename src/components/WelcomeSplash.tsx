@@ -11,15 +11,17 @@ import {
   CheckCircle2, 
   Volume2,
   Building2,
-  Compass
+  TreePine,
+  Users2,
+  FileText
 } from 'lucide-react';
-import { WelcomeTouristMap } from './WelcomeTouristMap';
 
 interface WelcomeSplashProps {
   onStart: () => void;
 }
 
 import logronoLandscape from '../assets/images/logrono_landscape.jpg';
+import palacioMunicipal from '../assets/images/palacio_municipal.png';
 
 // Highlights ticker for dynamic animated presentation
 const HIGHLIGHT_CAROUSEL = [
@@ -232,25 +234,45 @@ export const WelcomeSplash: React.FC<WelcomeSplashProps> = ({ onStart }) => {
 
         </div>
 
-        {/* BOTTOM SECTION: Interactive Tourist Map of Logroño */}
+        {/* BOTTOM SECTION: Municipal Landscape Showcase & Start Action */}
         <div className="relative flex-1 min-h-[350px] overflow-hidden flex flex-col justify-between p-3 sm:p-4 bg-slate-900 border-t-2 border-[#0A4191]">
           
-          {/* MAP TITLE BADGE & LIVE STATUS */}
-          <div className="relative z-20 flex items-center justify-between mb-2 gap-2">
-            <div className="bg-[#0A4191] text-white px-3 py-1.5 rounded-2xl border-2 border-[#0A4191] flex items-center space-x-2 shadow-lg">
-              <Compass className="w-4 h-4 text-amber-400 stroke-[2.5] shrink-0" />
-              <span className="font-black text-xs tracking-tight">Mapa Turístico & Rutas de Logroño</span>
+          {/* LANDSCAPE SHOWCASE HERO BANNER */}
+          <div className="relative flex-1 w-full rounded-2xl overflow-hidden my-1 border-2 border-[#0A4191]/60 shadow-lg group">
+            <img 
+              src={palacioMunicipal} 
+              alt="Palacio Municipal del Cantón Logroño" 
+              className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+              referrerPolicy="no-referrer"
+            />
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent flex flex-col justify-between p-3" />
+            
+            {/* Top Badges */}
+            <div className="relative z-10 flex items-center justify-between">
+              <span className="bg-[#0A4191]/90 backdrop-blur-md text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-blue-300/40 shadow-sm flex items-center space-x-1">
+                <Building2 className="w-3 h-3 text-amber-400" />
+                <span>Morona Santiago • Ecuador</span>
+              </span>
+              <span className="bg-emerald-500/90 backdrop-blur-md text-white text-[10px] font-black px-2.5 py-1 rounded-full border border-emerald-300 shadow-sm flex items-center space-x-1">
+                <CheckCircle2 className="w-3 h-3" />
+                <span>Logroño 2026</span>
+              </span>
             </div>
 
-            <span className="bg-emerald-500/90 backdrop-blur-md text-white text-[10px] font-black px-2.5 py-1 rounded-full border border-emerald-300 shadow-md flex items-center space-x-1 shrink-0">
-              <CheckCircle2 className="w-3 h-3" />
-              <span className="hidden sm:inline">Logroño Vivo</span>
-            </span>
-          </div>
-
-          {/* MEDIA CONTENT DISPLAY */}
-          <div className="relative flex-1 w-full rounded-2xl overflow-hidden my-1">
-            <WelcomeTouristMap onStartApp={onStart} className="w-full h-full min-h-[290px]" />
+            {/* Bottom Content inside Landscape Banner */}
+            <div className="relative z-10 space-y-1 mt-auto">
+              <div className="inline-flex items-center space-x-1 bg-amber-400 text-slate-950 font-black text-[9px] px-2 py-0.5 rounded-md uppercase tracking-wider">
+                <TreePine className="w-3 h-3 text-slate-950" />
+                <span>Capital Ecológica & Intercultural</span>
+              </div>
+              <h3 className="text-white font-extrabold text-sm sm:text-base leading-snug drop-shadow-md">
+                Gestión Cantonal e Interacción Ciudadana
+              </h3>
+              <p className="text-slate-200 text-[11px] font-medium leading-tight line-clamp-2 drop-shadow-sm">
+                Reportes en tiempo real, seguimiento de incidencias, agenda municipal y atención PQRS directa.
+              </p>
+            </div>
           </div>
 
           {/* Centered "Comenzar" Dynamic Button Block */}

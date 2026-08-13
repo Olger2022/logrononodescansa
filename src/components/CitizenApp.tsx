@@ -929,8 +929,6 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
     'Logroño Centro (Cabecera)',
     'Parroquia Yaupi',
     'Parroquia Shimpis',
-    'Comunidad Shuar Kakaim',
-    'Comunidad Shuar Kimius',
     'Sector Río Upano',
     'Sector Transkutukú'
   ];
@@ -1757,38 +1755,7 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   </div>
                 </div>
 
-                {/* Contenedor: Mapa Georreferenciado de Logroño */}
-                <div className="bg-gradient-to-br from-white via-slate-50 to-blue-50/50 dark:from-slate-900 dark:to-slate-900 border-2 border-[#0A4191] rounded-3xl p-3 sm:p-4 space-y-3 shadow-md">
-                  <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
-                    <div className="flex items-center space-x-2.5">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0A4191] to-blue-700 text-white flex items-center justify-center shrink-0 shadow-sm">
-                        <Map className="w-5 h-5 stroke-[2.5]" />
-                      </div>
-                      <div>
-                        <h4 className="font-extrabold text-sm text-[#0A4191] dark:text-blue-400 leading-tight">
-                          Mapa Georreferenciado y Rutas de Logroño
-                        </h4>
-                        <p className="text-[10px] text-slate-500 font-bold">
-                          Territorio Trazado • Atractivos Turísticos y Guía GPS en Tiempo Real
-                        </p>
-                      </div>
-                    </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setCitizenTab('mapa')}
-                      className="px-3 py-1.5 bg-gradient-to-r from-[#0A4191] to-[#0C51B6] text-white hover:from-[#083373] border border-blue-400 rounded-xl font-extrabold text-[11px] flex items-center space-x-1 transition-all cursor-pointer shrink-0 shadow-2xs"
-                    >
-                      <span>Ver Completo</span>
-                      <ChevronRight className="w-3.5 h-3.5 stroke-[2.5]" />
-                    </button>
-                  </div>
-
-                  {/* Direct Map Canvas Display 680px fitted container */}
-                  <div className="w-full h-[680px] max-w-full rounded-2xl overflow-hidden border border-slate-300 dark:border-slate-800 shadow-inner">
-                    <WelcomeTouristMap className="w-full h-[680px]" />
-                  </div>
-                </div>
 
                 {/* Cantonal Alert Box */}
                 <div className="bg-gradient-to-r from-amber-500/15 via-amber-100 to-amber-50 dark:from-amber-950/50 dark:to-slate-900 border-2 border-amber-400 p-3 rounded-2xl flex items-start space-x-2.5 text-xs shadow-xs">
@@ -2218,8 +2185,6 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                             <option value="Logroño Centro (Cabecera)">Logroño Centro (Cabecera)</option>
                             <option value="Parroquia Yaupi">Parroquia Yaupi</option>
                             <option value="Parroquia Shimpis">Parroquia Shimpis</option>
-                            <option value="Comunidad Shuar Kakaim">Comunidad Shuar Kakaim</option>
-                            <option value="Comunidad Shuar Kimius">Comunidad Shuar Kimius</option>
                           </select>
                         </div>
 

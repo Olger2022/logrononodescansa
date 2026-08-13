@@ -34,8 +34,6 @@ const LOGRONO_SECTORS: LogronoSector[] = [
   'Logroño Centro (Cabecera)',
   'Parroquia Yaupi',
   'Parroquia Shimpis',
-  'Comunidad Shuar Kakaim',
-  'Comunidad Shuar Kimius',
   'Sector Río Upano',
   'Sector Transkutukú'
 ];
@@ -110,7 +108,7 @@ export const LoginModule: React.FC<LoginModuleProps> = ({ onLoginSuccess, onBack
         name: 'Carlos Antuash (Google)',
         email: 'carlos.antuash.logrono@gmail.com',
         role: 'ciudadano',
-        sector: 'Comunidad Shuar Kakaim',
+        sector: 'Parroquia Yaupi',
         provider: 'google',
         avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'
       };

@@ -65,7 +65,7 @@ Con la adopción de las políticas nacionales de Gobierno Digital en Ecuador y l
     category: 'UX/UI',
     content: `
 ### 2.1 Investigación Cuantitativa y Cualitativa
-Se realizaron 140 encuestas a ciudadanos de la cabecera cantonal de Logroño y de las comunidades rurales de Yaupi, Shimpis, Kakaim y Kimius, complementadas con 12 entrevistas en profundidad a líderes comunitarios (Uunt) y directores de obras públicas del GAD.
+Se realizaron 140 encuestas a ciudadanos de la cabecera cantonal de Logroño y de las comunidades rurales de Yaupi, Shimpis y Kimius, complementadas con 12 entrevistas en profundidad a líderes comunitarios (Uunt) y directores de obras públicas del GAD.
 
 * **Hallazgo 1 (Conectividad Intermitente):** El 78% de los habitantes rurales pierde señal de datos móviles mientras transita las vías interparroquiales. La app DEBE guardar el reporte localmente e invocar WorkManager cuando se detecte red.
 * **Hallazgo 2 (Barrera de Lenguaje y Alfabetización Digital):** El 34% de los usuarios de comunidades Shuar prefiere indicaciones visuales claras e iconos intuitivos junto a términos en Shuar Chicham.
