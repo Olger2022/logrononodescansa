@@ -345,6 +345,8 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
   const [noticiasViewMode, setNoticiasViewMode] = useState<'tarjetas' | 'tabla'>('tarjetas');
   const [noticiasSearchTerm, setNoticiasSearchTerm] = useState<string>('');
   const [noticiasSortOrder, setNoticiasSortOrder] = useState<'recientes' | 'antiguas'>('recientes');
+  const [inicioMapCategoryFilter, setInicioMapCategoryFilter] = useState<string>('Todas');
+  const [inicioMapSectorFilter, setInicioMapSectorFilter] = useState<string>('Todos');
   const SPANISH_MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
   const [currentCalendarYear, setCurrentCalendarYear] = useState<number>(new Date().getFullYear());
@@ -1755,7 +1757,90 @@ export const CitizenApp: React.FC<CitizenAppProps> = ({
                   </div>
                 </div>
 
+                {/* Contenedor: Mapa Georreferenciado del Cantón Logroño */}
+                <div className="bg-gradient-to-br from-white via-slate-50 to-blue-50/50 dark:from-slate-900 dark:to-slate-900 border-2 border-[#0A4191] rounded-3xl p-3 sm:p-4 space-y-3 shadow-md">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5 gap-2">
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-10 h-10 rounded-full bg-blue-100 text-[#0A4191] flex items-center justify-center border border-blue-200 shrink-0 shadow-2xs">
+                        <MapPin className="w-5 h-5 text-[#0A4191] stroke-[2.5]" />
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-sm text-slate-900 dark:text-white leading-tight">
+                          Mapa Georreferenciado del Cantón Logroño
+                        </h4>
+                        <p className="text-[11px] text-slate-500 font-medium">
+                          Ubicación en tiempo real de incidencias reportadas en Logroño Centro, Yaupi y Shimpis.
+                        </p>
+                      </div>
+                    </div>
 
+                    <div className="flex flex-wrap items-center space-x-2 self-end sm:self-auto shrink-0 gap-y-2">
+                      {/* Sector Dropdown Combobox */}
+                      <div className="border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1 bg-white dark:bg-slate-800 shadow-2xs">
+                        <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider block leading-none mb-0.5">
+                          Sectores de Logroño
+                        </span>
+                        <select
+                          value={inicioMapSectorFilter}
+                          onChange={(e) => setInicioMapSectorFilter(e.target.value)}
+                          className="bg-transparent text-xs font-black text-slate-900 dark:text-white outline-none cursor-pointer pr-1"
+                        >
+                          <option value="Todos">Todos los Sectores</option>
+                          <option value="Logroño Centro (Cabecera)">Logroño Centro</option>
+                          <option value="Parroquia Yaupi">Parroquia Yaupi</option>
+                          <option value="Parroquia Shimpis">Parroquia Shimpis</option>
+                        </select>
+                      </div>
+
+                      {/* Filter Category Box */}
+                      <div className="border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1 bg-white dark:bg-slate-800 shadow-2xs">
+                        <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider block leading-none mb-0.5">
+                          Filtrar Categoría en Mapa
+                        </span>
+                        <select
+                          value={inicioMapCategoryFilter}
+                          onChange={(e) => setInicioMapCategoryFilter(e.target.value)}
+                          className="bg-transparent text-xs font-black text-slate-900 dark:text-white outline-none cursor-pointer pr-1"
+                        >
+                          <option value="Todas">Todas las Categorías</option>
+                          <option value="Agua Potable">Agua Potable</option>
+                          <option value="Alumbrado Público">Alumbrado Público</option>
+                          <option value="Vías y Aceras">Vías y Aceras</option>
+                          <option value="Gestión de Residuos">Gestión de Residuos</option>
+                          <option value="Parques y Áreas Verdes">Parques y Áreas Verdes</option>
+                          <option value="Fauna Urbana">Fauna Urbana y Limpieza</option>
+                          <option value="Shuar">Infraestructura Shuar</option>
+                        </select>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setCitizenTab('mapa')}
+                        className="px-3 py-2 bg-gradient-to-r from-[#0A4191] to-[#0C51B6] text-white hover:from-[#083373] border border-blue-400 rounded-xl font-extrabold text-xs flex items-center space-x-1 transition-all cursor-pointer shrink-0 shadow-2xs"
+                        title="Ver Mapa Interactivo Completo"
+                      >
+                        <span>Ver Completo</span>
+                        <ChevronRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Direct Map Canvas Display fitted container */}
+                  <div className="w-full h-[540px] sm:h-[620px] max-w-full rounded-2xl overflow-hidden border border-slate-300 dark:border-slate-800 shadow-inner relative bg-slate-100">
+                    <LogronoGoogleMap
+                      incidents={incidents}
+                      centerLat={-2.6280}
+                      centerLng={-78.1760}
+                      zoomLevel={14}
+                      defaultMapType="roadmap"
+                      zoomPosition="topleft"
+                      categoryFilter={inicioMapCategoryFilter}
+                      selectedSector={inicioMapSectorFilter}
+                      showRoutePanel={false}
+                      className="w-full h-full"
+                    />
+                  </div>
+                </div>
 
                 {/* Cantonal Alert Box */}
                 <div className="bg-gradient-to-r from-amber-500/15 via-amber-100 to-amber-50 dark:from-amber-950/50 dark:to-slate-900 border-2 border-amber-400 p-3 rounded-2xl flex items-start space-x-2.5 text-xs shadow-xs">

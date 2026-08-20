@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import L from 'leaflet';
 import { Incident, IncidentStatus, LogronoSector } from '../types';
-import { MapPin, Navigation, Layers, Filter, CheckCircle2, Sparkles, LocateFixed, Compass, AlertCircle, Volume2, VolumeX, Share2, Send, Play, Square, Check, Route, Building2 } from 'lucide-react';
+import { MapPin, Navigation, Layers, Filter, CheckCircle2, Sparkles, LocateFixed, Compass, AlertCircle, Volume2, VolumeX, Share2, Send, Play, Square, Check, Route, Building2, Boxes, Eye } from 'lucide-react';
 
 // Logroño, Morona Santiago, Ecuador
 const LOGRONO_CENTER: [number, number] = [-2.6280, -78.1760];
@@ -235,6 +235,88 @@ export function getSectorFromCoords(lat: number, lng: number): { sector: Logrono
   return { sector: closestSector.name, address };
 }
 
+export interface IncidentClusterGroup {
+  id: string;
+  centerLat: number;
+  centerLng: number;
+  incidents: Incident[];
+  hasCritical: boolean;
+  hasHigh: boolean;
+  allResolved: boolean;
+  statusCounts: {
+    reportado: number;
+    en_proceso: number;
+    resuelto: number;
+  };
+}
+
+/**
+ * Groups nearby incidents into screen-distance clusters based on current map zoom level.
+ */
+function calculateIncidentClusters(
+  map: L.Map,
+  incidentsList: Incident[],
+  clusterRadius: number = 55
+): IncidentClusterGroup[] {
+  const zoom = map.getZoom();
+  const clusters: IncidentClusterGroup[] = [];
+  const assigned = new Set<string>();
+
+  for (let i = 0; i < incidentsList.length; i++) {
+    const inc = incidentsList[i];
+    if (assigned.has(inc.id)) continue;
+
+    const incLatLng = L.latLng(inc.location.lat, inc.location.lng);
+    const incPoint = map.project(incLatLng, zoom);
+
+    const clusterIncidents: Incident[] = [inc];
+    assigned.add(inc.id);
+
+    for (let j = i + 1; j < incidentsList.length; j++) {
+      const other = incidentsList[j];
+      if (assigned.has(other.id)) continue;
+
+      const otherLatLng = L.latLng(other.location.lat, other.location.lng);
+      const otherPoint = map.project(otherLatLng, zoom);
+
+      const dist = incPoint.distanceTo(otherPoint);
+      if (dist <= clusterRadius) {
+        clusterIncidents.push(other);
+        assigned.add(other.id);
+      }
+    }
+
+    // Centroid of cluster
+    const totalLat = clusterIncidents.reduce((sum, item) => sum + item.location.lat, 0);
+    const totalLng = clusterIncidents.reduce((sum, item) => sum + item.location.lng, 0);
+    const centerLat = totalLat / clusterIncidents.length;
+    const centerLng = totalLng / clusterIncidents.length;
+
+    const hasCritical = clusterIncidents.some((item) => item.priority === 'critica');
+    const hasHigh = clusterIncidents.some((item) => item.priority === 'alta');
+    const allResolved = clusterIncidents.every((item) => item.status === 'resuelto');
+
+    const statusCounts = {
+      reportado: clusterIncidents.filter((item) => item.status === 'reportado').length,
+      en_proceso: clusterIncidents.filter((item) => item.status === 'en_proceso').length,
+      resuelto: clusterIncidents.filter((item) => item.status === 'resuelto').length,
+    };
+
+    clusters.push({
+      id: `cluster-${inc.id}-${clusterIncidents.length}`,
+      centerLat,
+      centerLng,
+      incidents: clusterIncidents,
+      hasCritical,
+      hasHigh,
+      allResolved,
+      statusCounts
+    });
+  }
+
+  return clusters;
+}
+
 export interface LogronoGoogleMapProps {
   incidents?: Incident[];
   onSelectIncident?: (inc: Incident) => void;
@@ -252,6 +334,8 @@ export interface LogronoGoogleMapProps {
   zoomPosition?: 'topleft' | 'topright' | 'bottomleft' | 'bottomright';
   categoryFilter?: string;
   selectedSector?: string;
+  enableClustering?: boolean;
+  clusterRadius?: number;
 }
 
 export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
@@ -270,7 +354,9 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
   defaultMapType = 'roadmap',
   zoomPosition = 'topleft',
   categoryFilter = 'Todas',
-  selectedSector = 'Todos'
+  selectedSector = 'Todos',
+  enableClustering = true,
+  clusterRadius = 55
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -289,6 +375,12 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
   const [isLocating, setIsLocating] = useState(false);
   const [gpsStatusMessage, setGpsStatusMessage] = useState<string | null>(null);
   const [showCantonBoundary, setShowCantonBoundary] = useState(true);
+  const [isClusteringEnabled, setIsClusteringEnabled] = useState<boolean>(enableClustering);
+  const [mapZoomState, setMapZoomState] = useState<number>(zoomLevel);
+  const [clusterCountStats, setClusterCountStats] = useState<{ totalClusters: number; multiItemClusters: number }>({
+    totalClusters: 0,
+    multiItemClusters: 0
+  });
   const [patrolIndex, setPatrolIndex] = useState(0);
   const [activeCoords, setActiveCoords] = useState<{ lat: number; lng: number }>({
     lat: selectedLat || centerLat,
@@ -387,12 +479,24 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
       }
     });
 
+    // Update zoom/pan state for dynamic clustering
+    const handleZoomOrMove = () => {
+      if (mapInstanceRef.current) {
+        setMapZoomState(mapInstanceRef.current.getZoom());
+      }
+    };
+
+    map.on('zoomend', handleZoomOrMove);
+    map.on('moveend', handleZoomOrMove);
+
     // Invalidate size on mount
     setTimeout(() => {
       map.invalidateSize();
     }, 250);
 
     return () => {
+      map.off('zoomend', handleZoomOrMove);
+      map.off('moveend', handleZoomOrMove);
       map.remove();
       mapInstanceRef.current = null;
     };
@@ -772,103 +876,322 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
     }
   }, [selectedLat, selectedLng, activeCoords, selectableLocation]);
 
-  // Render incident markers on map
+  // Render incident markers or clustered groups on map
   useEffect(() => {
     if (!mapInstanceRef.current || !incidentMarkersLayerRef.current) return;
 
     incidentMarkersLayerRef.current.clearLayers();
 
-    filteredIncidents.forEach((inc) => {
-      let pinBg = '#10B981'; // Emerald
-      if (inc.priority === 'critica') pinBg = '#EF4444';
-      else if (inc.priority === 'alta') pinBg = '#F59E0B';
+    if (filteredIncidents.length === 0) {
+      setClusterCountStats({ totalClusters: 0, multiItemClusters: 0 });
+      return;
+    }
 
-      const pinHtml = `
-        <div style="
-          width:28px; 
-          height:28px; 
-          background:${pinBg}; 
-          border:2px solid #0F172A; 
-          border-radius:50%; 
-          box-shadow:0 4px 10px rgba(0,0,0,0.4); 
-          display:flex; 
-          align-items:center; 
-          justify-content:center; 
-          color:#ffffff; 
-          font-weight:bold;
-          cursor:pointer;
-          transition: transform 0.2s ease;
-        " onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-            <circle cx="12" cy="10" r="3"/>
-          </svg>
-        </div>
-      `;
+    // Determine clusters or individual list
+    const clusters: IncidentClusterGroup[] = isClusteringEnabled
+      ? calculateIncidentClusters(mapInstanceRef.current, filteredIncidents, clusterRadius)
+      : filteredIncidents.map((inc) => ({
+          id: `single-${inc.id}`,
+          centerLat: inc.location.lat,
+          centerLng: inc.location.lng,
+          incidents: [inc],
+          hasCritical: inc.priority === 'critica',
+          hasHigh: inc.priority === 'alta',
+          allResolved: inc.status === 'resuelto',
+          statusCounts: {
+            reportado: inc.status === 'reportado' ? 1 : 0,
+            en_proceso: inc.status === 'en_proceso' ? 1 : 0,
+            resuelto: inc.status === 'resuelto' ? 1 : 0
+          }
+        }));
 
-      const customIcon = L.divIcon({
-        html: pinHtml,
-        className: `incident-pin-${inc.id}`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14]
-      });
+    setClusterCountStats({
+      totalClusters: clusters.length,
+      multiItemClusters: clusters.filter((c) => c.incidents.length > 1).length
+    });
 
-      const marker = L.marker([inc.location.lat, inc.location.lng], { icon: customIcon });
+    clusters.forEach((cluster) => {
+      // 1. Single Incident Marker
+      if (cluster.incidents.length === 1) {
+        const inc = cluster.incidents[0];
+        let pinBg = '#10B981'; // Emerald (Resuelto o normal)
+        if (inc.priority === 'critica') pinBg = '#EF4444';
+        else if (inc.priority === 'alta') pinBg = '#F59E0B';
+        else if (inc.status === 'en_proceso') pinBg = '#0284C7';
 
-      const statusBadgeClass =
-        inc.status === 'resuelto'
-          ? 'background:#d1fae5; color:#065f46;'
-          : inc.status === 'en_proceso'
-          ? 'background:#dbeafe; color:#1e40af;'
-          : 'background:#fef3c7; color:#92400e;';
+        const pinHtml = `
+          <div style="
+            position: relative;
+            width: 30px; 
+            height: 30px; 
+            background: ${pinBg}; 
+            border: 2px solid #ffffff; 
+            border-radius: 50%; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.45); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: #ffffff; 
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+          " onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+        `;
 
-      const priorityBadgeClass =
-        inc.priority === 'critica'
-          ? 'background:#fee2e2; color:#991b1b;'
-          : inc.priority === 'alta'
-          ? 'background:#fef3c7; color:#92400e;'
-          : 'background:#d1fae5; color:#065f46;';
+        const customIcon = L.divIcon({
+          html: pinHtml,
+          className: `incident-pin-${inc.id}`,
+          iconSize: [30, 30],
+          iconAnchor: [15, 15]
+        });
 
-      const popupHtml = `
-        <div style="padding:4px; max-width:240px; font-family:sans-serif; font-size:12px; color:#0f172a;">
-          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:4px; margin-bottom:6px;">
-            <span style="font-family:monospace; font-weight:bold; color:#0A4191;">${inc.code}</span>
-            <div>
-              <span style="font-size:9px; font-weight:bold; padding:2px 6px; border-radius:4px; text-transform:uppercase; margin-right:4px; ${statusBadgeClass}">
-                ${inc.status.replace('_', ' ')}
-              </span>
-              <span style="font-size:9px; font-weight:bold; padding:2px 6px; border-radius:4px; text-transform:uppercase; ${priorityBadgeClass}">
-                ${inc.priority}
+        const marker = L.marker([inc.location.lat, inc.location.lng], { icon: customIcon });
+
+        const statusBadgeClass =
+          inc.status === 'resuelto'
+            ? 'background:#d1fae5; color:#065f46;'
+            : inc.status === 'en_proceso'
+            ? 'background:#dbeafe; color:#1e40af;'
+            : 'background:#fef3c7; color:#92400e;';
+
+        const priorityBadgeClass =
+          inc.priority === 'critica'
+            ? 'background:#fee2e2; color:#991b1b;'
+            : inc.priority === 'alta'
+            ? 'background:#fef3c7; color:#92400e;'
+            : 'background:#d1fae5; color:#065f46;';
+
+        const popupHtml = `
+          <div style="padding:4px; max-width:250px; font-family:sans-serif; font-size:12px; color:#0f172a;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:4px; margin-bottom:6px;">
+              <span style="font-family:monospace; font-weight:bold; color:#0A4191;">${inc.code}</span>
+              <div>
+                <span style="font-size:9px; font-weight:bold; padding:2px 6px; border-radius:4px; text-transform:uppercase; margin-right:4px; ${statusBadgeClass}">
+                  ${inc.status.replace('_', ' ')}
+                </span>
+                <span style="font-size:9px; font-weight:bold; padding:2px 6px; border-radius:4px; text-transform:uppercase; ${priorityBadgeClass}">
+                  ${inc.priority}
+                </span>
+              </div>
+            </div>
+            <h4 style="font-weight:bold; margin:0 0 4px 0; font-size:13px; line-height:1.2; color:#0f172a;">${inc.title}</h4>
+            ${inc.photoUrl ? `<img src="${inc.photoUrl}" style="width:100%; height:85px; object-fit:cover; border-radius:8px; margin-bottom:6px; border:1px solid #cbd5e1;" />` : ''}
+            <div style="font-size:10px; color:#475569; margin-bottom:8px;">
+              📍 <strong>${inc.location.sector}</strong>
+            </div>
+            <button id="leaflet-btn-inspect-${inc.id}" style="width:100%; background:#0A4191; color:#ffffff; font-weight:bold; font-size:11px; border:none; padding:7px; border-radius:6px; cursor:pointer; font-family:sans-serif; transition:background 0.2s;">
+              Ver Detalle Completo
+            </button>
+          </div>
+        `;
+
+        marker.bindPopup(popupHtml, { maxWidth: 260 });
+
+        marker.on('popupopen', () => {
+          setTimeout(() => {
+            const btn = document.getElementById(`leaflet-btn-inspect-${inc.id}`);
+            if (btn && onSelectIncident) {
+              btn.onclick = () => {
+                onSelectIncident(inc);
+              };
+            }
+          }, 100);
+        });
+
+        incidentMarkersLayerRef.current?.addLayer(marker);
+      } else {
+        // 2. Multi-Incident Cluster Group Marker
+        const count = cluster.incidents.length;
+        let clusterBg = '#0A4191';
+        let pulseRing = 'rgba(10, 65, 145, 0.35)';
+        let glowShadow = '0 0 16px rgba(10, 65, 145, 0.6)';
+        let badgeLabel = `${count} Incidencias`;
+
+        if (cluster.hasCritical) {
+          clusterBg = '#EF4444';
+          pulseRing = 'rgba(239, 68, 68, 0.45)';
+          glowShadow = '0 0 20px rgba(239, 68, 68, 0.8)';
+          badgeLabel = `🚨 ${count} (Crítico)`;
+        } else if (cluster.hasHigh) {
+          clusterBg = '#F59E0B';
+          pulseRing = 'rgba(245, 158, 11, 0.45)';
+          glowShadow = '0 0 16px rgba(245, 158, 11, 0.7)';
+          badgeLabel = `⚠️ ${count} (Alta)`;
+        } else if (cluster.allResolved) {
+          clusterBg = '#10B981';
+          pulseRing = 'rgba(16, 185, 129, 0.4)';
+          glowShadow = '0 0 14px rgba(16, 185, 129, 0.6)';
+          badgeLabel = `✓ ${count} (Resueltas)`;
+        }
+
+        const size = count < 5 ? 38 : count < 10 ? 44 : 50;
+        const fontSize = count < 10 ? '14px' : '13px';
+
+        const clusterHtml = `
+          <div style="
+            position: relative;
+            width: ${size}px;
+            height: ${size}px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+          " onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'" title="📍 ${badgeLabel} en esta zona. Haz clic para ampliar o ver lista">
+            <div style="
+              position: absolute;
+              inset: -5px;
+              border-radius: 50%;
+              background: ${pulseRing};
+              animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+            "></div>
+            <div style="
+              width: ${size}px;
+              height: ${size}px;
+              background: ${clusterBg};
+              border: 3px solid #ffffff;
+              border-radius: 50%;
+              box-shadow: ${glowShadow}, 0 6px 14px rgba(0,0,0,0.4);
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              color: #ffffff;
+              font-family: system-ui, -apple-system, sans-serif;
+              font-weight: 900;
+              font-size: ${fontSize};
+              line-height: 1;
+              z-index: 2;
+            ">
+              <span>${count}</span>
+              <span style="font-size: 7.5px; opacity: 0.95; text-transform: uppercase; font-weight: 800; letter-spacing: 0.3px; margin-top: 1px;">
+                incid.
               </span>
             </div>
           </div>
-          <h4 style="font-weight:bold; margin:0 0 4px 0; font-size:13px; line-height:1.2; color:#0f172a;">${inc.title}</h4>
-          ${inc.photoUrl ? `<img src="${inc.photoUrl}" style="width:100%; height:85px; object-fit:cover; border-radius:8px; margin-bottom:6px; border:1px solid #cbd5e1;" />` : ''}
-          <div style="font-size:10px; color:#475569; margin-bottom:8px;">
-            📍 <strong>${inc.location.sector}</strong>
+        `;
+
+        const clusterDivIcon = L.divIcon({
+          html: clusterHtml,
+          className: `incident-cluster-pin-${cluster.id}`,
+          iconSize: [size, size],
+          iconAnchor: [size / 2, size / 2]
+        });
+
+        const clusterMarker = L.marker([cluster.centerLat, cluster.centerLng], { icon: clusterDivIcon });
+
+        // Cluster Popup content with list of all incidents
+        const incidentsListHtml = cluster.incidents
+          .map((inc) => {
+            const priorityColor =
+              inc.priority === 'critica'
+                ? '#fee2e2; color:#991b1b'
+                : inc.priority === 'alta'
+                ? '#fef3c7; color:#92400e'
+                : '#d1fae5; color:#065f46';
+
+            const statusColor =
+              inc.status === 'resuelto'
+                ? '#d1fae5; color:#065f46'
+                : inc.status === 'en_proceso'
+                ? '#dbeafe; color:#1e40af'
+                : '#fef3c7; color:#92400e';
+
+            return `
+              <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:7px; margin-bottom:6px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+                  <span style="font-family:monospace; font-weight:bold; font-size:10px; color:#0A4191;">${inc.code}</span>
+                  <div>
+                    <span style="font-size:9px; font-weight:bold; padding:1px 5px; border-radius:3px; background:${statusColor}; text-transform:uppercase; margin-right:3px;">
+                      ${inc.status.replace('_', ' ')}
+                    </span>
+                    <span style="font-size:9px; font-weight:bold; padding:1px 5px; border-radius:3px; background:${priorityColor}; text-transform:uppercase;">
+                      ${inc.priority}
+                    </span>
+                  </div>
+                </div>
+                <div style="font-weight:bold; font-size:11px; color:#0f172a; line-height:1.2; margin-bottom:3px;">
+                  ${inc.title}
+                </div>
+                <div style="font-size:10px; color:#64748b; margin-bottom:6px;">
+                  📍 ${inc.location.sector}
+                </div>
+                <button id="leaflet-cluster-btn-${inc.id}" style="width:100%; background:#0A4191; color:#ffffff; font-weight:bold; font-size:10px; border:none; padding:5px; border-radius:5px; cursor:pointer; font-family:sans-serif; transition:background 0.2s;">
+                  Ver Detalle
+                </button>
+              </div>
+            `;
+          })
+          .join('');
+
+        const clusterPopupHtml = `
+          <div style="padding:4px; min-width:230px; max-width:270px; font-family:sans-serif; color:#0f172a;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:5px; margin-bottom:6px;">
+              <strong style="color:#0A4191; font-size:12px; display:flex; align-items:center; gap:4px;">
+                <span>📦</span>
+                <span>${count} Incidencias Agrupadas</span>
+              </strong>
+              <span style="font-size:9px; font-weight:bold; background:#e0f2fe; color:#0369a1; padding:2px 6px; border-radius:4px;">
+                Zona
+              </span>
+            </div>
+
+            <div style="display:flex; gap:4px; margin-bottom:8px; font-size:9px; font-weight:bold;">
+              ${cluster.statusCounts.reportado > 0 ? `<span style="background:#fef3c7; color:#92400e; padding:2px 5px; border-radius:4px;">${cluster.statusCounts.reportado} Rep.</span>` : ''}
+              ${cluster.statusCounts.en_proceso > 0 ? `<span style="background:#dbeafe; color:#1e40af; padding:2px 5px; border-radius:4px;">${cluster.statusCounts.en_proceso} Proc.</span>` : ''}
+              ${cluster.statusCounts.resuelto > 0 ? `<span style="background:#d1fae5; color:#065f46; padding:2px 5px; border-radius:4px;">${cluster.statusCounts.resuelto} Res.</span>` : ''}
+            </div>
+
+            <div style="max-height:220px; overflow-y:auto; padding-right:2px;">
+              ${incidentsListHtml}
+            </div>
+
+            <div style="margin-top:6px; font-size:9px; color:#64748b; text-align:center; border-top:1px solid #e2e8f0; padding-top:4px;">
+              🔍 Haz zoom para desagrupar o selecciona una incidencia
+            </div>
           </div>
-          <button id="leaflet-btn-inspect-${inc.id}" style="width:100%; background:#0A4191; color:#ffffff; font-weight:bold; font-size:11px; border:none; padding:7px; border-radius:6px; cursor:pointer; font-family:sans-serif; transition:background 0.2s;">
-            Ver Detalle Completo
-          </button>
-        </div>
-      `;
+        `;
 
-      marker.bindPopup(popupHtml, { maxWidth: 260 });
+        clusterMarker.bindPopup(clusterPopupHtml, { maxWidth: 280 });
 
-      marker.on('popupopen', () => {
-        setTimeout(() => {
-          const btn = document.getElementById(`leaflet-btn-inspect-${inc.id}`);
-          if (btn && onSelectIncident) {
-            btn.onclick = () => {
-              onSelectIncident(inc);
-            };
+        // Cluster Click Behavior: Fly to bounds or open popup
+        clusterMarker.on('click', () => {
+          if (!mapInstanceRef.current) return;
+          const currentZoom = mapInstanceRef.current.getZoom();
+          const bounds = L.latLngBounds(cluster.incidents.map((i) => [i.location.lat, i.location.lng]));
+
+          // Check distance spread
+          const isSpread = bounds.isValid() && bounds.getNorthEast().distanceTo(bounds.getSouthWest()) > 10;
+
+          if (isSpread && currentZoom < 18) {
+            mapInstanceRef.current.flyToBounds(bounds.pad(0.35), { maxZoom: 18, duration: 0.8 });
+          } else {
+            clusterMarker.openPopup();
           }
-        }, 100);
-      });
+        });
 
-      incidentMarkersLayerRef.current?.addLayer(marker);
+        clusterMarker.on('popupopen', () => {
+          setTimeout(() => {
+            cluster.incidents.forEach((inc) => {
+              const btn = document.getElementById(`leaflet-cluster-btn-${inc.id}`);
+              if (btn && onSelectIncident) {
+                btn.onclick = () => {
+                  onSelectIncident(inc);
+                };
+              }
+            });
+          }, 100);
+        });
+
+        incidentMarkersLayerRef.current?.addLayer(clusterMarker);
+      }
     });
-  }, [filteredIncidents, onSelectIncident]);
+  }, [filteredIncidents, onSelectIncident, isClusteringEnabled, mapZoomState, clusterRadius]);
 
   // Real-time Geolocation Handler (Boton 'Ubicarme' mediante API de Geolocalización)
   const handleGetRealTimeLocation = () => {
@@ -1179,36 +1502,58 @@ export const LogronoGoogleMap: React.FC<LogronoGoogleMapProps> = ({
 
         {/* Floating Toolbar inside Map */}
         <div className="absolute top-3 left-3 right-3 z-10 pointer-events-none flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-          {/* Status Filter Badges (if incidents present) */}
+          {/* Status Filter Badges & Cluster Toggle (if incidents present) */}
           {incidents.length > 0 && (
-            <div className="pointer-events-auto bg-slate-900/90 backdrop-blur-md border border-slate-700/80 p-2 rounded-xl shadow-xl flex items-center space-x-1.5">
-              <Filter className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <div className="flex items-center space-x-1">
-                {[
-                  { status: 'reportado' as IncidentStatus, label: 'Reportados', color: 'bg-amber-400' },
-                  { status: 'en_proceso' as IncidentStatus, label: 'En Proceso', color: 'bg-blue-400' },
-                  { status: 'resuelto' as IncidentStatus, label: 'Resueltos', color: 'bg-emerald-400' }
-                ].map(({ status, label, color }) => {
-                  const isSelected = selectedStatuses.includes(status);
-                  const count = incidents.filter((i) => i.status === status).length;
-                  return (
-                    <button
-                      key={status}
-                      type="button"
-                      onClick={() => toggleStatusFilter(status)}
-                      className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer flex items-center space-x-1 ${
-                        isSelected
-                          ? 'bg-slate-800 text-white border border-slate-600'
-                          : 'bg-slate-950/60 text-slate-500 border border-slate-800'
-                      }`}
-                    >
-                      <span className={`w-1.5 h-1.5 rounded-full ${color}`} />
-                      <span>{label}</span>
-                      <span className="text-[9px] font-mono opacity-80">({count})</span>
-                    </button>
-                  );
-                })}
+            <div className="pointer-events-auto bg-slate-900/95 backdrop-blur-md border border-slate-700/80 p-2 rounded-xl shadow-xl flex flex-wrap items-center gap-2">
+              <div className="flex items-center space-x-1.5">
+                <Filter className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <div className="flex items-center space-x-1">
+                  {[
+                    { status: 'reportado' as IncidentStatus, label: 'Reportados', color: 'bg-amber-400' },
+                    { status: 'en_proceso' as IncidentStatus, label: 'En Proceso', color: 'bg-blue-400' },
+                    { status: 'resuelto' as IncidentStatus, label: 'Resueltos', color: 'bg-emerald-400' }
+                  ].map(({ status, label, color }) => {
+                    const isSelected = selectedStatuses.includes(status);
+                    const count = incidents.filter((i) => i.status === status).length;
+                    return (
+                      <button
+                        key={status}
+                        type="button"
+                        onClick={() => toggleStatusFilter(status)}
+                        className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer flex items-center space-x-1 ${
+                          isSelected
+                            ? 'bg-slate-800 text-white border border-slate-600'
+                            : 'bg-slate-950/60 text-slate-500 border border-slate-800'
+                        }`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${color}`} />
+                        <span>{label}</span>
+                        <span className="text-[9px] font-mono opacity-80">({count})</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
+
+              {/* Clúster Toggle Button */}
+              <button
+                type="button"
+                onClick={() => setIsClusteringEnabled(!isClusteringEnabled)}
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer flex items-center space-x-1.5 border ${
+                  isClusteringEnabled
+                    ? 'bg-[#0A4191] hover:bg-blue-800 text-white border-blue-400/40 shadow-sm'
+                    : 'bg-slate-950/70 text-slate-400 border-slate-800 hover:bg-slate-800'
+                }`}
+                title="Agrupar marcadores cercanos en clústeres para mejorar la legibilidad del mapa"
+              >
+                <Boxes className={`w-3.5 h-3.5 ${isClusteringEnabled ? 'text-amber-300' : 'text-slate-400'}`} />
+                <span>Clústeres: {isClusteringEnabled ? 'Activados' : 'Desactivados'}</span>
+                {isClusteringEnabled && clusterCountStats.multiItemClusters > 0 && (
+                  <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded text-[9px] font-mono">
+                    {clusterCountStats.multiItemClusters} {clusterCountStats.multiItemClusters === 1 ? 'grupo' : 'grupos'}
+                  </span>
+                )}
+              </button>
             </div>
           )}
 
